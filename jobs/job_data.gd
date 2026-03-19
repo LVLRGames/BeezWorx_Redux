@@ -3,10 +3,6 @@
 class_name JobData
 extends RefCounted
 
-class JobMaterialReq:
-	var item_id: StringName = &""
-	var count: int = 0
-	var per_colony: bool = false
 
 enum JobStatus {
 	POSTED,

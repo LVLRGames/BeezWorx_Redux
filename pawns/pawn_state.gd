@@ -3,11 +3,6 @@
 class_name PawnState
 extends RefCounted
 
-class EffectInstance:
-	var effect_id: StringName = &""
-	var duration: float = 0.0
-	var magnitude: float = 0.0
-	var source_id: int = 0
 
 var pawn_id: int = 0
 var pawn_name: String = ""

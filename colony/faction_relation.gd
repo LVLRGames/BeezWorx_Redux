@@ -3,12 +3,6 @@
 class_name FactionRelation
 extends RefCounted
 
-class TradeRecord:
-	var day: int = 0
-	var item_id: StringName = &""
-	var item_count: int = 0
-	var match_score: float = 0.0
-	var relation_delta: float = 0.0
 
 var faction_id: StringName = &""
 var relation_score: float = 0.0

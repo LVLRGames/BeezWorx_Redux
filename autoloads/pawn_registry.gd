@@ -19,7 +19,7 @@ func deregister(pawn_id: int) -> void:
 func get_state(pawn_id: int) -> PawnState:
 	return null
 
-func get_node(pawn_id: int) -> Node:
+func get_pawn(pawn_id: int) -> Node:
 	return null
 
 func get_ai(pawn_id: int) -> Node: # PawnAI

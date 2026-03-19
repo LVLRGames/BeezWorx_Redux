@@ -3,10 +3,6 @@
 class_name EggState
 extends RefCounted
 
-class FeedEntry:
-	var item_id: StringName = &""
-	var fed_at: float = 0.0
-	var fed_by: int = 0
 
 var laid_at: float = 0.0
 var laid_by: int = 0

@@ -14,6 +14,18 @@ config/name="BeezWorx"
 config/features=PackedStringArray("4.6", "Double Precision", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+EventBus="*uid://d1asrx62jlcik"
+TimeService="*uid://cbl56ba0p0k54"
+HiveSystem="*uid://b8pkocat43i5w"
+TerritorySystem="*uid://chkseoh6g1m84"
+ColonyState="*uid://dle56tehupa3d"
+JobSystem="*uid://bd0ksainbqnlp"
+PawnRegistry="*uid://8gkdewl2ihav"
+SaveManager="*uid://dkood14sqi658"
+CombatSystem="*uid://c1c8xw6e6g7p1"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

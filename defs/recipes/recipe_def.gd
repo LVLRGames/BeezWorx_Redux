@@ -3,10 +3,6 @@
 class_name RecipeDef
 extends Resource
 
-class RecipeIngredient:
-	@export var item_id: StringName = &""
-	@export var tag_filter: StringName = &""
-	@export var count: int = 1
 
 @export var recipe_id: StringName = &""
 @export var display_name: String = ""

@@ -3,18 +3,6 @@
 class_name ColonyData
 extends RefCounted
 
-class QueenRecord:
-	var pawn_name: String = ""
-	var pawn_id: int = 0
-	var reign_start: int = 0
-	var reign_end: int = 0
-	var cause: StringName = &""
-
-class MoraleModifier:
-	var source_id: StringName = &""
-	var value: float = 0.0
-	var expires_day: int = -1
-	var description: String = ""
 
 var colony_id: int = 0
 var display_name: String = ""

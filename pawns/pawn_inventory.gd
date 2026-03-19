@@ -3,9 +3,6 @@
 class_name PawnInventory
 extends RefCounted
 
-class PawnInventorySlot:
-	var item_id: StringName = &""
-	var count: int = 0
 
 var capacity: int = 10
 var slots: Array[PawnInventorySlot] = []
