@@ -1,6 +1,6 @@
 # FILE: res://autoloads/job_system.gd
 # Central dispatcher for pheromone markers, worker tasks, and ant trails.
-class_name JobSystem
+# class_name JobSystem
 extends Node
 
 const MARKER_DECAY_DURATION: float = 30.0

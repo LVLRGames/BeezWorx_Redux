@@ -1,6 +1,6 @@
 # FILE: res://autoloads/event_bus.gd
 # Cross-system signal hub for decoupled communication.
-class_name EventBus
+# class_name EventBus
 extends Node
 
 # World signals

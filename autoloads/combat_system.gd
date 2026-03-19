@@ -1,6 +1,6 @@
 # FILE: res://autoloads/combat_system.gd
 # Global resolver for combat hits, damage calculations, and hazard effects.
-class_name CombatSystem
+# class_name CombatSystem
 extends Node
 
 func resolve_hit(attacker_id: int, target_id: int, ability: AbilityDef, is_player_controlled: bool) -> float:

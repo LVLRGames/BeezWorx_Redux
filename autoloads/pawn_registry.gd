@@ -1,6 +1,6 @@
 # FILE: res://autoloads/pawn_registry.gd
 # Runtime database of all living entities (pawns), tracking their state and LOD nodes.
-class_name PawnRegistry
+# class_name PawnRegistry
 extends Node
 
 var _states: Dictionary[int, PawnState] = {}

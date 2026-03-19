@@ -1,6 +1,6 @@
 # FILE: res://autoloads/save_manager.gd
 # Orchestrates game persistence, versioning, and state migration.
-class_name SaveManager
+# class_name SaveManager
 extends Node
 
 const SAVE_DIR: String = "user://saves/"

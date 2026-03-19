@@ -1,6 +1,6 @@
 # FILE: res://autoloads/territory_system.gd
 # Manages influence fields, hive radii, and territorial control across the hex grid.
-class_name TerritorySystem
+# class_name TerritorySystem
 extends Node
 
 const FADE_DURATION: float = 120.0

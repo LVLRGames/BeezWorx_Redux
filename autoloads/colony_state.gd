@@ -1,6 +1,6 @@
 # FILE: res://autoloads/colony_state.gd
 # Tracks colony-level metadata, queen records, diplomacy, and collective morale.
-class_name ColonyState
+# class_name ColonyState
 extends Node
 
 var _colonies: Dictionary[int, ColonyData] = {}

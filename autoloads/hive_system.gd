@@ -1,6 +1,6 @@
 # FILE: res://autoloads/hive_system.gd
 # Manages all hives, their contents, slots, and colony-wide inventory tracking.
-class_name HiveSystem
+# class_name HiveSystem
 extends Node
 
 var _hives: Dictionary[int, HiveState] = {}

@@ -1,6 +1,6 @@
 # FILE: res://autoloads/time_service.gd
 # Manages the world clock, day/night cycles, and seasons.
-class_name TimeService
+# class_name TimeService
 extends Node
 
 const SPRING: int = 0
