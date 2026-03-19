@@ -1,0 +1,36 @@
+# Godot .gitignore
+
+# Godot-specific ignores
+.godot/
+*.translation
+*.import
+*.sh
+*.pck
+*.exe
+*.zip
+*.7z
+*.rar
+*.gz
+*.tar
+*.iso
+*.dmg
+
+# Mono-specific ignores
+.mono/
+*.csproj
+*.sln
+Solution.sln.DotSettings.user
+
+# Editor-specific ignores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project-specific ignores
+export/
+build/
+bin/
+tmp/
+logs/
+*.log
