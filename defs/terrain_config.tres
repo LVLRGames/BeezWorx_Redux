@@ -141,6 +141,7 @@ fruit_idx = 10
 
 [sub_resource type="Resource" id="Resource_7lk3r"]
 script = ExtResource("24_nmesg")
+water_duration = 3600.0
 
 [sub_resource type="Resource" id="Resource_joi6u"]
 script = ExtResource("25_3kwrj")
@@ -162,7 +163,6 @@ primary_idx = 23
 secondary_idx = 26
 accent_idx = 28
 fruit_idx = 8
-metadata/_custom_type_script = "uid://cmpoic7mba1jk"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_mnexi"]
 render_priority = 0
@@ -213,7 +213,7 @@ shadow_mesh = SubResource("ArrayMesh_s4uqv")
 
 [sub_resource type="Resource" id="Resource_ju3ti"]
 script = ExtResource("24_nmesg")
-metadata/_custom_type_script = "uid://cldhfg2xg8gb0"
+water_duration = 3600.0
 
 [sub_resource type="Resource" id="Resource_ytl5p"]
 script = ExtResource("25_3kwrj")
@@ -235,7 +235,6 @@ fruit_variant = 1
 primary_idx = 2
 accent_idx = 6
 fruit_idx = 10
-metadata/_custom_type_script = "uid://cmpoic7mba1jk"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_joi6u"]
 render_priority = 0
@@ -272,7 +271,7 @@ shadow_mesh = SubResource("ArrayMesh_s4uqv")
 
 [sub_resource type="Resource" id="Resource_wxbti"]
 script = ExtResource("24_nmesg")
-metadata/_custom_type_script = "uid://cldhfg2xg8gb0"
+water_duration = 3600.0
 
 [sub_resource type="Resource" id="Resource_pi5nq"]
 script = ExtResource("25_3kwrj")

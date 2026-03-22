@@ -40,7 +40,7 @@ extends Resource
 @export var max_fruit_cycles: int = 3
 
 # ── Watering ──────────────────────────────────────────────────────────
-@export var wilt_without_water: bool  = true
+@export var wilt_without_water: bool  = false
 ## Seconds before an unwatered plant begins wilting (base; scaled by drought_resist)
 @export var water_duration:     float = 300.0
 

@@ -14,10 +14,9 @@
 #   All systems that need world time read TimeService.world_time directly.
 #   HexWorldState.get_cell() reads TimeService.world_time internally when
 #   the caller omits the world_time parameter.
-#
-# NOTE: class_name intentionally omitted — accessed via autoload name TimeService.
-
 extends Node
+
+enum TimeOfDay { DAWN, DAY, DUSK, NIGHT }
 
 # ── Season constants ──────────────────────────────────────────────────────────
 const SPRING: int = 0
@@ -54,6 +53,10 @@ const _DEFAULT_DAY_LENGTH:    float = 600.0
 const _DEFAULT_DAYS_PER_SEASON: int = 7
 const _DEFAULT_DAY_NIGHT_SPLIT: float = 0.6
 const _DEFAULT_TIME_SCALE:    float = 1.0
+
+
+const DAWN_THRESHOLD: float = 0.15   # fraction of daytime
+const DUSK_THRESHOLD: float = 0.85   # fraction of daytime
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Lifecycle
@@ -158,6 +161,39 @@ func time_until_dusk() -> float:
 
 func get_current_season_name() -> String:
 	return SEASON_NAMES[current_season]
+
+func get_time_of_day() -> int:
+	if not is_daytime:
+		return TimeOfDay.NIGHT
+	var split: float = _day_night_split()
+	var day_t: float = day_phase / split
+	if day_t < DAWN_THRESHOLD:
+		return TimeOfDay.DAWN
+	elif day_t > DUSK_THRESHOLD:
+		return TimeOfDay.DUSK
+	return TimeOfDay.DAY
+
+func get_time_of_day_name() -> String:
+	match get_time_of_day():
+		TimeOfDay.DAWN:  return "Dawn"
+		TimeOfDay.DUSK:  return "Dusk"
+		TimeOfDay.NIGHT: return "Night"
+		_:               return "Day"
+
+
+func get_time_string() -> String:
+	var day_len: float = _day_length()
+	var time_in_day: float = fmod(world_time, day_len)
+	var raw_minutes: int = int((time_in_day / day_len) * 1440)
+	# Offset so dawn (phase 0.0) = 6:00 AM
+	var total_minutes: int = (raw_minutes + 288) % 1440
+	var hours: int = total_minutes / 60
+	var minutes: int = total_minutes % 60
+	var suffix: String = "AM" if hours < 12 else "PM"
+	var display_hour: int = hours % 12
+	if display_hour == 0:
+		display_hour = 12
+	return "%d:%02d %s" % [display_hour, minutes, suffix]
 
 func days_until_season(season: int) -> int:
 	if current_season == season:

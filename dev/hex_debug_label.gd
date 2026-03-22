@@ -14,6 +14,20 @@ func _process(_delta: float) -> void:
 	var biome := HexWorldState.cfg.get_cell_biome(cell.x, cell.y) if HexWorldState.cfg else &""
 	var state := HexWorldState.get_cell(cell)
 
+	var time_of_day: String
+	var phase: float = TimeService.day_phase
+	var split: float = TimeService.config.get("day_night_split") if TimeService.config else 0.6
+	if TimeService.is_daytime:
+		var day_t: float = phase / split
+		if day_t < 0.15:
+			time_of_day = "Dawn"
+		elif day_t > 0.85:
+			time_of_day = "Dusk"
+		else:
+			time_of_day = "Day"
+	else:
+		time_of_day = "Night"
+
 	# Territory info
 	var controlling := TerritorySystem.get_controlling_colony(cell)
 	var my_influence := TerritorySystem.get_influence(cell, 0)
@@ -23,11 +37,17 @@ func _process(_delta: float) -> void:
 	elif controlling > 0:
 		territory_str = "Colony %d" % controlling
 	
-	text = "Cell: %s\nBiome: %s\nOccupied: %s\nCategory: %d\nTerritory: %s\nPos: %.1f, %.1f, %.1f\nDay: %d  %s  %s" % [
-		cell, biome,
+	text = "Cell: %s\nBiome: %s\nOccupied: %s\nCategory: %d\nTerritory: %s\nDay: %d  %s  %s  %s\n%s\nPos: %.1f, %.1f, %.1f" % [
+		cell,
+		biome,
 		state.occupied,
 		state.category,
 		territory_str,
+		TimeService.current_day,
+		TimeService.get_current_season_name(),
+		TimeService.get_time_of_day_name(),
+		TimeService.get_time_string(),
+		"Day" if TimeService.is_daytime else "Night",
 		_pawn.global_position.x,
 		_pawn.global_position.y,
 		_pawn.global_position.z

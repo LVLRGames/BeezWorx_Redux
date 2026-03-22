@@ -7,7 +7,36 @@
 [ext_resource type="Environment" uid="uid://c3mbwr4a8u3kr" path="res://world/world_environment.tres" id="3_env"]
 [ext_resource type="Script" uid="uid://hcujianys218" path="res://dev/fps_label.gd" id="5_tw417"]
 [ext_resource type="Script" uid="uid://bvgoru757gy6p" path="res://dev/hex_debug_label.gd" id="6_ogoty"]
+[ext_resource type="Texture2D" uid="uid://deosj6tdvr6ch" path="res://world/moon.png" id="6_s1nyb"]
+[ext_resource type="Texture2D" uid="uid://bvwvouh50rejv" path="res://world/sun.png" id="7_8lsw5"]
 [ext_resource type="Texture2D" uid="uid://dp35xfwf865ex" path="res://assets/textures/terrain/water.png" id="7_olpku"]
+[ext_resource type="Script" uid="uid://bb0nxpgjxi6qa" path="res://world/day_night_cycle.gd" id="7_y5d58"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1nyb"]
+render_priority = -1
+transparency = 1
+shading_mode = 0
+disable_fog = true
+albedo_texture = ExtResource("6_s1nyb")
+texture_filter = 0
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_y5d58"]
+material = SubResource("StandardMaterial3D_s1nyb")
+size = Vector2(96, 96)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x8cgq"]
+render_priority = -1
+transparency = 1
+shading_mode = 0
+disable_fog = true
+albedo_texture = ExtResource("7_8lsw5")
+texture_filter = 0
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_x8cgq"]
+material = SubResource("StandardMaterial3D_x8cgq")
+size = Vector2(128, 128)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qit3l"]
 render_priority = 2
@@ -37,9 +66,16 @@ view_radius_chunks = 10
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1783947265]
 environment = ExtResource("3_env")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1377799032]
-transform = Transform3D(0.7071067811865476, -0.5000377542757256, 0.4999622428732885, 0, 0.7070533845458759, 0.7071601737953161, -0.7071067811865476, -0.5000377542757256, 0.4999622428732885, 0, 20, 0)
-light_color = Color(1, 0.9915, 0.49, 1)
+[node name="MoonDisc" type="MeshInstance3D" parent="." unique_id=2136618131]
+transform = Transform3D(1, 0, 0, 0, -1, -1.2246467991473532e-16, 0, 1.2246467991473532e-16, -1, 0, -6.270191611634448e-14, -512)
+mesh = SubResource("QuadMesh_y5d58")
+
+[node name="SunDisk" type="MeshInstance3D" parent="." unique_id=52647867]
+transform = Transform3D(1, 0, 0, 0, -1, -1.2246467991473532e-16, 0, 1.2246467991473532e-16, -1, 0, -6.270191611634448e-14, -512)
+mesh = SubResource("QuadMesh_x8cgq")
+
+[node name="SunLight" type="DirectionalLight3D" parent="." unique_id=1377799032]
+light_color = Color(1, 0.99215686, 0.49019608, 1)
 shadow_enabled = true
 shadow_opacity = 0.66
 shadow_blur = 0.2
@@ -48,6 +84,35 @@ directional_shadow_split_2 = 0.33
 directional_shadow_split_3 = 0.66
 directional_shadow_fade_start = 0.66
 directional_shadow_max_distance = 512.0
+
+[node name="MoonLight" type="DirectionalLight3D" parent="SunLight" unique_id=2122607906]
+transform = Transform3D(1, 0, 0, 0, -1, -1.2246467991473532e-16, 0, 1.2246467991473532e-16, -1, 0, 0, 0)
+light_color = Color(0.45882353, 0.7490196, 1, 1)
+
+[node name="DayNightCycle" type="Node" parent="." unique_id=1702669855 node_paths=PackedStringArray("sky_env", "sun_light", "sun_disc", "moon_light", "moon_disc")]
+script = ExtResource("7_y5d58")
+sky_env = NodePath("../WorldEnvironment")
+sky_top_day = Color(0.06666667, 0.26666668, 0.54901963, 1)
+horizon_day = Color(0, 0.7529412, 0.98039216, 1)
+ground_day = Color(0.1764706, 0.12156863, 0.06666667, 1)
+sky_top_dawn = Color(0.2783307, 0.0006318605, 0.7020582, 1)
+horizon_dawn = Color(0.9019608, 0.4745098, 0.17254902, 1)
+sky_top_dusk = Color(0, 0.24745744, 0.54420894, 1)
+horizon_dusk = Color(0.910705, 0.27804986, 0.4289791, 1)
+sky_top_night = Color(0.07348221, 9.363236e-05, 0.16068852, 1)
+horizon_night = Color(0, 0.062999986, 0.21, 1)
+sun_light = NodePath("../SunLight")
+sun_disc = NodePath("../SunDisk")
+sun_sun_angle = 18.0
+sun_color_day = Color(1, 0.99215686, 0.49019608, 1)
+moon_light = NodePath("../SunLight/MoonLight")
+moon_disc = NodePath("../MoonDisc")
+moon_sun_angle = 13.0
+moon_min_energy = 0.2
+
+[node name="OceanPlane" type="MeshInstance3D" parent="." unique_id=1366861512]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh = SubResource("PlaneMesh_ogoty")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=2022507397]
 
@@ -84,7 +149,3 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 script = ExtResource("6_ogoty")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1366861512]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
-mesh = SubResource("PlaneMesh_ogoty")

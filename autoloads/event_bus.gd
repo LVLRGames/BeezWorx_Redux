@@ -10,6 +10,11 @@ signal cell_plant_stage_changed(cell: Vector2i, new_stage: int)
 signal cell_plant_resources_changed(cell: Vector2i)
 signal cell_revealed(cell: Vector2i)
 
+# Plant signals
+signal plant_stage_changed(cell: Vector2i, prev_stage: int, new_stage: int)
+signal plant_sprouted(cell: Vector2i, plant_id: String, parent_cell: Vector2i)
+signal plant_died(cell: Vector2i)
+
 # Hive signals
 signal hive_built(hive_id: int, anchor_cell: Vector2i, colony_id: int)
 signal hive_destroyed(hive_id: int, anchor_cell: Vector2i, colony_id: int)

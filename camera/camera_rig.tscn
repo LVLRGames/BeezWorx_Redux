@@ -12,4 +12,3 @@ script = ExtResource("1_ugjm4")
 [node name="Camera3D" type="Camera3D" parent="Pivot/SpringArm3D" unique_id=1935952955]
 unique_name_in_owner = true
 current = true
-fov = 85.0

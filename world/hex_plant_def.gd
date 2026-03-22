@@ -17,5 +17,4 @@ func _init() -> void:
 @export var genes: HexPlantGenes = null
 @export var plant_data: HexPlantData = null
 
-
 # ════════════════════════════════════════════════════════════════════ #

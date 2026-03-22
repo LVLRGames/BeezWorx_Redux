@@ -87,6 +87,9 @@ func get_cell_ref(
 
 	return state
 
+func get_cell_cache() -> Dictionary:
+	return _cell_cache
+
 func get_baseline_cell(cell: Vector2i, world_time: float = -1.0) -> HexCellState:
 	if world_time < 0.0:
 		world_time = TimeService.world_time
@@ -257,6 +260,15 @@ func attempt_cross_sprout(ca: Vector2i, cb: Vector2i, ga: HexPlantGenes, gb: Hex
 		_spawn_sprout(target_cell, authored.id, null, ca, cb)
 	else:
 		_spawn_sprout(target_cell, "wild_plant", HexPlantGenes.blend(ga, gb), ca, cb)
+
+
+func spawn_sprout(cell: Vector2i, object_id: String, genes: HexPlantGenes, 
+		parent_a: Vector2i, parent_b: Vector2i) -> void:
+	_spawn_sprout(cell, object_id, genes, parent_a, parent_b)
+
+func find_sprout_cell(origin: Vector2i, radius: int) -> Vector2i:
+	return _find_sprout_cell(origin, radius)
+
 
 func _find_sprout_cell(origin: Vector2i, radius: int) -> Vector2i:
 	for r: int in range(1, radius + 1):
