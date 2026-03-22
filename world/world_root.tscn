@@ -1,0 +1,90 @@
+[gd_scene format=3 uid="uid://cgdgdsq2203s6"]
+
+[ext_resource type="Script" uid="uid://dxsy7vrp6td8x" path="res://world/world_root.gd" id="1_script"]
+[ext_resource type="Resource" uid="uid://7v1ntb1ggpd8" path="res://defs/time_config.tres" id="2_qit3l"]
+[ext_resource type="PackedScene" uid="uid://b48swbf3xeqid" path="res://world/hex_terrain_manager.tscn" id="2_terrain"]
+[ext_resource type="Resource" uid="uid://t3k06j6stg01" path="res://defs/terrain_config.tres" id="2_tw417"]
+[ext_resource type="Environment" uid="uid://c3mbwr4a8u3kr" path="res://world/world_environment.tres" id="3_env"]
+[ext_resource type="Script" uid="uid://hcujianys218" path="res://dev/fps_label.gd" id="5_tw417"]
+[ext_resource type="Script" uid="uid://bvgoru757gy6p" path="res://dev/hex_debug_label.gd" id="6_ogoty"]
+[ext_resource type="Texture2D" uid="uid://dp35xfwf865ex" path="res://assets/textures/terrain/water.png" id="7_olpku"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qit3l"]
+render_priority = 2
+transparency = 1
+albedo_color = Color(0.07999998, 0.9386665, 1, 0.84313726)
+albedo_texture = ExtResource("7_olpku")
+metallic = 0.5
+metallic_specular = 1.0
+roughness = 0.66
+uv1_scale = Vector3(1250, 1250, 1250)
+texture_filter = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ogoty"]
+material = SubResource("StandardMaterial3D_qit3l")
+size = Vector2(10000, 10000)
+subdivide_width = 999
+subdivide_depth = 999
+
+[node name="WorldRoot" type="Node3D" unique_id=1684946454]
+script = ExtResource("1_script")
+time_config = ExtResource("2_qit3l")
+terrain_config = ExtResource("2_tw417")
+
+[node name="HexTerrainManager" parent="." unique_id=340424999 instance=ExtResource("2_terrain")]
+view_radius_chunks = 10
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1783947265]
+environment = ExtResource("3_env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1377799032]
+transform = Transform3D(0.7071067811865476, -0.5000377542757256, 0.4999622428732885, 0, 0.7070533845458759, 0.7071601737953161, -0.7071067811865476, -0.5000377542757256, 0.4999622428732885, 0, 20, 0)
+light_color = Color(1, 0.9915, 0.49, 1)
+shadow_enabled = true
+shadow_opacity = 0.66
+shadow_blur = 0.2
+directional_shadow_mode = 0
+directional_shadow_split_2 = 0.33
+directional_shadow_split_3 = 0.66
+directional_shadow_fade_start = 0.66
+directional_shadow_max_distance = 512.0
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=2022507397]
+
+[node name="Control" type="Control" parent="UI" unique_id=1962448967]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Control" unique_id=184126340]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="FPSLabel" type="Label" parent="UI/Control/MarginContainer" unique_id=2029600479]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+script = ExtResource("5_tw417")
+
+[node name="HexDebugLabel" type="Label" parent="UI/Control/MarginContainer" unique_id=1616518724]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("6_ogoty")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1366861512]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh = SubResource("PlaneMesh_ogoty")

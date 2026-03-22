@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bg1vsj8fuemah"]
+
+[ext_resource type="Script" uid="uid://blqkqgy1goqxl" path="res://camera/camera_rig.gd" id="1_ugjm4"]
+
+[node name="CameraRig" type="Node3D" unique_id=962802465]
+script = ExtResource("1_ugjm4")
+
+[node name="Pivot" type="Node3D" parent="." unique_id=2142806089]
+
+[node name="SpringArm3D" type="SpringArm3D" parent="Pivot" unique_id=262156806]
+
+[node name="Camera3D" type="Camera3D" parent="Pivot/SpringArm3D" unique_id=1935952955]
+unique_name_in_owner = true
+current = true
+fov = 85.0

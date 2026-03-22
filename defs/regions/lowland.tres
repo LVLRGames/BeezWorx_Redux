@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ContinentalRegion" format=3 uid="uid://dc3f1fsdwrxw3"]
+
+[ext_resource type="Script" uid="uid://gmr10jo8v73y" path="res://world/hex_continental_region.gd" id="1_xbcw7"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_63m4j"]
+seed = 2968
+frequency = 0.0008
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gt87u"]
+seed = 2868
+frequency = 0.0064
+
+[sub_resource type="Curve" id="Curve_63m4j"]
+_data = [Vector2(0, 0), 0.0, 0.94310665, 0, 0, Vector2(0.56646526, 0.8164062512396413), 4.031019, 4.031019, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[resource]
+script = ExtResource("1_xbcw7")
+id = &"lowland"
+display_name = "Lowland"
+start_threshold = 0.1499999999999999
+end_threshold = 0.6600000000000001
+height_profile = SubResource("Curve_63m4j")
+height_noise = SubResource("FastNoiseLite_gt87u")
+height_multiplier = 8.0
+ignore_climate = true
+default_biome = &"grassland"
+allowed_biomes = Array[StringName]([&"grassland", &"savanna", &"deciduous", &"wetland"])
+biome_selection_noise = SubResource("FastNoiseLite_63m4j")
+biome_thresholds = Array[float]([0.4, 0.6, 0.8])
+metadata/_custom_type_script = "uid://bcdldjffgo1i2"

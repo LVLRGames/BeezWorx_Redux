@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bfomw15bjj2c"]
+
+[ext_resource type="Texture2D" uid="uid://c4jxu3w7lucl" path="res://assets/textures/trees/pine_tree_0.png" id="1_ot1x7"]
+
+[resource]
+resource_name = "material_0"
+transparency = 2
+alpha_scissor_threshold = 0.05
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("1_ot1x7")
+texture_filter = 0
+texture_repeat = false

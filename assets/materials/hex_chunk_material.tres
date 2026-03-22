@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://d2fo1pqgsc4on"]
+
+[ext_resource type="Shader" uid="uid://c0vbxf3jslnd8" path="res://world/hex_chunk_shader.gdshader" id="1_x70yu"]
+[ext_resource type="Texture2D" uid="uid://sga0ft5m0h1w" path="res://assets/textures/terrain/terrain_tiles.png" id="2_bhhg3"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_qcxrh"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_klwcb"]
+noise = SubResource("FastNoiseLite_qcxrh")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_x70yu")
+shader_parameter/tint_noise_scale = 0.005
+shader_parameter/tint_noise = SubResource("NoiseTexture2D_klwcb")
+shader_parameter/atlas_texture = ExtResource("2_bhhg3")
+shader_parameter/emission_strength = 0.0

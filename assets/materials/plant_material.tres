@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://iyaeh0ntx44h"]
+
+[ext_resource type="Shader" uid="uid://cy460px0peu5r" path="res://world/resource_plant_v2.gdshader" id="1_powjt"]
+[ext_resource type="Texture2D" uid="uid://b5j4wr768yrb" path="res://assets/textures/plants/flower_atlas.png" id="2_hkxpw"]
+[ext_resource type="Texture2D" uid="uid://d0fyu8vpnpgys" path="res://assets/textures/plants/flower_z.png" id="3_cqmuq"]
+[ext_resource type="Texture2D" uid="uid://bnnub43e84ebh" path="res://assets/textures/plants/plant_palette.png" id="4_hkxpw"]
+[ext_resource type="Texture2D" uid="uid://cf0c23crqclil" path="res://assets/textures/plants/stem_atlas.png" id="4_tb5pl"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_powjt")
+shader_parameter/debug_mode = false
+shader_parameter/debug_variant = 0
+shader_parameter/debug_row = 0
+shader_parameter/debug_stage = 3
+shader_parameter/debug_fruit = 0
+shader_parameter/debug_primary = 0
+shader_parameter/debug_secondary = 1
+shader_parameter/debug_accent = 2
+shader_parameter/debug_leaf = 3
+shader_parameter/debug_fruit_color = 4
+shader_parameter/stem_atlas = ExtResource("4_tb5pl")
+shader_parameter/flower_atlas = ExtResource("2_hkxpw")
+shader_parameter/fruit_atlas = ExtResource("3_cqmuq")
+shader_parameter/palette = ExtResource("4_hkxpw")
+shader_parameter/bend_emission_strength = 6.0

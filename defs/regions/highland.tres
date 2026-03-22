@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="ContinentalRegion" format=3 uid="uid://bv8t87simlm2g"]
+
+[ext_resource type="Script" uid="uid://gmr10jo8v73y" path="res://world/hex_continental_region.gd" id="1_nu38x"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gt87u"]
+seed = 2998
+frequency = 0.0046
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_63m4j"]
+seed = 2898
+frequency = 0.0064
+
+[sub_resource type="Curve" id="Curve_bm71m"]
+_data = [Vector2(0, 0), 0.0, 0.94310665, 0, 0, Vector2(0.18277946, 0.5195312532441675), 0.0, 0.0, 0, 0, Vector2(0.2613293, 0.5117187532969182), 0.0, 0.0, 0, 0, Vector2(0.29154077, 0.34765625440468273), 0.0, 0.0, 0, 0, Vector2(0.41238672, 0.35546875435193204), 0.0, 0.0, 0, 0, Vector2(0.57250756, 0.37890625419368), 0.0, 0.0, 0, 0, Vector2(0.6238671, 0.7148437519254003), 0.0, 0.0, 0, 0, Vector2(0.7265861, 0.7304687518198989), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.4278708, 0.0, 0, 0]
+point_count = 9
+
+[resource]
+script = ExtResource("1_nu38x")
+id = &"highland"
+display_name = "Highland"
+match_mode = 1
+start_threshold = 0.33000000000000007
+end_threshold = 0.45
+profile_blend = 1.0
+height_profile = SubResource("Curve_bm71m")
+height_noise = SubResource("FastNoiseLite_63m4j")
+height_multiplier = 10.0
+ignore_climate = true
+default_biome = &"meadow"
+allowed_biomes = Array[StringName]([&"mountain", &"meadow", &"boreal"])
+biome_selection_noise = SubResource("FastNoiseLite_gt87u")
+biome_thresholds = Array[float]([0.33, 0.66])

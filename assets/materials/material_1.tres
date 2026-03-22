@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://eet64447r5hu"]
+
+[ext_resource type="Shader" uid="uid://bs7jswgxcfrqp" path="res://assets/materials/Leaves_s.gdshader" id="1_rynkw"]
+
+[resource]
+resource_name = "material_1"
+render_priority = 0
+shader = ExtResource("1_rynkw")

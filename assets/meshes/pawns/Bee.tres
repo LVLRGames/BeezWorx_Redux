@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://buitt6ht1mbgl"]
+
+[ext_resource type="Texture2D" uid="uid://o5mm5grxihqe" path="res://assets/meshes/pawns/Bee_bee_atlas_1.png" id="1_3v64y"]
+
+[resource]
+resource_name = "Bee"
+transparency = 2
+alpha_scissor_threshold = 0.0
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("1_3v64y")
+texture_filter = 2

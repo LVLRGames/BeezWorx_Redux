@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://cwp84uf15jyq7"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_iwy3o"]
+
+[resource]
+script = ExtResource("1_iwy3o")
+id = "alpine"
+display_name = "Alpine Rock"
+grass_tint = Color(0.99510163, 0.97710687, 0.82787925, 1)
+preferred_temperature = 0
+preferred_moisture = 0

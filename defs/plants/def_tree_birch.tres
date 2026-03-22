@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="HexGridObjectDef" format=3 uid="uid://b6mqmhpif6oxc"]
+
+[ext_resource type="ArrayMesh" uid="uid://dh2uvdah0isq" path="res://world/models/Sketchfab_Scene_Object_0.res" id="1_ganph"]
+[ext_resource type="Script" uid="uid://djvfkcbhyxxo5" path="res://world/scripts/hex_grid_object_def.gd" id="2_b6ccy"]
+
+[resource]
+script = ExtResource("2_b6ccy")
+id = "birch_tree"
+category = 1
+valid_biomes = Array[String](["deciduous", "taiga", "boreal"])
+placement_threshold = 0.2
+exclusion_radius = 2
+exclusion_group = "tree"
+mesh = ExtResource("1_ganph")
+is_permanent = true
+metadata/_custom_type_script = "uid://djvfkcbhyxxo5"

@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cfnq4ifwmcb3q"]
+
+[ext_resource type="Texture2D" uid="uid://dbe8aw2n5cgo7" path="res://assets/meshes/trees/giant/giant_oak_log_oak.png" id="1_v6m4g"]
+
+[resource]
+resource_name = "Bark"
+cull_mode = 2
+albedo_texture = ExtResource("1_v6m4g")
+metallic_specular = 0.0
+roughness = 0.0
+ao_enabled = true
+texture_filter = 2

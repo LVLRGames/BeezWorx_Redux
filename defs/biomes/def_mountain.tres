@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://c88pi60xwcwdf"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_slmf5"]
+
+[resource]
+script = ExtResource("1_slmf5")
+id = "mountain"
+display_name = "Mountain"
+terrain_atlas_col = 2.0
+grass_tint = Color(0.86486393, 0.96299654, 0.9074883, 1)
+preferred_temperature = 1
+preferred_moisture = 0
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

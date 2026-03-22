@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://bwepo8u0h5iff"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_5dnde"]
+
+[resource]
+script = ExtResource("1_5dnde")
+id = "taiga"
+display_name = "Taiga"
+terrain_atlas_col = 4.0
+grass_tint = Color(0.20839483, 0.3222287, 0.13981926, 1)
+preferred_temperature = 1
+preferred_moisture = 2
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

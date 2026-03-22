@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://cqu86lhqs571b"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_irg7g"]
+
+[resource]
+script = ExtResource("1_irg7g")
+id = "grassland"
+display_name = "Grassland"
+terrain_atlas_col = 7.0
+grass_tint = Color(0, 1, 0.0333333, 1)
+grass_density_threshold = -0.125
+preferred_temperature = 2
+preferred_moisture = 1

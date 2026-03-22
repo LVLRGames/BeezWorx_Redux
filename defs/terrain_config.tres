@@ -1,0 +1,425 @@
+[gd_resource type="Resource" script_class="HexTerrainConfig" format=4 uid="uid://t3k06j6stg01"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_2wnvb"]
+[ext_resource type="Resource" uid="uid://cwp84uf15jyq7" path="res://defs/biomes/def_alpine.tres" id="2_dmcot"]
+[ext_resource type="Script" uid="uid://cjfuymmy5nge1" path="res://world/hex_grid_object_def.gd" id="2_o86ue"]
+[ext_resource type="Resource" path="res://defs/biomes/def_beach.tres" id="3_5akl7"]
+[ext_resource type="Script" uid="uid://doslp4o41ptps" path="res://world/hex_terrain_config.gd" id="3_mm1lq"]
+[ext_resource type="Resource" path="res://defs/biomes/def_boreal.tres" id="4_r4f3r"]
+[ext_resource type="Resource" uid="uid://bqoydnkjvngp1" path="res://defs/biomes/def_deciduous.tres" id="5_t3awx"]
+[ext_resource type="Resource" uid="uid://cqu86lhqs571b" path="res://defs/biomes/def_grassland.tres" id="6_7lk3r"]
+[ext_resource type="Resource" uid="uid://dwsfahbfdn46b" path="res://defs/biomes/def_meadow.tres" id="7_3fkrj"]
+[ext_resource type="Resource" path="res://defs/biomes/def_rainforest.tres" id="9_a40ol"]
+[ext_resource type="Resource" path="res://defs/biomes/def_mountain.tres" id="9_l5q7j"]
+[ext_resource type="Resource" uid="uid://de0tfoc2sfuda" path="res://defs/biomes/def_savanna.tres" id="10_nmesg"]
+[ext_resource type="Resource" path="res://defs/biomes/def_taiga.tres" id="11_3kwrj"]
+[ext_resource type="Resource" path="res://defs/biomes/def_temp_desert.tres" id="12_pr0k7"]
+[ext_resource type="Resource" path="res://defs/biomes/def_trop_desert.tres" id="13_qwy0p"]
+[ext_resource type="Resource" path="res://defs/biomes/def_tundra.tres" id="14_joi6u"]
+[ext_resource type="Resource" path="res://defs/biomes/def_wetland.tres" id="15_l5q7j"]
+[ext_resource type="Resource" path="res://defs/biomes/def_jungle.tres" id="16_5akl7"]
+[ext_resource type="Resource" path="res://defs/biomes/def_ocean.tres" id="17_pi5nq"]
+[ext_resource type="ArrayMesh" uid="uid://b6knufiduwur5" path="res://world/plant_mesh.res" id="18_5akl7"]
+[ext_resource type="Curve" uid="uid://dki0vlrp7cowu" path="res://defs/continental_curve.tres" id="19_gaum7"]
+[ext_resource type="Script" uid="uid://gmr10jo8v73y" path="res://world/hex_continental_region.gd" id="19_l5q7j"]
+[ext_resource type="Resource" uid="uid://cmo41n5sovuv1" path="res://defs/regions/ocean_floor.tres" id="20_pi5nq"]
+[ext_resource type="Resource" uid="uid://d2jc0wo4csdtv" path="res://defs/regions/default_cntl_region.tres" id="20_wxbti"]
+[ext_resource type="Resource" uid="uid://qe71ounydje8" path="res://defs/regions/shore.tres" id="21_mnexi"]
+[ext_resource type="Script" uid="uid://smuul3l3pn0k" path="res://world/hex_plant_genes.gd" id="22_172v7"]
+[ext_resource type="Resource" uid="uid://dxaivw7riogdu" path="res://defs/regions/coastal.tres" id="22_tpr8v"]
+[ext_resource type="Resource" uid="uid://dc3f1fsdwrxw3" path="res://defs/regions/lowland.tres" id="23_tpr8v"]
+[ext_resource type="Material" uid="uid://iyaeh0ntx44h" path="res://assets/materials/plant_material.tres" id="24_172v7"]
+[ext_resource type="Resource" uid="uid://d3nohcobaflpa" path="res://defs/regions/midland.tres" id="24_ju3ti"]
+[ext_resource type="Script" uid="uid://bt7l6upa6vav" path="res://world/hex_plant_data.gd" id="24_nmesg"]
+[ext_resource type="Shader" uid="uid://dgowlqfg517an" path="res://world/resource_plant.gdshader" id="24_pr0k7"]
+[ext_resource type="Script" uid="uid://cxbh5rbbqbia8" path="res://world/hex_plant_def.gd" id="25_3kwrj"]
+[ext_resource type="Resource" uid="uid://b3umcp68evcsb" path="res://defs/regions/foothills.tres" id="25_ytl5p"]
+[ext_resource type="Resource" uid="uid://bv8t87simlm2g" path="res://defs/regions/highland.tres" id="26_f0i16"]
+[ext_resource type="Resource" uid="uid://dufo41kv5f4ht" path="res://defs/regions/mountain.tres" id="27_vxg75"]
+[ext_resource type="Resource" uid="uid://b2pffgpmfi4vp" path="res://defs/regions/apex.tres" id="28_lippm"]
+[ext_resource type="Material" uid="uid://bog1vlglh2qp4" path="res://assets/materials/grass_material.tres" id="29_pi5nq"]
+[ext_resource type="Script" uid="uid://cmjn065j6vlwg" path="res://world/hex_tree_def.gd" id="30_qwy0p"]
+[ext_resource type="ArrayMesh" uid="uid://c50nmigd8m1ui" path="res://assets/meshes/grass/blockbench_export_mesh.res" id="31_t5p8a"]
+[ext_resource type="Shape3D" uid="uid://dcvdp3p2bja2u" path="res://assets/meshes/trees/oak/oak_tree_collider.tres" id="39_npnsr"]
+[ext_resource type="ArrayMesh" uid="uid://jxi3yl7bvh7p" path="res://assets/meshes/trees/oak/blockbench_export_mesh3.res" id="40_d5wwh"]
+[ext_resource type="Script" uid="uid://b1foynqkr746t" path="res://world/hex_tree_variant.gd" id="41_fiq18"]
+[ext_resource type="Shape3D" uid="uid://1b7c5fho3xw0" path="res://assets/meshes/trees/birch/birch_tree_collider.tres" id="43_npnsr"]
+[ext_resource type="ArrayMesh" uid="uid://igd1lr4h5w8y" path="res://assets/meshes/trees/birch/birch_tree.res" id="44_d5wwh"]
+[ext_resource type="Shape3D" uid="uid://bnxxa3b5nmu0p" path="res://assets/meshes/trees/pine/pine_tree_collider.tres" id="45_tnymm"]
+[ext_resource type="ArrayMesh" uid="uid://dtktefok07r8g" path="res://assets/meshes/trees/pine/blockbench_export_mesh4.res" id="46_dfs8a"]
+[ext_resource type="Shape3D" uid="uid://h4ij26qi3n8c" path="res://assets/meshes/trees/giant/giant_oak_collider.tres" id="47_d5wwh"]
+[ext_resource type="ArrayMesh" uid="uid://bc5few6nhkwqj" path="res://assets/meshes/trees/giant/giant_oak_FullTree.res" id="47_npnsr"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_mnexi"]
+seed = 2344
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_63m4j"]
+seed = 2748
+frequency = 0.0018
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gt87u"]
+seed = 2647
+frequency = 0.0003
+fractal_lacunarity = 2.01
+fractal_gain = 0.6
+fractal_weighted_strength = 0.19
+fractal_ping_pong_strength = 1.15
+domain_warp_enabled = true
+domain_warp_amplitude = 37.375
+domain_warp_frequency = 0.02
+domain_warp_fractal_octaves = 2
+domain_warp_fractal_lacunarity = 2.38
+domain_warp_fractal_gain = -0.37
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_sq0yj"]
+seed = 3238
+frequency = 0.0009
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_tpr8v"]
+seed = 2243
+frequency = 0.0223
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ju3ti"]
+seed = 2445
+frequency = 0.01309999999999999
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ytl5p"]
+noise_type = 0
+seed = 2546
+frequency = 0.0743
+fractal_lacunarity = 1.85
+fractal_gain = 0.85
+fractal_weighted_strength = 0.2
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_f0i16"]
+seed = 1738
+frequency = 0.0024
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_vxg75"]
+noise_type = 0
+seed = 2041
+frequency = 0.001
+cellular_distance_function = 3
+cellular_return_type = 0
+domain_warp_enabled = true
+
+[sub_resource type="Curve" id="Curve_lippm"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.24643874, 0), 0.0, 0.0, 0, 0, Vector2(0.30858085, 0), 0.0, 0.0, 0, 0, Vector2(0.36138615, 0), 0.0, 0.0, 0, 0, Vector2(0.6518152, 0), 0.6522983, 0.6522983, 0, 0, Vector2(0.7607261, 0.17012032662539256), 0.05851159, 0.05851159, 0, 0, Vector2(0.830033, 0.2483288822313765), 0.0, 0.0, 0, 0, Vector2(0.9092409, 0.5524732651435363), 2.1234043, 2.1234043, 0, 0, Vector2(1, 1), 2.4343028, 0.0, 0, 0]
+point_count = 9
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_kndsg"]
+seed = 3138
+frequency = 0.0013
+fractal_type = 2
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_abtn5"]
+seed = 3038
+frequency = 0.0003
+fractal_octaves = 2
+fractal_lacunarity = 2.045
+fractal_gain = 0.045
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_5akl7"]
+seed = 1789
+frequency = 0.0003
+fractal_type = 2
+fractal_octaves = 8
+fractal_lacunarity = 1.85
+fractal_gain = 0.61
+fractal_weighted_strength = 0.05
+
+[sub_resource type="Resource" id="Resource_pr0k7"]
+script = ExtResource("22_172v7")
+species_group = "daisy"
+stem_variant = 1
+fruit_variant = 1
+primary_idx = 26
+secondary_idx = 27
+accent_idx = 6
+leaf_idx = 13
+fruit_idx = 10
+
+[sub_resource type="Resource" id="Resource_7lk3r"]
+script = ExtResource("24_nmesg")
+
+[sub_resource type="Resource" id="Resource_joi6u"]
+script = ExtResource("25_3kwrj")
+genes = SubResource("Resource_pr0k7")
+plant_data = SubResource("Resource_7lk3r")
+id = "daisy"
+category = 0
+valid_biomes = Array[String](["grassland", "savanna", "deciduous"])
+placement_threshold = 0.4
+exclusion_group = "plant"
+mesh = ExtResource("18_5akl7")
+material = ExtResource("24_172v7")
+
+[sub_resource type="Resource" id="Resource_gqc3d"]
+script = ExtResource("22_172v7")
+species_group = "allium"
+fruit_variant = 1
+primary_idx = 23
+secondary_idx = 26
+accent_idx = 28
+fruit_idx = 8
+metadata/_custom_type_script = "uid://cmpoic7mba1jk"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mnexi"]
+render_priority = 0
+shader = ExtResource("24_pr0k7")
+shader_parameter/debug_mode = false
+shader_parameter/debug_variant = 0
+shader_parameter/debug_row = 0
+shader_parameter/debug_stage = 0
+shader_parameter/debug_fruit = 0
+shader_parameter/debug_primary = 0
+shader_parameter/debug_secondary = 1
+shader_parameter/debug_accent = 2
+shader_parameter/debug_leaf = 3
+shader_parameter/debug_fruit_color = 4
+shader_parameter/bend_emission_strength = 6.0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_s4uqv"]
+_surfaces = [{
+"aabb": AABB(-0.5, 0, -0.5, 1, 2, 1),
+"format": 34896613377,
+"index_count": 12,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUA"),
+"name": "material_0",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("/38AAP//AAD/f///AAAAAP9//////wAA/38AAAAAAAAAAP///38AAP//AAD/fwAA//////9/AAAAAAAA/38AAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_tpr8v"]
+resource_name = "blockbench_export_mesh"
+_surfaces = [{
+"aabb": AABB(-0.5, 0, -0.5, 1, 2, 1),
+"attribute_data": PackedByteArray("/////wAAAAD//wAAAAD/////AAAAAP//AAAAAP////8="),
+"format": 34896613399,
+"index_count": 12,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUA"),
+"material": ExtResource("29_pi5nq"),
+"name": "material_0",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("/38AAP///7//f///AAD/v/9///////+//38AAAAA/78AAP///3//////AAD/f/////////9///8AAAAA/3////9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_s4uqv")
+
+[sub_resource type="Resource" id="Resource_ju3ti"]
+script = ExtResource("24_nmesg")
+metadata/_custom_type_script = "uid://cldhfg2xg8gb0"
+
+[sub_resource type="Resource" id="Resource_ytl5p"]
+script = ExtResource("25_3kwrj")
+genes = SubResource("Resource_gqc3d")
+plant_data = SubResource("Resource_ju3ti")
+id = "allium_a"
+category = 0
+valid_biomes = Array[String](["grassland", "savanna", "deciduous"])
+placement_threshold = 0.4
+exclusion_group = "plant"
+mesh = SubResource("ArrayMesh_tpr8v")
+material = SubResource("ShaderMaterial_mnexi")
+
+[sub_resource type="Resource" id="Resource_qwy0p"]
+script = ExtResource("22_172v7")
+species_group = "tulip"
+stem_variant = 5
+fruit_variant = 1
+primary_idx = 2
+accent_idx = 6
+fruit_idx = 10
+metadata/_custom_type_script = "uid://cmpoic7mba1jk"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_joi6u"]
+render_priority = 0
+shader = ExtResource("24_pr0k7")
+shader_parameter/debug_mode = false
+shader_parameter/debug_variant = 0
+shader_parameter/debug_row = 0
+shader_parameter/debug_stage = 0
+shader_parameter/debug_fruit = 0
+shader_parameter/debug_primary = 0
+shader_parameter/debug_secondary = 1
+shader_parameter/debug_accent = 2
+shader_parameter/debug_leaf = 3
+shader_parameter/debug_fruit_color = 4
+shader_parameter/bend_emission_strength = 6.0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_l5q7j"]
+resource_name = "blockbench_export_mesh"
+_surfaces = [{
+"aabb": AABB(-0.5, 0, -0.5, 1, 2, 1),
+"attribute_data": PackedByteArray("/////wAAAAD//wAAAAD/////AAAAAP//AAAAAP////8="),
+"format": 34896613399,
+"index_count": 12,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUA"),
+"material": ExtResource("29_pi5nq"),
+"name": "material_0",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("/38AAP///7//f///AAD/v/9///////+//38AAAAA/78AAP///3//////AAD/f/////////9///8AAAAA/3////9/////f////3////9/////f////3////9/////f///")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_s4uqv")
+
+[sub_resource type="Resource" id="Resource_wxbti"]
+script = ExtResource("24_nmesg")
+metadata/_custom_type_script = "uid://cldhfg2xg8gb0"
+
+[sub_resource type="Resource" id="Resource_pi5nq"]
+script = ExtResource("25_3kwrj")
+genes = SubResource("Resource_qwy0p")
+plant_data = SubResource("Resource_wxbti")
+id = "tulip"
+category = 0
+valid_biomes = Array[String](["grassland", "savanna", "deciduous"])
+placement_threshold = 0.4
+exclusion_group = "plant"
+mesh = SubResource("ArrayMesh_l5q7j")
+material = SubResource("ShaderMaterial_joi6u")
+
+[sub_resource type="Resource" id="Resource_l5q7j"]
+script = ExtResource("30_qwy0p")
+buffer_radius = 3
+hive_capacity = 2
+species_weight = 2.0
+climate_temperature_min = 0.35
+climate_temperature_max = 0.75
+climate_moisture_min = 0.35
+climate_moisture_max = 0.75
+forest_cluster_affinity = 0.3
+collision_mesh = ExtResource("39_npnsr")
+id = "oak_tree"
+category = 1
+valid_biomes = Array[String](["deciduous"])
+placement_threshold = 0.087
+exclusion_radius = 2
+exclusion_group = "oak_tree"
+mesh = ExtResource("40_d5wwh")
+is_permanent = true
+
+[sub_resource type="Resource" id="Resource_63m4j"]
+script = ExtResource("30_qwy0p")
+species_weight = 1.5
+climate_temperature_min = 0.3
+climate_temperature_max = 0.7
+climate_moisture_min = 0.3
+climate_moisture_max = 0.7
+forest_cluster_affinity = 0.2
+variants = null
+collision_mesh = ExtResource("43_npnsr")
+id = "birch_tree"
+category = 1
+valid_biomes = Array[String](["deciduous", "taiga", "boreal"])
+placement_threshold = 0.63
+exclusion_group = "birch_tree"
+mesh = ExtResource("44_d5wwh")
+is_permanent = true
+
+[sub_resource type="Resource" id="Resource_abtn5"]
+script = ExtResource("30_qwy0p")
+species_weight = 1.6
+climate_temperature_min = 0.15
+climate_temperature_max = 0.7
+climate_moisture_min = 0.1
+climate_moisture_max = 0.55
+forest_cluster_affinity = 0.17
+collision_mesh = ExtResource("45_tnymm")
+id = "pine_tree"
+category = 1
+valid_biomes = Array[String](["taiga", "boreal", "deciduous"])
+exclusion_radius = 2
+exclusion_group = "pine_tree"
+mesh = ExtResource("46_dfs8a")
+is_permanent = true
+
+[sub_resource type="Resource" id="Resource_sq0yj"]
+script = ExtResource("30_qwy0p")
+buffer_radius = 4
+hive_capacity = 2
+species_weight = 0.12
+climate_temperature_min = 0.35
+climate_temperature_max = 0.75
+climate_moisture_min = 0.35
+climate_moisture_max = 0.75
+forest_cluster_affinity = 0.9
+is_giant = true
+giant_priority_bonus = 0.05
+collision_mesh = ExtResource("47_d5wwh")
+id = "giant_oak_tree"
+category = 1
+valid_biomes = Array[String](["deciduous"])
+footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)])
+exclusion_radius = 8
+exclusion_group = "giant_oak_tree"
+mesh = ExtResource("47_npnsr")
+random_scale_range = Vector2(4, 6)
+is_permanent = true
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_lippm"]
+noise_type = 4
+seed = 1839
+frequency = 1.0
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gaum7"]
+noise_type = 0
+seed = 2142
+frequency = 0.00999999999999999
+cellular_distance_function = 3
+cellular_return_type = 0
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_bm71m"]
+frequency = 0.002
+fractal_octaves = 3
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_cp4il"]
+seed = 1940
+frequency = 0.0344
+
+[resource]
+script = ExtResource("3_mm1lq")
+world_seed = 1738
+beach_bottom_steps = -15
+lowland_flatten_threshold = 0.5
+lowland_flatten_power = 2.0
+mountain_multiplier = 1.15
+mountain_start_threshold = 0.9
+foothills_start_threshold = 0.7
+continental_noise_scale = 4.0
+continental_noise = SubResource("FastNoiseLite_gt87u")
+continental_detail_noise = SubResource("FastNoiseLite_63m4j")
+continental_curve = ExtResource("19_gaum7")
+default_region = ExtResource("20_wxbti")
+continental_regions = Array[ExtResource("19_l5q7j")]([ExtResource("20_pi5nq"), ExtResource("21_mnexi"), ExtResource("22_tpr8v"), ExtResource("23_tpr8v"), ExtResource("24_ju3ti")])
+mountain_mask_noise = SubResource("FastNoiseLite_abtn5")
+mountain_detail_noise = SubResource("FastNoiseLite_kndsg")
+mountain_mask_scale = 0.8
+mountain_max_height = 500.0
+mountain_curve = SubResource("Curve_lippm")
+elevation_regions = Array[ExtResource("19_l5q7j")]([ExtResource("25_ytl5p"), ExtResource("26_f0i16"), ExtResource("27_vxg75"), ExtResource("28_lippm")])
+elevation_detail_noise = SubResource("FastNoiseLite_sq0yj")
+elevation_detail_strength = 0.2
+moisture_noise = SubResource("FastNoiseLite_vxg75")
+temperature_noise = SubResource("FastNoiseLite_bm71m")
+temp_wobble_strength = 0.0
+temp_wobble_noise = SubResource("FastNoiseLite_gaum7")
+height_noise = SubResource("FastNoiseLite_f0i16")
+mountain_noise = SubResource("FastNoiseLite_5akl7")
+placement_noise = SubResource("FastNoiseLite_lippm")
+type_noise = SubResource("FastNoiseLite_cp4il")
+forest_cluster_noise = SubResource("FastNoiseLite_tpr8v")
+age_noise = SubResource("FastNoiseLite_mnexi")
+grass_density_noise = SubResource("FastNoiseLite_ju3ti")
+grass_stage_noise = SubResource("FastNoiseLite_ytl5p")
+grass_mesh = ExtResource("31_t5p8a")
+grass_density_threshold = -0.94
+biome_definitions = Array[ExtResource("1_2wnvb")]([ExtResource("2_dmcot"), ExtResource("3_5akl7"), ExtResource("4_r4f3r"), ExtResource("5_t3awx"), ExtResource("6_7lk3r"), ExtResource("7_3fkrj"), ExtResource("9_l5q7j"), ExtResource("9_a40ol"), ExtResource("10_nmesg"), ExtResource("11_3kwrj"), ExtResource("12_pr0k7"), ExtResource("13_qwy0p"), ExtResource("14_joi6u"), ExtResource("15_l5q7j"), ExtResource("16_5akl7"), ExtResource("17_pi5nq")])
+object_definitions = Array[ExtResource("2_o86ue")]([SubResource("Resource_joi6u"), SubResource("Resource_ytl5p"), SubResource("Resource_pi5nq"), SubResource("Resource_l5q7j"), SubResource("Resource_63m4j"), SubResource("Resource_abtn5"), SubResource("Resource_sq0yj")])

@@ -1,0 +1,53 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dgob2pnopyc2"]
+
+[ext_resource type="Texture2D" uid="uid://7coyid1lkngo" path="res://assets/textures/trees/leaves_big_oak_opaque.png" id="1_lesm7"]
+[ext_resource type="Texture2D" uid="uid://cs83gm1dd3iuw" path="res://assets/textures/trees/oak_leaves.png" id="2_fjfgs"]
+[ext_resource type="Texture2D" uid="uid://x2h4jna7v3xj" path="res://assets/textures/trees/leaves_big_oak_normal.png" id="2_qfd1w"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a7i8w"]
+cull_mode = 2
+diffuse_mode = 3
+specular_mode = 1
+albedo_color = Color(0.4186, 0.91, 0.43498, 1)
+albedo_texture = ExtResource("1_lesm7")
+metallic = 0.33
+metallic_specular = 0.66
+roughness = 0.66
+normal_enabled = true
+normal_scale = -0.11
+normal_texture = ExtResource("2_fjfgs")
+ao_enabled = true
+heightmap_enabled = true
+heightmap_texture = ExtResource("2_qfd1w")
+uv1_scale = Vector3(16, 16, 16)
+texture_filter = 0
+grow = true
+grow_amount = -0.1
+distance_fade_mode = 1
+
+[resource]
+resource_name = "Leaves"
+next_pass = SubResource("StandardMaterial3D_a7i8w")
+transparency = 2
+alpha_scissor_threshold = 0.75
+alpha_antialiasing_mode = 0
+cull_mode = 2
+diffuse_mode = 3
+specular_mode = 1
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.4186, 0.91, 0.43498, 0.7529412)
+albedo_texture = ExtResource("1_lesm7")
+metallic_specular = 0.66
+roughness = 0.59
+normal_enabled = true
+normal_texture = ExtResource("2_qfd1w")
+rim = 0.07
+rim_tint = 0.22
+ao_enabled = true
+ao_light_affect = 1.0
+heightmap_enabled = true
+heightmap_texture = ExtResource("1_lesm7")
+uv1_scale = Vector3(16, 16, 16)
+texture_filter = 0
+distance_fade_mode = 1
+distance_fade_max_distance = 8.0

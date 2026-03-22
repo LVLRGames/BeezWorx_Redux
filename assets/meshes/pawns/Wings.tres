@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://c7wvvx37l6sml"]
+
+[ext_resource type="Texture2D" uid="uid://o5mm5grxihqe" path="res://assets/meshes/pawns/Bee_bee_atlas_1.png" id="1_82b5h"]
+
+[resource]
+resource_name = "Wings"
+transparency = 2
+alpha_scissor_threshold = 0.0
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("1_82b5h")
+roughness = 0.5
+texture_filter = 2

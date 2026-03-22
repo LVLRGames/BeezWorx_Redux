@@ -1,0 +1,16 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://b0op0a3ix20rm"]
+
+[ext_resource type="Texture2D" uid="uid://dugocm2d1fjkt" path="res://assets/meshes/trees/Tree 0_log_oak.png" id="1_awn6t"]
+
+[resource]
+diffuse_mode = 3
+specular_mode = 1
+albedo_texture = ExtResource("1_awn6t")
+metallic_specular = 0.25
+normal_enabled = true
+heightmap_enabled = true
+heightmap_texture = ExtResource("1_awn6t")
+heightmap_flip_texture = true
+uv1_triplanar_sharpness = 11.712671
+uv1_world_triplanar = true
+texture_filter = 2

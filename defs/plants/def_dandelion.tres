@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="HexGridObjectDef" format=3 uid="uid://c05bqavgvdyjb"]
+
+[ext_resource type="Script" uid="uid://djvfkcbhyxxo5" path="res://world/scripts/hex_grid_object_def.gd" id="1_sfv5b"]
+
+[resource]
+script = ExtResource("1_sfv5b")
+id = "dandelion"
+valid_biomes = Array[String](["grassland", "meadow"])
+placement_noise_threshold = 0.55
+has_lifecycle = true
+stage_durations = Array[float]([60.0, 120.0, 180.0, 120.0, 60.0, 90.0, 30.0])
+can_produce_pollen = true
+can_receive_pollen = true
+sprout_chance = 0.25
+stage_atlas_tiles = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)])
+metadata/_custom_type_script = "uid://djvfkcbhyxxo5"

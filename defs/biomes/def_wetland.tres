@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://d0qxweomrbngv"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_ifspc"]
+
+[resource]
+script = ExtResource("1_ifspc")
+id = "wetland"
+display_name = "Wetland"
+terrain_atlas_col = 9.0
+grass_tint = Color(0.48998952, 0.485489, 0.31605366, 1)
+preferred_temperature = 2
+preferred_moisture = 3
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

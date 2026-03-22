@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://djsovwaxha6cb"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_groc5"]
+
+[resource]
+script = ExtResource("1_groc5")
+id = "tundra"
+display_name = "Tundra"
+terrain_atlas_col = 1.0
+grass_tint = Color(0.37521282, 0.6433299, 0.5109644, 1)
+preferred_temperature = 0
+preferred_moisture = 3
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

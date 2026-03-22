@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="TimeConfig" format=3 uid="uid://7v1ntb1ggpd8"]
+
+[ext_resource type="Script" uid="uid://dfgvwrcmq28lg" path="res://defs/time_config.gd" id="1_rb5b8"]
+
+[resource]
+script = ExtResource("1_rb5b8")
+metadata/_custom_type_script = "uid://dfgvwrcmq28lg"

@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="ContinentalRegion" format=3 uid="uid://b3umcp68evcsb"]
+
+[ext_resource type="Script" uid="uid://gmr10jo8v73y" path="res://world/hex_continental_region.gd" id="1_nqni6"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gt87u"]
+seed = 2988
+frequency = 0.00269999999999999
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_63m4j"]
+noise_type = 0
+seed = 2888
+frequency = 0.0048
+fractal_octaves = 3
+
+[sub_resource type="Curve" id="Curve_nqni6"]
+_data = [Vector2(0, 0), 0.0, 4.748411, 0, 0, Vector2(0.49690402, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -5.4152517, 0.0, 0, 0]
+point_count = 3
+
+[resource]
+script = ExtResource("1_nqni6")
+id = &"foothills"
+display_name = "Foothills"
+match_mode = 1
+start_threshold = 0.25
+end_threshold = 0.33000000000000007
+profile_blend = 1.0
+height_profile = SubResource("Curve_nqni6")
+noise_blend = 1.0
+height_noise = SubResource("FastNoiseLite_63m4j")
+ignore_climate = true
+default_biome = &"taiga"
+allowed_biomes = Array[StringName]([&"boreal", &"taiga", &"meadow"])
+biome_selection_noise = SubResource("FastNoiseLite_gt87u")
+biome_thresholds = Array[float]([0.33, 0.66])

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://3t8svjtmaqtf"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_d0iq1"]
+
+[resource]
+script = ExtResource("1_d0iq1")
+id = "boreal"
+display_name = "Boreal Forest"
+terrain_atlas_col = 5.0
+grass_tint = Color(0.23968911, 0.55044705, 0.42481363, 1)
+preferred_temperature = 1
+preferred_moisture = 3
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

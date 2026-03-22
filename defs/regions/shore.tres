@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ContinentalRegion" format=3 uid="uid://qe71ounydje8"]
+
+[ext_resource type="Script" uid="uid://gmr10jo8v73y" path="res://world/hex_continental_region.gd" id="1_fbca1"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fbca1"]
+seed = 2948
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_63m4j"]
+seed = 2848
+
+[sub_resource type="Curve" id="Curve_bm71m"]
+_limits = [-1.0, 1.0, -1.0, 1.0]
+_data = [Vector2(-1, -1), 0.0, 2.0, 0, 1, Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, -1), -4.099657, 0.0, 0, 0]
+point_count = 3
+
+[resource]
+script = ExtResource("1_fbca1")
+id = &"shore"
+display_name = "Shoreline"
+start_threshold = -0.09999999999999998
+end_threshold = 0.10000000000000007
+influence_height = false
+height_profile = SubResource("Curve_bm71m")
+height_noise = SubResource("FastNoiseLite_63m4j")
+ignore_climate = true
+default_biome = &"beach"
+biome_selection_noise = SubResource("FastNoiseLite_fbca1")
+metadata/_custom_type_script = "uid://bcdldjffgo1i2"

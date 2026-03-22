@@ -26,6 +26,7 @@ signal territory_expanded(colony_id: int, cells: Array)
 signal territory_faded(colony_id: int, cells: Array)
 
 # Colony / pawn signals
+signal player_pawn_ready(pawn: Node3D, player_slot: int)
 signal pawn_spawned(pawn_id: int, colony_id: int, cell: Vector2i)
 signal pawn_died(pawn_id: int, colony_id: int, cause: StringName)
 signal pawn_hit(attacker_id: int, target_id: int, damage: float, effects: Array)

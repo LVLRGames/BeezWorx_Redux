@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://bf7qxi6gop3k8"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_d1rab"]
+
+[resource]
+script = ExtResource("1_d1rab")
+id = "rainforest"
+display_name = "Rainforest"
+terrain_atlas_col = 13.0
+grass_tint = Color(0.14890426, 0.34751594, 2.4065375e-07, 1)
+preferred_temperature = 3
+preferred_moisture = 2
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://cwxqt04y0lwh5"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_46jw6"]
+
+[resource]
+script = ExtResource("1_46jw6")
+id = "temp_desert"
+display_name = "Temperate Desert"
+terrain_atlas_col = 6.0
+grass_tint = Color(0.5022451, 0.33354723, 0.13136154, 1)
+preferred_temperature = 2
+preferred_moisture = 0
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

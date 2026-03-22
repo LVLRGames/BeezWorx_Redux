@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="ContinentalRegion" format=3 uid="uid://dxaivw7riogdu"]
+
+[ext_resource type="Script" uid="uid://gmr10jo8v73y" path="res://world/hex_continental_region.gd" id="1_8mxxg"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_8mxxg"]
+seed = 2958
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gt87u"]
+seed = 2858
+
+[sub_resource type="Curve" id="Curve_8mxxg"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.24924472, 0.10546875603995408), 0.0, 0.0, 0, 0, Vector2(0.5060423, 0.05078125640920894), 0.0, 0.0, 0, 0, Vector2(0.74233985, 0.5293340411317017), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 5
+
+[resource]
+script = ExtResource("1_8mxxg")
+id = &"coastal"
+display_name = "Coastal"
+start_threshold = 0.10000000000000007
+end_threshold = 0.1499999999999999
+profile_blend = 1.0
+height_profile = SubResource("Curve_8mxxg")
+noise_blend = 0.533
+height_noise = SubResource("FastNoiseLite_gt87u")
+ignore_climate = true
+default_biome = &"savanna"
+biome_selection_noise = SubResource("FastNoiseLite_8mxxg")
+metadata/_custom_type_script = "uid://bcdldjffgo1i2"

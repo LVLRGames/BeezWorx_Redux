@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://b48swbf3xeqid"]
+
+[ext_resource type="Script" uid="uid://bwd6jkv8ajo2v" path="res://world/hex_terrain_manager.gd" id="1_script"]
+[ext_resource type="Resource" uid="uid://t3k06j6stg01" path="res://defs/terrain_config.tres" id="2_3alns"]
+[ext_resource type="ArrayMesh" uid="uid://b6knufiduwur5" path="res://world/plant_mesh.res" id="3_a8lo0"]
+[ext_resource type="Material" uid="uid://iyaeh0ntx44h" path="res://assets/materials/plant_material.tres" id="4_3voed"]
+
+[node name="HexTerrainManager" type="Node3D" unique_id=805826140]
+script = ExtResource("1_script")
+config = ExtResource("2_3alns")
+plant_mesh = ExtResource("3_a8lo0")
+plant_material = ExtResource("4_3voed")

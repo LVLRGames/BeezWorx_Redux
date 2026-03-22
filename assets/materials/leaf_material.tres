@@ -1,0 +1,208 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cg5t5ogi2l6ga"]
+
+[ext_resource type="Texture2D" uid="uid://7coyid1lkngo" path="res://assets/textures/trees/leaves_big_oak_opaque.png" id="1_881dw"]
+[ext_resource type="Texture2D" uid="uid://x2h4jna7v3xj" path="res://assets/textures/trees/leaves_big_oak_normal.png" id="2_y7674"]
+
+[sub_resource type="Shader" id="Shader_ywh0t"]
+code = "// Tree leaf shader — wind, bending, triplanar leaf texture
+shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_toon, specular_toon;
+
+// --- STANDARD MATERIAL UNIFORMS ---
+uniform vec4 albedo : source_color;
+uniform sampler2D texture_albedo : source_color, filter_nearest_mipmap, repeat_enable;
+uniform float distance_fade_min : hint_range(0.0, 4096.0, 0.01);
+uniform float distance_fade_max : hint_range(0.0, 4096.0, 0.01);
+uniform float alpha_scissor_threshold : hint_range(0.0, 1.0, 0.001) = 0.5;
+uniform ivec2 albedo_texture_size;
+uniform float point_size : hint_range(0.1, 128.0, 0.1);
+uniform float roughness : hint_range(0.0, 1.0);
+uniform sampler2D texture_metallic : hint_default_white, filter_nearest_mipmap, repeat_enable;
+uniform vec4 metallic_texture_channel;
+uniform sampler2D texture_roughness : hint_roughness_r, filter_nearest_mipmap, repeat_enable;
+uniform float specular : hint_range(0.0, 1.0, 0.01);
+uniform float metallic : hint_range(0.0, 1.0, 0.01);
+uniform sampler2D texture_normal : hint_roughness_normal, filter_nearest_mipmap, repeat_enable;
+uniform float normal_scale : hint_range(-16.0, 16.0);
+uniform sampler2D texture_ambient_occlusion : hint_default_white, filter_nearest_mipmap, repeat_enable;
+uniform vec4 ao_texture_channel;
+uniform float ao_light_affect : hint_range(0.0, 1.0, 0.01);
+uniform sampler2D texture_heightmap : hint_default_black, filter_linear_mipmap, repeat_enable;
+uniform float heightmap_scale : hint_range(-16.0, 16.0, 0.001);
+uniform int heightmap_min_layers : hint_range(1, 64);
+uniform int heightmap_max_layers : hint_range(1, 64);
+uniform vec2 heightmap_flip;
+uniform vec3 uv1_scale;
+uniform vec3 uv1_offset;
+uniform vec3 uv2_scale;
+uniform vec3 uv2_offset;
+
+// --- TRIPLANAR LEAF TEXTURE ---
+uniform float leaf_texture_scale : hint_range(0.1, 10.0) = 2.0;
+
+// --- WIND ---
+uniform sampler2D wind_noise : repeat_enable;
+uniform float wind_speed : hint_range(0.0, 5.0) = 0.8;
+uniform float wind_strength : hint_range(0.0, 1.0) = 0.08;
+uniform float wind_scale : hint_range(0.0, 1.0) = 0.03;
+uniform float gust_strength : hint_range(0.0, 1.0) = 0.2;
+uniform float gust_speed : hint_range(0.0, 5.0) = 0.3;
+uniform float shiver_strength : hint_range(0.0, 1.0) = 0.03;
+
+// --- BENDING ---
+uniform int bender_count : hint_range(0, 8) = 0;
+uniform vec3 bender_positions[8];
+uniform float bend_radius : hint_range(0.1, 20.0) = 5.0;
+uniform float bend_strength : hint_range(0.0, 2.0) = 0.5;
+uniform float bend_highlight_strength : hint_range(0.0, 1.0) = 0.3;
+
+// --- VARYINGS ---
+varying vec3 world_pos_frag;
+varying float bend_influence;
+
+void vertex() {
+    UV = UV * uv1_scale.xy + uv1_offset.xy;
+
+    // Sway mask — higher vertices move more
+    float sway_mask = clamp(VERTEX.y * 0.3, 0.0, 1.0);
+
+    // World position of this instance
+    vec3 world_pos = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+
+    // Wind
+    vec2 gust_uv = (world_pos.xz * wind_scale) + (TIME * gust_speed * 0.1);
+    float gust = texture(wind_noise, gust_uv).r;
+    float phase_offset = world_pos.x * 0.3 + world_pos.z * 0.2;
+    float base_sway = sin(TIME * wind_speed + phase_offset) * wind_strength;
+    vec2 shiver_uv = (world_pos.xz * 0.6) + (TIME * wind_speed * 1.2);
+    float shiver = (texture(wind_noise, shiver_uv).r - 0.5) * shiver_strength;
+    float wind_offset = (base_sway * gust) + (gust * gust_strength) + shiver;
+
+    // Bending from entities
+    vec3 bend_offset = vec3(0.0);
+    float total_influence = 0.0;
+    for (int i = 0; i < bender_count; i++) {
+        vec3 to_vert = world_pos - bender_positions[i];
+        float dist_xz = length(to_vert.xz);
+        float dist_y = abs(to_vert.y);
+        if (dist_xz < bend_radius && dist_y < bend_radius && dist_xz > 0.01) {
+            float influence = 1.0 - (dist_xz / bend_radius);
+            float y_fade = 1.0 - (dist_y / bend_radius);
+            influence = influence * influence * y_fade;
+            vec2 push_dir = normalize(to_vert.xz);
+            bend_offset.x += push_dir.x * influence * bend_strength;
+            bend_offset.z += push_dir.y * influence * bend_strength;
+            total_influence = max(total_influence, influence);
+        }
+    }
+    bend_influence = total_influence;
+
+    VERTEX.x += (wind_offset + bend_offset.x) * sway_mask;
+    VERTEX.z += (wind_offset + bend_offset.z) * sway_mask;
+
+    // Pass world position to fragment for triplanar
+    world_pos_frag = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+}
+
+void fragment() {
+    // --- Triplanar leaf texture ---
+    vec3 wp = world_pos_frag * leaf_texture_scale;
+    vec3 blend = abs(NORMAL);
+    blend = pow(blend, vec3(4.0));
+    blend /= (blend.x + blend.y + blend.z);
+
+    vec4 tex_xy = texture(texture_albedo, wp.xy);
+    vec4 tex_xz = texture(texture_albedo, wp.xz);
+    vec4 tex_yz = texture(texture_albedo, wp.yz);
+    vec4 albedo_tex = tex_xy * blend.z + tex_xz * blend.y + tex_yz * blend.x;
+
+    // Vertex color as albedo
+    albedo_tex *= COLOR;
+
+    // Albedo with bend highlight
+    vec3 color = albedo.rgb * albedo_tex.rgb;
+    color = mix(color, color * 1.3, bend_influence * bend_highlight_strength);
+    ALBEDO = color;
+
+    // Material properties (use base_uv for non-triplanar maps)
+    vec2 base_uv = UV;
+    {
+        vec3 view_dir = normalize(normalize(-VERTEX + EYE_OFFSET) * mat3(TANGENT * heightmap_flip.x, -BINORMAL * heightmap_flip.y, NORMAL));
+        float depth = 1.0 - texture(texture_heightmap, base_uv).r;
+        vec2 ofs = base_uv - view_dir.xy * depth * heightmap_scale * 0.01;
+        base_uv = ofs;
+    }
+
+    float metallic_tex = dot(texture(texture_metallic, base_uv), metallic_texture_channel);
+    METALLIC = metallic_tex * metallic;
+    SPECULAR = specular;
+    vec4 roughness_texture_channel = vec4(1.0, 0.0, 0.0, 0.0);
+    float roughness_tex = dot(texture(texture_roughness, base_uv), roughness_texture_channel);
+    ROUGHNESS = roughness_tex * roughness;
+
+    // Normal map
+    NORMAL_MAP = texture(texture_normal, base_uv).rgb;
+    NORMAL_MAP_DEPTH = normal_scale;
+
+    // Alpha from triplanar blend
+    ALPHA = albedo.a * albedo_tex.a;
+    ALPHA_SCISSOR_THRESHOLD = alpha_scissor_threshold;
+
+    // Distance fade
+    //ALPHA *= clamp(smoothstep(distance_fade_min, distance_fade_max, length(VERTEX)), 0.0, 1.0);
+	// Distance Fade: Pixel Alpha
+	ALPHA *= 1.0 - clamp(smoothstep(distance_fade_min, distance_fade_max, length(VERTEX)), 0.0, 1.0);
+	
+    // Ambient occlusion
+    AO = dot(texture(texture_ambient_occlusion, base_uv), ao_texture_channel);
+    AO_LIGHT_AFFECT = ao_light_affect;
+}
+"
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_881dw"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_y7674"]
+noise = SubResource("FastNoiseLite_881dw")
+seamless = true
+
+[resource]
+resource_name = "Leaves"
+render_priority = 0
+shader = SubResource("Shader_ywh0t")
+shader_parameter/albedo = Color(0.4186, 0.91, 0.43498, 0.7529412)
+shader_parameter/texture_albedo = ExtResource("1_881dw")
+shader_parameter/distance_fade_min = 4.99999988824
+shader_parameter/distance_fade_max = 1.999999955296
+shader_parameter/alpha_scissor_threshold = 0.75
+shader_parameter/albedo_texture_size = Vector2i(16, 16)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 0.59
+shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/specular = 0.66
+shader_parameter/metallic = 0.0
+shader_parameter/texture_normal = ExtResource("2_y7674")
+shader_parameter/normal_scale = 1.0
+shader_parameter/ao_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/ao_light_affect = 0.5
+shader_parameter/texture_heightmap = ExtResource("1_881dw")
+shader_parameter/heightmap_scale = 5.0
+shader_parameter/heightmap_min_layers = 8
+shader_parameter/heightmap_max_layers = 32
+shader_parameter/heightmap_flip = Vector2(1, 1)
+shader_parameter/uv1_scale = Vector3(16, 16, 16)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/leaf_texture_scale = 2.0
+shader_parameter/wind_noise = SubResource("NoiseTexture2D_y7674")
+shader_parameter/wind_speed = 0.8
+shader_parameter/wind_strength = 0.08
+shader_parameter/wind_scale = 0.03
+shader_parameter/gust_strength = 0.2
+shader_parameter/gust_speed = 0.3
+shader_parameter/shiver_strength = 0.03
+shader_parameter/bender_count = 0
+shader_parameter/bender_positions = PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/bend_radius = 5.0
+shader_parameter/bend_strength = 0.5
+shader_parameter/bend_highlight_strength = 0.3

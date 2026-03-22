@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bog1vlglh2qp4"]
+
+[ext_resource type="Shader" uid="uid://ctn65pkpw7y56" path="res://world/grass_shader.gdshader" id="1_fryeg"]
+[ext_resource type="Texture2D" uid="uid://cklcgmpyhuqsh" path="res://assets/textures/grass/grass_tiles.png" id="1_pkqhw"]
+
+[resource]
+resource_name = "material_0"
+render_priority = 0
+shader = ExtResource("1_fryeg")
+shader_parameter/atlas_pixel_size = Vector2(64, 512)
+shader_parameter/grass_tint = Color(0.5945543, 0.9999998, 0.23772693, 1)
+shader_parameter/grass_atlas = ExtResource("1_pkqhw")
+shader_parameter/bend_emission_strength = 6.0

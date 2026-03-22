@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://dwsfahbfdn46b"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_h384s"]
+
+[resource]
+script = ExtResource("1_h384s")
+id = "meadow"
+display_name = "Meadow"
+terrain_atlas_col = 3.0
+grass_tint = Color(0.3372549, 0.74509805, 0.5647059, 1)
+grass_density_threshold = 0.225
+preferred_temperature = 1
+preferred_moisture = 1

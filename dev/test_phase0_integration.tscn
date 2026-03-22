@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://kvmdni8dtvo4"]
+
+[ext_resource type="Script" uid="uid://bwbpq7xkfrso1" path="res://dev/test_phase0_integration.gd" id="1_test"]
+[ext_resource type="Script" uid="uid://bn5e4vvrn10pq" path="res://dev/create_plant_mesh.gd" id="2_tc8yk"]
+
+[node name="TestPhase0Integration" type="Node" unique_id=976928369]
+script = ExtResource("1_test")
+
+[node name="Node" type="Node" parent="." unique_id=799189656]
+script = ExtResource("2_tc8yk")

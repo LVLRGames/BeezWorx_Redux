@@ -1,0 +1,32 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://cn0v3jetxdawi"]
+
+[ext_resource type="Shader" uid="uid://lm8jcpgvh07c" path="res://assets/materials/leaf_shader.gdshader" id="1_o56xw"]
+[ext_resource type="Texture2D" uid="uid://bm4wmnmcmxa58" path="res://assets/textures/trees/leaves_big_oak.png" id="2_nvo5o"]
+
+[resource]
+resource_name = "Leaves"
+render_priority = 0
+shader = ExtResource("1_o56xw")
+shader_parameter/albedo = Color(0.9063318, 0.9063318, 0.9063318, 1)
+shader_parameter/texture_albedo = ExtResource("2_nvo5o")
+shader_parameter/albedo_texture_size = Vector2i(16, 16)
+shader_parameter/alpha_scissor_threshold = 0.50000002375
+shader_parameter/distance_fade_min = 0.0
+shader_parameter/distance_fade_max = 0.0
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 0.5
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/normal_scale = 0.0
+shader_parameter/ao_texture_channel = Vector4(0, 0, 0, 0)
+shader_parameter/ao_light_affect = 0.0
+shader_parameter/heightmap_scale = 0.0
+shader_parameter/heightmap_min_layers = 0
+shader_parameter/heightmap_max_layers = 0
+shader_parameter/heightmap_flip = Vector2(0, 0)
+shader_parameter/uv1_scale = Vector3(16, 16, 16)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/bend_emission_strength = 6.0

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://e824qmmcaj4b"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_oyt53"]
+
+[resource]
+script = ExtResource("1_oyt53")
+id = "jungle"
+display_name = "Jungle"
+terrain_atlas_col = 13.0
+grass_tint = Color(0.5511407, 0.35890684, 0.19163206, 1)
+preferred_temperature = 3
+preferred_moisture = 3
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

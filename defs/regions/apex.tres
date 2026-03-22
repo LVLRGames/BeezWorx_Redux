@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ContinentalRegion" format=3 uid="uid://b2pffgpmfi4vp"]
+
+[ext_resource type="Script" uid="uid://gmr10jo8v73y" path="res://world/hex_continental_region.gd" id="1_4ig7m"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_4ig7m"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gt87u"]
+noise_type = 0
+seed = 2918
+frequency = 0.0024
+fractal_type = 2
+fractal_lacunarity = 1.44
+fractal_gain = 0.54
+fractal_weighted_strength = 1.0
+
+[sub_resource type="Curve" id="Curve_63m4j"]
+_data = [Vector2(0, 0), 0.0, 1.976119381185894, 0, 1, Vector2(0.5060423, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.024464854683136, 0.0, 1, 0]
+point_count = 3
+
+[resource]
+script = ExtResource("1_4ig7m")
+id = &"apex"
+display_name = "Apex"
+match_mode = 1
+start_threshold = 0.8500000000000001
+end_threshold = 1.5
+profile_blend = 1.0
+height_profile = SubResource("Curve_63m4j")
+noise_blend = 1.0
+height_noise = SubResource("FastNoiseLite_gt87u")
+height_multiplier = 30.0
+ignore_climate = true
+default_biome = &"tundra"
+allowed_biomes = Array[StringName]([&"alpine", &"tundra"])
+biome_selection_noise = SubResource("FastNoiseLite_4ig7m")
+biome_thresholds = Array[float]([0.66])

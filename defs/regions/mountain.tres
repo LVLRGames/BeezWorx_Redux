@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ContinentalRegion" format=3 uid="uid://dufo41kv5f4ht"]
+
+[ext_resource type="Script" uid="uid://gmr10jo8v73y" path="res://world/hex_continental_region.gd" id="1_o426o"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_o426o"]
+seed = 3008
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gt87u"]
+seed = 2908
+frequency = 0.0007
+fractal_type = 2
+fractal_lacunarity = 1.875
+fractal_gain = 0.615
+fractal_weighted_strength = 0.6
+
+[sub_resource type="Curve" id="Curve_63m4j"]
+_data = [Vector2(0, 0), 0.0, 1.2425934, 0, 0, Vector2(0.5030211, 0.48046875350792095), 0.37842995, 0.37842995, 0, 0, Vector2(1, 1), 2.2105598, 0.0, 0, 0]
+point_count = 3
+
+[resource]
+script = ExtResource("1_o426o")
+id = &"mountain"
+display_name = "Mountain"
+match_mode = 1
+start_threshold = 0.45
+end_threshold = 0.8500000000000001
+profile_blend = 1.0
+height_profile = SubResource("Curve_63m4j")
+noise_blend = 0.8
+height_noise = SubResource("FastNoiseLite_gt87u")
+height_multiplier = 10.0
+ignore_climate = true
+default_biome = &"mountain"
+allowed_biomes = Array[StringName]([&"mountain", &"alpine"])
+biome_selection_noise = SubResource("FastNoiseLite_o426o")
+biome_thresholds = Array[float]([0.5])

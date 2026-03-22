@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://b3ktrp2qita2m"]
+
+[ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_d0la7"]
+
+[resource]
+script = ExtResource("1_d0la7")
+id = "ocean"
+display_name = "Ocean"
+terrain_atlas_col = 15.0
+grass_tint = Color(8.663535e-07, 0.55496955, 0.84738064, 1)
+metadata/_custom_type_script = "uid://bu4ojovm5kknt"

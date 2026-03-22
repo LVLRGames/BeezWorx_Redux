@@ -1,0 +1,32 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://dxfe531rwiltf"]
+
+[ext_resource type="Shader" uid="uid://lm8jcpgvh07c" path="res://assets/materials/leaf_shader.gdshader" id="1_0r5je"]
+[ext_resource type="Texture2D" uid="uid://pctrjcp7rldq" path="res://assets/meshes/trees/pine/pine_tree_1.png" id="1_411mm"]
+
+[resource]
+resource_name = "material_1"
+render_priority = 0
+shader = ExtResource("1_0r5je")
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/texture_albedo = ExtResource("1_411mm")
+shader_parameter/albedo_texture_size = Vector2i(256, 128)
+shader_parameter/alpha_scissor_threshold = 0.05
+shader_parameter/distance_fade_min = 0.0
+shader_parameter/distance_fade_max = 0.0
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 1.0
+shader_parameter/specular = 0.5
+shader_parameter/metallic = 0.0
+shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
+shader_parameter/normal_scale = 0.0
+shader_parameter/ao_texture_channel = Vector4(0, 0, 0, 0)
+shader_parameter/ao_light_affect = 0.0
+shader_parameter/heightmap_scale = 0.0
+shader_parameter/heightmap_min_layers = 0
+shader_parameter/heightmap_max_layers = 0
+shader_parameter/heightmap_flip = Vector2(0, 0)
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/bend_emission_strength = 6.0
