@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SlotDesignationDef" format=3 uid="uid://dnwom0j8exrxi"]
+
+[ext_resource type="Script" uid="uid://b3ua7ybdiir7q" path="res://defs/hive/slot_designation_def.gd" id="1_7620q"]
+
+[resource]
+script = ExtResource("1_7620q")
+display_name = "Locked"
+label_initial = "🔒"
+color = Color(0.58383155, 0.58383155, 0.58383155, 1)
+can_change_desig = false
+is_locked = true
+metadata/_custom_type_script = "uid://b3ua7ybdiir7q"

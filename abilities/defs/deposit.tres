@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DepositAbilityDef" format=3 uid="uid://bbexkfdf8u4jx"]
+
+[ext_resource type="Script" uid="uid://cv4e3ko80pugk" path="res://abilities/deposit_ability_def.gd" id="1_3gxnp"]
+
+[resource]
+script = ExtResource("1_3gxnp")
+ability_id = &"deposit"
+display_name = "Deposit Item"
+description = "deposit item into hive"
+cooldown = 0.2

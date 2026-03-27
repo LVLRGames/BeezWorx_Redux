@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SlotDesignationDef" format=3 uid="uid://b07qqbfvynijr"]
+
+[ext_resource type="Script" uid="uid://b3ua7ybdiir7q" path="res://defs/hive/slot_designation_def.gd" id="1_edrqi"]
+
+[resource]
+script = ExtResource("1_edrqi")
+designation_id = 2
+display_name = "Bed"
+label_initial = "🛏️"
+icon_col = 2
+color = Color(0.6651851, 0.7977378, 1, 1)
+progress_type = 2
+item_icon_behavior = 4
+can_sleep = true
+metadata/_custom_type_script = "uid://b3ua7ybdiir7q"

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WaterPlantAbilityDef" format=3 uid="uid://ydut6ug3ggk4"]
+
+[ext_resource type="Script" uid="uid://c6d5mh0eidtc1" path="res://abilities/water_plant_ability_def.gd" id="1_iwgb3"]
+
+[resource]
+script = ExtResource("1_iwgb3")
+ability_id = &"water_plant"
+display_name = "Water Plant"
+metadata/_custom_type_script = "uid://c6d5mh0eidtc1"

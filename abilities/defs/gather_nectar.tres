@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GatherAbilityDef" format=3 uid="uid://bwwk88jep1t3j"]
+
+[ext_resource type="Script" uid="uid://mfwaghwivjb1" path="res://abilities/gather_ability_def.gd" id="1_pgdtr"]
+
+[resource]
+script = ExtResource("1_pgdtr")
+ability_id = &"gather_nectar"
+display_name = "Gather Nectar"
+description = "Gather nectar from fruiting plants"
+cooldown = 0.3
+metadata/_custom_type_script = "uid://mfwaghwivjb1"

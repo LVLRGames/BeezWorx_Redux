@@ -1,0 +1,15 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://b3cmj0a6equhh"]
+
+[ext_resource type="Texture2D" uid="uid://0lwws6tdmiy8" path="res://assets/meshes/hive/Hive_hive_texture.png" id="1_1qh8y"]
+
+[resource]
+resource_name = "Hive"
+diffuse_mode = 2
+specular_mode = 1
+albedo_texture = ExtResource("1_1qh8y")
+emission_enabled = true
+emission = Color(0.26099586, 0.26099578, 0, 1)
+emission_energy_multiplier = 0.05
+emission_texture = ExtResource("1_1qh8y")
+ao_enabled = true
+texture_filter = 2

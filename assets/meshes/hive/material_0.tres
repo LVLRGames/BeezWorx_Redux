@@ -1,0 +1,15 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bgli2kci7n2m1"]
+
+[ext_resource type="Texture2D" uid="uid://cn41onw6xwflf" path="res://assets/meshes/hive/hive_0.png" id="1_yjiau"]
+
+[resource]
+resource_name = "material_0"
+transparency = 2
+alpha_scissor_threshold = 0.05
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("1_yjiau")
+ao_enabled = true
+texture_filter = 2
+billboard_mode = 2
+billboard_keep_scale = true

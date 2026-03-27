@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SpeciesDef" format=3 uid="uid://c3s1j8qyfdi2h"]
+
+[ext_resource type="Script" uid="uid://tqm3ihutobji" path="res://defs/species/species_def.gd" id="1_quu0p"]
+
+[resource]
+script = ExtResource("1_quu0p")
+species_id = &"bee"
+display_name = "Bee"
+metadata/_custom_type_script = "uid://tqm3ihutobji"

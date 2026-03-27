@@ -69,23 +69,19 @@ func _ready() -> void:
 	
 	if HexChunk._lut == null:
 		HexChunk._lut = HexMeshLUT.new()
-	
+		
+	EventBus.game_loaded.connect(_on_game_loaded)
 	EventBus.player_pawn_ready.connect(_on_player_pawn_ready)
-	#HexWorldState.initialize(config)
-	#call_deferred("_deferred_start")
+
 
 func _deferred_start() -> void:
 	print("_deferred_start fired, player: ", player, " config: ", config)
 	_update_chunks()
-	#if player and player is CharacterBody3D:
-		#player.set_physics_process(false)
-		#await get_tree().create_timer(0.5).timeout
-		#player.set_physics_process(true)
 
 
 func _update_chunks() -> void:
 	var center := _world_to_chunk(player.global_position if player else Vector3.ZERO)
-	print("_update_chunks center: ", center, " spawn_queue size after: ", _spawn_queue.size())
+	#print("_update_chunks center: ", center, " spawn_queue size after: ", _spawn_queue.size())
 	var needed: Dictionary[Vector2i, bool] = {}
 	var R := view_radius_chunks
 	for x in range(-R, R + 1):
@@ -276,3 +272,7 @@ func get_loaded_chunk(coord: Vector2i) -> HexChunk:
 func _on_player_pawn_ready(pawn: Node3D, _slot: int) -> void:
 	player = pawn
 	_update_chunks()
+
+
+func _on_game_loaded(_slot_name: String) -> void:
+	_update_chunks()   # or whatever your refresh method is called

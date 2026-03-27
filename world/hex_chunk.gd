@@ -584,12 +584,10 @@ func _batch_plant(
 	var dist: float   = (((hash_val >> 16) & 0xFFFF) / float(0xFFFF)) * 0.5 * HexConsts.HEX_SIZE
 	var offset: Vector3 = Vector3(cos(angle) * dist, 0.0, sin(angle) * dist)
  
-	var basis: Basis = Basis.from_euler(Vector3(0.0, _det_angle(origin), 0.0))
-	xf.append(Transform3D(basis, wp + offset))
+	var _basis: Basis = Basis.from_euler(Vector3(0.0, _det_angle(origin), 0.0))
+	xf.append(Transform3D(_basis, wp + offset))
 	col.append(inst_color)
 	cus.append(custom_data)
-
-
 
 func _pick_tree_variant_index(cell: Vector2i, def: HexTreeDef) -> int:
 	if def == null or def.variants.is_empty():
@@ -648,7 +646,6 @@ func _rebuild_plant_instance_map() -> void:
 		var xform: Transform3D = _plant_mm.get_instance_transform(i)
 		var c: Vector2i = HexConsts.WORLD_TO_AXIAL(xform.origin.x, xform.origin.z)
 		_plant_instance_map[c] = HexPlantInstanceRef.new(_plant_mm, i)
-
 
 func _compute_next_transition(cell: Vector2i, state: HexCellState) -> float:
 	var def: HexGridObjectDef = state.definition
@@ -766,7 +763,6 @@ func refresh_plants() -> void:
 			plant_mi.material_override = plant_material
 		add_child(plant_mi)
 
-
 func refresh_objects() -> void:
 	for child: Node in get_children():
 		if child is MultiMeshInstance3D and child != _grass_node:
@@ -814,11 +810,6 @@ func refresh_objects() -> void:
 	if _should_have_tree_collision():
 		_add_tree_collision()
 
-func refresh_objects_with_bounce(cells: Array[Vector2i] = []) -> void:
-	refresh_objects()
-	for cell: Vector2i in cells:
-		trigger_plant_bounce(cell)
-
 func _check_stale_plants() -> void:
 	if _next_transition.is_empty():
 		return
@@ -850,40 +841,36 @@ func _check_stale_plants() -> void:
 		if _cell_states.has(cell):
 			_next_transition[cell] = _compute_next_transition(cell, _cell_states[cell])
 
+
 func _on_cell_changed(cell: Vector2i) -> void:
 	var local: Vector2i = cell - chunk_coord * CHUNK_SIZE
 	if local.x < 0 or local.x >= CHUNK_SIZE or local.y < 0 or local.y >= CHUNK_SIZE:
 		return
-
+	
 	queue_bounce(cell)
 	refresh_objects()
 	_pending_bounces.clear()
 
+
 func trigger_plant_bounce(cell: Vector2i) -> void:
 	if not _plant_instance_map.has(cell):
 		return
-
 	var entry: HexPlantInstanceRef = _plant_instance_map[cell]
 	if entry.multimesh == null or entry.index < 0:
 		return
-
 	var custom: Color = entry.multimesh.get_instance_custom_data(entry.index)
-	custom.a = float(Time.get_ticks_msec()) / 1000.0
+	# Use TimeService.world_time to match engine_time shader param
+	custom.a = float(Time.get_ticks_usec()) / 1000000.0
 	entry.multimesh.set_instance_custom_data(entry.index, custom)
 
-func _on_cell_bounced(cell: Vector2i) -> void:
-	print("chunk received bounce at: ", Time.get_ticks_msec())
-	var local: Vector2i = cell - chunk_coord * CHUNK_SIZE
-	if local.x < 0 or local.x >= CHUNK_SIZE or local.y < 0 or local.y >= CHUNK_SIZE:
-		return
-	trigger_plant_bounce(cell)
-	print("custom data set at: ", Time.get_ticks_msec())
 
 func queue_bounce(cell: Vector2i) -> void:
 	_pending_bounces[cell] = true
 
+
 func _hc(dq: int, dr: int) -> float:
 	return _height_cache[(dq + 1) * _HC_STRIDE + (dr + 1)]
+
 
 static func _det_angle(cell: Vector2i) -> float:
 	var h: int = (cell.x * 1619 + cell.y * 31337) ^ (cell.x * 1619)

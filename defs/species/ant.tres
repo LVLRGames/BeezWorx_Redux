@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="SpeciesDef" format=3 uid="uid://bqish8wyb8fxs"]
+
+[ext_resource type="Script" uid="uid://tqm3ihutobji" path="res://defs/species/species_def.gd" id="1_ko7np"]
+
+[resource]
+script = ExtResource("1_ko7np")
+metadata/_custom_type_script = "uid://tqm3ihutobji"

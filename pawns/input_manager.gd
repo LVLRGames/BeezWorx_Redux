@@ -637,7 +637,8 @@ func _apply_keyboard_layout(player_index: int, layout: KeyboardLayout) -> void:
 			_bind_key(player_index, &"move_back",    KEY_S as Key)
 			_bind_key(player_index, &"move_left",    KEY_A as Key)
 			_bind_key(player_index, &"move_right",   KEY_D as Key)
-			_bind_key(player_index, &"pause",        KEY_ESCAPE as Key)
+			_bind_key(player_index, &"start",        KEY_ESCAPE as Key)
+			_bind_key(player_index, &"select",       KEY_BACKSPACE as Key)
 			_bind_key(player_index, &"confirm",      KEY_ENTER as Key)
 			_bind_key(player_index, &"cancel",       KEY_BACKSPACE as Key)
 			# add your other actions here (jump/attack/etc) if they exist in your map
@@ -663,7 +664,8 @@ func _apply_gamepad_layout(player_index: int, joy_id: int) -> void:
 	_bind_axis(player_index, &"move_down",    JOY_AXIS_RIGHT_Y,  1.0, joy_id)
 
 	# These only work if your base actions include them (they do: pause/confirm/cancel/action).
-	_bind_button(player_index, &"pause",   JOY_BUTTON_START, joy_id)
+	_bind_button(player_index, &"start",   JOY_BUTTON_START, joy_id)
+	_bind_button(player_index, &"select",   JOY_BUTTON_BACK, joy_id)
 	_bind_button(player_index, &"confirm", JOY_BUTTON_A,     joy_id)
 	_bind_button(player_index, &"cancel",  JOY_BUTTON_B,     joy_id)
 	_bind_button(player_index, &"action",  JOY_BUTTON_X,     joy_id)

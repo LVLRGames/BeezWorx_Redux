@@ -71,7 +71,7 @@ func _process(delta: float) -> void:
 	_emit_transitions()
 	RenderingServer.global_shader_parameter_set(
 	   &"engine_time",
-	   world_time
+	   float(Time.get_ticks_usec()) / 1000000.0
    )
 
 # ════════════════════════════════════════════════════════════════════════════ #

@@ -128,11 +128,13 @@ func clear_cell(cell: Vector2i) -> void:
 	delta.timestamp = TimeService.world_time
 
 	_write_delta(origin, delta)
+	
 
 func mutate_cell(cell: Vector2i, overrides: Dictionary) -> void:
 	var state: HexCellState = get_cell_ref(cell)
 	if not state.occupied:
 		return
+
 
 	var ex: HexCellDelta = delta_store.get_delta(state.origin)
 	var delta: HexCellDelta = ex.duplicate() if ex else HexCellDelta.new()
@@ -194,6 +196,7 @@ func consume_pollen(cell: Vector2i, amount: float) -> void:
 	var remaining: float = maxf(state.pollen_amount - amount, 0.0)
 	mutate_cell(state.origin, {"pollen_remaining": remaining})
 
+
 func consume_nectar(cell: Vector2i, amount: float) -> void:
 	var state: HexCellState = get_cell_ref(cell)
 	if not state.occupied:
@@ -208,6 +211,7 @@ func consume_nectar(cell: Vector2i, amount: float) -> void:
 		overrides["stage_override"] = Stage.IDLE
 
 	mutate_cell(state.origin, overrides)
+
 
 func apply_pollen(source_cell: Vector2i, target_cell: Vector2i) -> void:
 	var target_state: HexCellState = get_cell_ref(target_cell)
@@ -402,3 +406,11 @@ func _write_delta(cell: Vector2i, delta: HexCellDelta) -> void:
 	delta_store.set_delta(cell, delta)
 	invalidate_cell(cell)
 	cell_changed.emit(cell)
+
+
+func save_state() -> Dictionary:
+	save_deltas()
+	return {}   # HexWorldState saves its own file separately
+
+func load_state(_data: Dictionary) -> void:
+	load_deltas()

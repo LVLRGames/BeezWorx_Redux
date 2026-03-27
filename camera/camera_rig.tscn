@@ -4,10 +4,12 @@
 
 [node name="CameraRig" type="Node3D" unique_id=962802465]
 script = ExtResource("1_ugjm4")
+max_pitch = 0.45
 
 [node name="Pivot" type="Node3D" parent="." unique_id=2142806089]
 
 [node name="SpringArm3D" type="SpringArm3D" parent="Pivot" unique_id=262156806]
+collision_mask = 0
 
 [node name="Camera3D" type="Camera3D" parent="Pivot/SpringArm3D" unique_id=1935952955]
 unique_name_in_owner = true

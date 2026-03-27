@@ -1,5 +1,5 @@
 class_name Ant
-extends GroundPawn
+extends PawnWalker
 
 enum AntRole{ QUEEN, SOLDIER, SCOUT, CARRIER, WORKER }
 
@@ -20,7 +20,7 @@ func _ready() -> void:
 	#max_roll_deg = max_roll
 
 	if is_player_1:
-		controller = preload("res://systems/possession/player_controller.gd").new()
+		controller = preload("res://pawns/player_controller.gd").new()
 		controller.attach(self)
 		controller.player_index = 1
 		name_tag.info = "%s" % [name]

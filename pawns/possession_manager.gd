@@ -31,10 +31,13 @@ const MAX_PLAYERS: int = 4
 ## Request that player_slot takes possession of pawn with pawn_id.
 ## Returns false if pawn is not eligible.
 func request_possess(player_slot: int, pawn_id: int) -> bool:
+	print("request_possess: slot=", player_slot, " pawn_id=", pawn_id)
 	var pawn: PawnBase = _find_pawn(pawn_id)
+	print("found pawn: ", pawn)
 	if pawn == null:
 		return false
 	if not _can_possess(player_slot, pawn):
+		print("_can_possess returned false")
 		return false
 
 	# Release current possession for this slot if any
@@ -42,6 +45,7 @@ func request_possess(player_slot: int, pawn_id: int) -> bool:
 		request_release(player_slot)
 
 	_local_possess(pawn, player_slot)
+	EventBus.pawn_possessed.emit(player_slot, pawn_id)
 	return true
 
 ## Release whatever pawn player_slot is currently possessing.
@@ -79,7 +83,7 @@ func get_possessor(pawn_id: int) -> int:
 # ════════════════════════════════════════════════════════════════════════════ #
 
 func _local_possess(pawn: PawnBase, player_slot: int) -> void:
-	# Assign PlayerController
+	print("_local_possess: pawn_id=", pawn.pawn_id, " slot=", player_slot)
 	var pc := PlayerController.new()
 	pc.player_index = player_slot
 	pawn.controller = pc
@@ -87,17 +91,14 @@ func _local_possess(pawn: PawnBase, player_slot: int) -> void:
 	pawn.on_possessed(player_slot)
 	_possessed[player_slot] = pawn.pawn_id
 
-	# Point camera rig at the new pawn
-	var rig: CameraRig = CameraRig.for_player(player_slot)
-	if rig:
-		rig.set_target(pawn)
-
-	# Add to "bees" group for selector debug info (backwards compat)
-	if not pawn.is_in_group("bees"):
-		pawn.add_to_group("bees")
+	## Point camera rig at the new pawn
+	#var rig: CameraRig = CameraRig.for_player(player_slot)
+	#if rig:
+		#rig.set_target(pawn)
 
 	EventBus.pawn_spawned.emit(pawn.pawn_id, 0, Vector2i.ZERO)
 	# TODO Phase 3: emit EventBus.pawn_possessed(pawn_id, player_slot)
+
 
 func _local_release(pawn: PawnBase, player_slot: int) -> void:
 	# Restore AI — PawnAI takes over if present, otherwise null controller
@@ -108,21 +109,27 @@ func _local_release(pawn: PawnBase, player_slot: int) -> void:
 	# TODO Phase 3: trigger queen safety behavior if releasing queen outside hive
 
 func _can_possess(player_slot: int, pawn: PawnBase) -> bool:
-	# Phase 1 simplified check: pawn must be alive and not currently possessed
+	print("_can_possess: pawn.is_possessed=", pawn.is_possessed, 
+		  " pawn.state=", pawn.state,
+		  " pawn.is_alive=", pawn.state.is_alive if pawn.state else "no state")
+	# ... rest of function
 	if pawn == null:
 		return false
 	if pawn.is_possessed:
 		return false
-	# TODO Phase 3: check pawn.state.is_alive, is_awake, colony_id, queen slot rule
+	# Phase 3: use PawnState checks
+	if pawn.state != null:
+		if not pawn.state.is_alive:
+			return false
+		if not pawn.state.is_awake:
+			return false
+		# Queen can only be possessed by slot 0
+		if PawnRegistry.is_queen(pawn.pawn_id, pawn.state.colony_id) \
+				and player_slot != 1:
+			return false
 	return true
 
+
 func _find_pawn(pawn_id: int) -> PawnBase:
-	# Phase 1: scan tree for pawn with matching pawn_id.
-	# Phase 3: replace with PawnRegistry.get_node(pawn_id).
-	if pawn_id == -1:
-		return null
-	var pawns: Array = get_tree().get_nodes_in_group("pawns")
-	for p: Node in pawns:
-		if p is PawnBase and (p as PawnBase).pawn_id == pawn_id:
-			return p as PawnBase
-	return null
+	# O(1) lookup via PawnRegistry — replaces the O(n) tree scan
+	return PawnRegistry.get_pawn(pawn_id)

@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode cull_disabled, diffuse_lambert_wrap;
+render_mode cull_disabled, diffuse_lambert_wrap, specular_toon;
 
 // --- ATLAS SETTINGS ---
 uniform vec2 atlas_pixel_size = vec2(64.0, 256.0);

@@ -1,0 +1,25 @@
+[gd_resource type="TileSet" format=3 uid="uid://csdxsydsiitou"]
+
+[ext_resource type="Texture2D" uid="uid://dths4144foncf" path="res://ui/hive/slot_atlas.png" id="1_7q337"]
+[ext_resource type="PackedScene" uid="uid://pv1iaw2jvpge" path="res://ui/hive/slot_tile.tscn" id="2_da8y6"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_yp8ek"]
+texture = ExtResource("1_7q337")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+
+[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_hjhn8"]
+resource_name = "slot_scenes"
+scenes/1/scene = ExtResource("2_da8y6")
+
+[resource]
+tile_shape = 3
+tile_layout = 5
+tile_size = Vector2i(34, 40)
+sources/0 = SubResource("TileSetAtlasSource_yp8ek")
+sources/1 = SubResource("TileSetScenesCollectionSource_hjhn8")

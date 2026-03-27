@@ -1,0 +1,256 @@
+[gd_scene format=3 uid="uid://t6q2b4wqnk2o"]
+
+[ext_resource type="Script" uid="uid://cjedwfsjxwrb3" path="res://ui/hive/hive_overlay.gd" id="1_x836q"]
+[ext_resource type="TileSet" uid="uid://csdxsydsiitou" path="res://ui/hive/hive_slot_tileset.tres" id="2_obd7w"]
+[ext_resource type="Shader" uid="uid://ch5wx3ea8x01d" path="res://ui/hive/hive_overlay_shader.gdshader" id="2_yp8ek"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_j041p"]
+shader = ExtResource("2_yp8ek")
+shader_parameter/inner_radius = 0.762000036195
+shader_parameter/outer_radius = 0.99600004731
+shader_parameter/corner_shape = 4.702000175845
+shader_parameter/vignette_intensity = 1.0
+shader_parameter/darkness_power = 3.0
+shader_parameter/edge_clamping = 1.00000002375
+
+[sub_resource type="TileSet" id="TileSet_x836q"]
+tile_shape = 3
+tile_size = Vector2i(32, 32)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_obd7w"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[node name="HiveOverlay" type="CanvasLayer" unique_id=1481496615 groups=["hive_overlay"]]
+script = ExtResource("1_x836q")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1589480652]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(1, 0.69803923, 0, 0.89411765)
+
+[node name="MainContainer" type="MarginContainer" parent="." unique_id=2009752642]
+texture_filter = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer" unique_id=694325190]
+layout_mode = 2
+
+[node name="HiveHeader" type="PanelContainer" parent="MainContainer/VBoxContainer" unique_id=1735378675]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="HiveHeaderContent" type="HBoxContainer" parent="MainContainer/VBoxContainer/HiveHeader" unique_id=1573002783]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HiveName" type="LineEdit" parent="MainContainer/VBoxContainer/HiveHeader/HiveHeaderContent" unique_id=514373816]
+custom_minimum_size = Vector2(256, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="IntegrityBar" type="ProgressBar" parent="MainContainer/VBoxContainer/HiveHeader/HiveHeaderContent" unique_id=1703750243]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TerritoryLabel" type="Label" parent="MainContainer/VBoxContainer/HiveHeader/HiveHeaderContent" unique_id=1721628181]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ExitButton" type="Button" parent="MainContainer/VBoxContainer/HiveHeader/HiveHeaderContent" unique_id=712962896]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "Exit"
+
+[node name="ContentRow" type="HBoxContainer" parent="MainContainer/VBoxContainer" unique_id=1698322483]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="MainContainer/VBoxContainer/ContentRow" unique_id=416979516]
+material = SubResource("ShaderMaterial_j041p")
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+mouse_filter = 2
+stretch = true
+stretch_shrink = 3
+mouse_target = true
+
+[node name="SubViewport" type="SubViewport" parent="MainContainer/VBoxContainer/ContentRow/SubViewportContainer" unique_id=1047796718]
+disable_3d = true
+transparent_bg = true
+handle_input_locally = false
+snap_2d_transforms_to_pixel = true
+snap_2d_vertices_to_pixel = true
+canvas_item_default_texture_filter = 0
+size = Vector2i(272, 193)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Camera2D" type="Camera2D" parent="MainContainer/VBoxContainer/ContentRow/SubViewportContainer/SubViewport" unique_id=1862101642]
+
+[node name="SlotLayer" type="TileMapLayer" parent="MainContainer/VBoxContainer/ContentRow/SubViewportContainer/SubViewport" unique_id=1841281033]
+tile_set = ExtResource("2_obd7w")
+
+[node name="SelectLayer" type="TileMapLayer" parent="MainContainer/VBoxContainer/ContentRow/SubViewportContainer/SubViewport" unique_id=1089234839]
+tile_set = SubResource("TileSet_x836q")
+
+[node name="PanelAnchor" type="Control" parent="MainContainer/VBoxContainer/ContentRow" unique_id=152357130]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SlotPanel" type="PanelContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor" unique_id=1027386511]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 8
+theme_override_styles/panel = SubResource("StyleBoxFlat_obd7w")
+
+[node name="SlotPanelScroll" type="ScrollContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel" unique_id=553013836]
+layout_mode = 2
+
+[node name="SlotPanelContent" type="VBoxContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll" unique_id=1978947048]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SlotTitle" type="Label" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1330331565]
+layout_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1779611847]
+layout_mode = 2
+
+[node name="DesignLabel" type="Label" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=797471880]
+layout_mode = 2
+size_flags_vertical = 8
+text = "Designation"
+
+[node name="DesignationOptions" type="VBoxContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=438360483]
+layout_mode = 2
+
+[node name="DesignationButton" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=201778764]
+layout_mode = 2
+
+[node name="DesignationButton2" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=1612946978]
+layout_mode = 2
+
+[node name="DesignationButton3" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=1077782406]
+layout_mode = 2
+
+[node name="DesignationButton4" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=730367484]
+layout_mode = 2
+
+[node name="DesignationButton5" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=1845255516]
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1702143391]
+layout_mode = 2
+
+[node name="ContentsLabel" type="Label" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1866570104]
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="ContentsGrid" type="GridContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=498324233]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSeparator3" type="HSeparator" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1455809371]
+layout_mode = 2
+
+[node name="DepositSection" type="VBoxContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1689216448]
+layout_mode = 2
+
+[node name="DepositLabel" type="Label" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DepositSection" unique_id=884057569]
+layout_mode = 2
+text = "Deposit from inventory:"
+
+[node name="ItemSelector" type="OptionButton" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DepositSection" unique_id=639076471]
+layout_mode = 2
+
+[node name="QuantityInput" type="SpinBox" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DepositSection" unique_id=118917492]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="DepositButton" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DepositSection" unique_id=700133095]
+layout_mode = 2
+text = "Deposit"
+
+[node name="WithdrawSection" type="VBoxContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1624857104]
+layout_mode = 2
+
+[node name="WithdrawLabel" type="Label" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/WithdrawSection" unique_id=465734649]
+layout_mode = 2
+text = "Withdraw"
+
+[node name="WithdrawItemSelector" type="OptionButton" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/WithdrawSection" unique_id=462330204]
+layout_mode = 2
+
+[node name="WithdrawQuantityInput" type="SpinBox" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/WithdrawSection" unique_id=1263267623]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+
+[node name="WithdrawButton" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/WithdrawSection" unique_id=1543220361]
+layout_mode = 2
+text = "Withdraw"
+
+[node name="StorageLockSection" type="VBoxContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1823177716]
+layout_mode = 2
+
+[node name="StorageLockLabel" type="Label" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/StorageLockSection" unique_id=1426369607]
+layout_mode = 2
+text = "Lock to item:"
+
+[node name="StorageLockSelector" type="OptionButton" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/StorageLockSection" unique_id=1491316921]
+layout_mode = 2
+
+[node name="StorageLockButton" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/StorageLockSection" unique_id=1761515577]
+layout_mode = 2
+text = "Set Item"
+
+[node name="StorageClearButton" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/StorageLockSection" unique_id=2140595843]
+layout_mode = 2
+text = "Clear Item"
+
+[node name="CraftingRecipeSection" type="VBoxContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1953806648]
+layout_mode = 2
+
+[node name="RecipeLabel" type="Label" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/CraftingRecipeSection" unique_id=1830235205]
+layout_mode = 2
+text = "Recipe:"
+
+[node name="RecipeSelector" type="OptionButton" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/CraftingRecipeSection" unique_id=527363278]
+layout_mode = 2
+
+[node name="RecipeSetButton" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/CraftingRecipeSection" unique_id=105456038]
+layout_mode = 2
+text = "Set Recipe"

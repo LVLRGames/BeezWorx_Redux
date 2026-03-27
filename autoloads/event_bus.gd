@@ -2,7 +2,7 @@
 # Cross-system signal hub for decoupled communication.
 # class_name EventBus
 extends Node
-
+@warning_ignore_start("unused_signal")
 # World signals
 signal cell_occupied(cell: Vector2i, category: int)
 signal cell_cleared(cell: Vector2i)
@@ -32,11 +32,13 @@ signal territory_faded(colony_id: int, cells: Array)
 
 # Colony / pawn signals
 signal player_pawn_ready(pawn: Node3D, player_slot: int)
+signal pawn_registered(pawn_id: int, colony_id: int)
 signal pawn_spawned(pawn_id: int, colony_id: int, cell: Vector2i)
 signal pawn_died(pawn_id: int, colony_id: int, cause: StringName)
 signal pawn_hit(attacker_id: int, target_id: int, damage: float, effects: Array)
 signal pawn_loyalty_changed(pawn_id: int, new_loyalty: float)
 signal pawn_aged(pawn_id: int, new_age_days: int)
+signal pawn_possessed(player_slot: int, pawn_id: int)
 signal queen_died(colony_id: int, had_heir: bool)
 signal colony_founded(colony_id: int)
 signal colony_dissolved(colony_id: int)
@@ -46,6 +48,9 @@ signal plant_discovered(colony_id: int, plant_id: StringName, cell: Vector2i)
 signal biome_discovered(colony_id: int, biome_id: StringName, entry_cell: Vector2i)
 signal faction_first_contact(colony_id: int, faction_id: StringName, cell: Vector2i)
 signal item_discovered(colony_id: int, item_id: StringName)
+signal item_collected(pawn_id: int, item_id: StringName, count: int)
+signal item_used(pawn_id: int, item_id: StringName, count: int)
+signal item_deposited(pawn_id: int, hive_id: int, item_id: StringName, count: int)
 
 # Job signals
 signal marker_placed(marker_id: int, marker_type_id: StringName, cell: Vector2i, colony_id: int)

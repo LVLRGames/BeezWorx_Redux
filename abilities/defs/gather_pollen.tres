@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="GatherAbilityDef" format=3 uid="uid://c46alge8wrs8a"]
+
+[ext_resource type="Script" uid="uid://mfwaghwivjb1" path="res://abilities/gather_ability_def.gd" id="1_hs2v6"]
+
+[resource]
+script = ExtResource("1_hs2v6")
+item_id = &"pollen"
+valid_stages = Array[int]([3])
+ability_id = &"gather_pollen"
+display_name = "Gather Pollen"
+description = "Gather pollen from a plant"
+cooldown = 0.3
+metadata/_custom_type_script = "uid://mfwaghwivjb1"

@@ -36,8 +36,15 @@ func _process(_delta: float) -> void:
 		territory_str = "Player (%.0f%%)" % (my_influence * 100.0)
 	elif controlling > 0:
 		territory_str = "Colony %d" % controlling
-	
-	text = "Cell: %s\nBiome: %s\nOccupied: %s\nCategory: %d\nTerritory: %s\nDay: %d  %s  %s  %s\n%s\nPos: %.1f, %.1f, %.1f" % [
+	var inv_str: String = ""
+	if _pawn is PawnBase and (_pawn as PawnBase).state and (_pawn as PawnBase).state.inventory:
+		var inv: PawnInventory = (_pawn as PawnBase).state.inventory
+		for item_id in inv.get_item_ids():
+			inv_str += "\n~%s: %d" % [item_id, inv.get_count(item_id)]
+		if inv_str.is_empty():
+			inv_str = "\n~[empty]"
+
+	text = "Cell: %s\nBiome: %s\nOccupied: %s\nCategory: %d\nTerritory: %s\nDay: %d  %s  %s  %s\n%s\nPos: %.1f, %.1f, %.1f\nInv:%s" % [
 		cell,
 		biome,
 		state.occupied,
@@ -50,7 +57,8 @@ func _process(_delta: float) -> void:
 		"Day" if TimeService.is_daytime else "Night",
 		_pawn.global_position.x,
 		_pawn.global_position.y,
-		_pawn.global_position.z
+		_pawn.global_position.z,
+		inv_str
 	]
 
 

@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://bvwvouh50rejv" path="res://world/sun.png" id="7_8lsw5"]
 [ext_resource type="Texture2D" uid="uid://dp35xfwf865ex" path="res://assets/textures/terrain/water.png" id="7_olpku"]
 [ext_resource type="Script" uid="uid://bb0nxpgjxi6qa" path="res://world/day_night_cycle.gd" id="7_y5d58"]
+[ext_resource type="PackedScene" uid="uid://t6q2b4wqnk2o" path="res://ui/hive/hive_overlay.tscn" id="10_x8cgq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1nyb"]
 render_priority = -1
@@ -78,16 +79,20 @@ mesh = SubResource("QuadMesh_x8cgq")
 light_color = Color(1, 0.99215686, 0.49019608, 1)
 shadow_enabled = true
 shadow_opacity = 0.66
-shadow_blur = 0.2
-directional_shadow_mode = 0
-directional_shadow_split_2 = 0.33
-directional_shadow_split_3 = 0.66
+directional_shadow_split_1 = 0.33
+directional_shadow_split_2 = 0.66
+directional_shadow_split_3 = 0.9
 directional_shadow_fade_start = 0.66
-directional_shadow_max_distance = 512.0
+directional_shadow_max_distance = 128.0
 
 [node name="MoonLight" type="DirectionalLight3D" parent="SunLight" unique_id=2122607906]
 transform = Transform3D(1, 0, 0, 0, -1, -1.2246467991473532e-16, 0, 1.2246467991473532e-16, -1, 0, 0, 0)
 light_color = Color(0.45882353, 0.7490196, 1, 1)
+shadow_enabled = true
+directional_shadow_split_1 = 0.33
+directional_shadow_split_2 = 0.66
+directional_shadow_split_3 = 0.9
+directional_shadow_max_distance = 128.0
 
 [node name="DayNightCycle" type="Node" parent="." unique_id=1702669855 node_paths=PackedStringArray("sky_env", "sun_light", "sun_disc", "moon_light", "moon_disc")]
 script = ExtResource("7_y5d58")
@@ -109,10 +114,13 @@ moon_light = NodePath("../SunLight/MoonLight")
 moon_disc = NodePath("../MoonDisc")
 moon_sun_angle = 13.0
 moon_min_energy = 0.2
+moon_max_energy = 0.66
 
 [node name="OceanPlane" type="MeshInstance3D" parent="." unique_id=1366861512]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 mesh = SubResource("PlaneMesh_ogoty")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=364234763]
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=2022507397]
 
@@ -149,3 +157,5 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 script = ExtResource("6_ogoty")
+
+[node name="HiveOverlay" parent="." unique_id=1481496615 instance=ExtResource("10_x8cgq")]

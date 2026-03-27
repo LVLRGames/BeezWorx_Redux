@@ -22,15 +22,25 @@ class_name CameraRig
 @export var min_pitch := deg_to_rad(-80)
 @export var max_pitch := deg_to_rad(10)
 @export var pitch_lock_speed_threshold: float = 0.15
+
 static var _registry := {}
 var _yaw := 0.0
 var _pitch := deg_to_rad(-20)
 var _last_target_pos: Vector3 = Vector3.ZERO
+var _hive_mode: bool = false
+var _original_rotation: Vector3
+
 
 static func for_player(idx: int) -> CameraRig:
-	return _registry.get(idx, null)
+	var rig: CameraRig = _registry.get(idx, null)
+	# Guard against freed instances from previous scene
+	if rig != null and not is_instance_valid(rig):
+		_registry.erase(idx)
+		return null
+	return rig
 
 func _ready() -> void:
+	_registry.erase(player_index)
 	_registry[player_index] = self
 	if cam:
 		cam.rotation = Vector3.ZERO
@@ -38,6 +48,7 @@ func _ready() -> void:
 	spring_arm_3d.rotation = Vector3.ZERO
 	spring_arm_3d.spring_length = distance
 
+	EventBus.pawn_possessed.connect(_on_pawn_possessed)
 	# Listen for player pawn becoming available
 	EventBus.player_pawn_ready.connect(_on_player_pawn_ready)
 
@@ -48,6 +59,19 @@ func set_target(node: Node3D) -> void:
 
 func get_current_camera() -> Camera3D:
 	return cam
+
+
+func set_hive_mode(enabled: bool) -> void:
+	_hive_mode = enabled
+	if enabled:
+		_original_rotation = rotation_degrees
+		var tween := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(self, "rotation_degrees:x", 89.0, 0.6)
+	else:
+		var tween := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(self, "rotation_degrees", _original_rotation, 0.4)
+
+
 
 func _target_speed(dt: float) -> float:
 	if target == null:
@@ -76,6 +100,8 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _process(dt: float) -> void:
 	if not target: 
+		return
+	if _hive_mode:
 		return
 	
 	if target:
@@ -119,3 +145,10 @@ func _on_player_pawn_ready(pawn: Node3D, slot: int) -> void:
 	if slot != player_index:
 		return
 	set_target(pawn)
+
+func _on_pawn_possessed(player_slot: int, pawn_id: int) -> void:
+	if player_slot != player_index:
+		return
+	var node: PawnBase = PawnRegistry.get_pawn(pawn_id)
+	if node:
+		set_target(node)

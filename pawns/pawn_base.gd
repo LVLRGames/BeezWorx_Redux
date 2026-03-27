@@ -28,11 +28,13 @@ class_name PawnBase
 extends CharacterBody3D
 
 # ── Spec exports ──────────────────────────────────────────────────────────────
-@export var species_def:      Resource   # SpeciesDef — typed loosely until Phase 3
-@export var role_def:         Resource   # RoleDef
-@export var action_ability:   Resource   # AbilityDef
-@export var alt_ability:      Resource   # AbilityDef
-@export var interact_ability: Resource   # AbilityDef
+@export var species_def:      SpeciesDef
+@export var role_def:         RoleDef
+## Prioritized list — first can_use() winner fires on action button press.
+## Order in Inspector = priority order. Drag .tres files to reorder.
+@export var action_abilities: Array[AbilityDef] = []
+## Prioritized list — first can_use() winner fires on alt button press.
+@export var alt_abilities: Array[AbilityDef] = []
 
 # ── Movement tuning ───────────────────────────────────────────────────────────
 @export var move_speed:  float = 16.0
@@ -63,7 +65,7 @@ extends CharacterBody3D
 var pawn_id: int = -1
 
 ## PawnState ref — set by PawnRegistry.register(). Readable by any system.
-var state: Resource = null   # PawnState — typed loosely until Phase 3
+var state: PawnState = null   # PawnState — typed loosely until Phase 3
 
 # ── Controller (player input routing) ────────────────────────────────────────
 ## Swap this to a PlayerController to possess, AIController stub during
@@ -93,20 +95,23 @@ const NAV_ARRIVE_THRESHOLD: float = 0.4
 func _ready() -> void:
 	_pawn_ai  = get_node_or_null("PawnAI")
 	_executor = get_node_or_null("PawnAbilityExecutor")
-
-	# Default to AI-driven when not possessed
-	if controller == null and _pawn_ai == null:
-		# Phase 1 fallback: simple wander via AIController if PawnAI not present
-		var ai_script: Script = load("res://pawns/ai_controller.gd")
-		if ai_script:
-			controller = ai_script.new()
-			(controller as Resource).set("pawn", self)
-
 	if not selector:
 		selector = get_tree().get_first_node_in_group("selector") as HexSelector
+		
+	if pawn_id >= 0:
+		# Loading from save — wire existing state
+		state = PawnRegistry.get_state(pawn_id)
+		if state == null:
+			push_error("PawnBase: pawn_id %d set but no state in PawnRegistry" % pawn_id)
+			return
+		PawnRegistry.set_pawn(pawn_id, self)
+		# Don't emit pawn_registered — possession is handled by WorldRoot
+	else:
+		# Fresh spawn — register normally
+		pawn_id = PawnRegistry.register(self)
+	
+	print("PawnBase ready: pawn_id=", pawn_id, " controller=", controller, " is_possessed=", is_possessed)
 
-	if name_tag:
-		name_tag.info = name
 
 func _physics_process(delta: float) -> void:
 	# PlayerController drives the pawn directly via physics_tick().
@@ -117,6 +122,11 @@ func _physics_process(delta: float) -> void:
 	# PawnAI drives via navigate_to(); we execute the movement here.
 	if _navigating:
 		_tick_navigation(delta)
+	
+	if pawn_id >= 0:
+		var cell := HexConsts.WORLD_TO_AXIAL(global_position.x, global_position.z)
+		if not state or cell != state.last_known_cell:
+			PawnRegistry.update_cell(pawn_id, cell)
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Navigation (called by PawnAI)
@@ -180,13 +190,14 @@ func face_direction(dir: Vector3, _delta: float, gfx: Node3D = null) -> void:
 
 ## Called by PlayerController on action button press.
 func interact() -> void:
+	#print("pawn_base.interact called, executor=", _executor)
 	if _executor != null:
 		_executor.call("try_action")
-	elif selector:
-		selector.bounce_cell()
+	
 
 ## Called by PlayerController on alt-action button press.
 func alt_interact() -> void:
+	#print("pawn_base.alt_interact called, executor=", _executor)
 	if _executor != null:
 		_executor.call("try_alt_action")
 
@@ -198,25 +209,50 @@ func _on_interact_generic(_target: Variant) -> void:
 ## Abstract — must be implemented by concrete bee/ant/etc. scenes.
 @abstract func get_pawn_info() -> String
 
+
+func refresh_name_tag() -> void:
+	if not name_tag or not state:
+		return
+	if state.possessor_id >= 0:
+		name_tag.info = "[P%d] %s" % [state.possessor_id, _get_display_name()]
+	else:
+		name_tag.info = _get_display_name()
+
+
+func die() -> void:
+	if state:
+		state.is_alive = false
+	PawnRegistry.deregister(pawn_id)
+	EventBus.pawn_died.emit(pawn_id, state.colony_id if state else -1, &"unknown")
+	queue_free()
+
+
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Possession hooks
 # ════════════════════════════════════════════════════════════════════════════ #
 
 func on_possessed(by_player_slot: int) -> void:
 	is_possessed = true
+	if state:
+		state.possessor_id        = by_player_slot
+		state.player_boost_active = true
 	if _pawn_ai:
 		_pawn_ai.set("ai_active", false)
 	if name_tag:
-		name_tag.info = "[P%d] %s" % [by_player_slot, name]
-	# TODO Phase 3: snapshot AI resume state, apply possession speed boost
+		name_tag.info = "[P%d] %s" % [by_player_slot, \
+			_get_display_name() if state else name]
+
 
 func on_unpossessed() -> void:
 	is_possessed = false
+	if state:
+		state.possessor_id        = -1
+		state.player_boost_active = false
 	if _pawn_ai:
 		_pawn_ai.set("ai_active", true)
 	if name_tag:
-		name_tag.info = name
-	# TODO Phase 3: restore AI from resume state
+		name_tag.info = _get_display_name() if state else name
+
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Controller setter
@@ -245,3 +281,10 @@ func distance_to_ground() -> float:
 	if result.has("position"):
 		return global_position.distance_to(result["position"])
 	return 0.0
+
+
+func _get_display_name() -> String:
+	var base: String = state.pawn_name if state else name
+	if state and PawnRegistry.is_queen(pawn_id, state.colony_id):
+		return "👑 " + base
+	return base

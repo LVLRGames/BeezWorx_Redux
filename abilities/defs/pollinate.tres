@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="PollinateAbilityDef" format=3 uid="uid://bi7lqj8xch4mf"]
+
+[ext_resource type="Script" uid="uid://bstjrw25exsag" path="res://abilities/pollinate_ability_def.gd" id="1_c02pu"]
+
+[resource]
+script = ExtResource("1_c02pu")
+ability_id = &"pollinate"
+display_name = "Pollinate"
+metadata/_custom_type_script = "uid://bstjrw25exsag"

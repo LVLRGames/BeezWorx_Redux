@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SlotDesignationDef" format=3 uid="uid://cwgt4csuortty"]
+
+[ext_resource type="Script" uid="uid://b3ua7ybdiir7q" path="res://defs/hive/slot_designation_def.gd" id="1_nj67d"]
+
+[resource]
+script = ExtResource("1_nj67d")
+designation_id = 3
+display_name = "Storage"
+label_initial = "📦"
+icon_col = 3
+color = Color(0.95468724, 0.8808251, 0.58383155, 1)
+progress_type = 1
+item_icon_behavior = 1
+can_deposit = true
+can_withdraw = true
+metadata/_custom_type_script = "uid://b3ua7ybdiir7q"

@@ -62,12 +62,11 @@ func physics_tick(delta: float) -> void:
 	pawn.move_in_plane(accel_dir, delta)
 	
 	if Input.is_action_just_pressed(px+"action"):
-		if pawn.selector:
-			pawn.interact()
+		pawn.interact()
 	
 	if Input.is_action_just_pressed(px+"alt_action"):
-		if pawn.selector:
-			pawn.alt_interact()
+		pawn.alt_interact()
+
 
 
 

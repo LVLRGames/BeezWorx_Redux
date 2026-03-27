@@ -49,7 +49,7 @@ extends Node3D
 # ── Scene refs ────────────────────────────────────────────────────────────────
 @onready var _terrain_manager: HexTerrainManager = get_node(terrain_manager_path)
 
-var _bee: CharacterBody3D = null
+var _bee: PawnBase = null
 var _camera_rig: Node3D   = null
 
 # ── Packed scenes ─────────────────────────────────────────────────────────────
@@ -64,36 +64,54 @@ func _ready() -> void:
 	if not terrain_config:
 		push_error("WorldRoot: no HexTerrainConfig assigned.")
 		return
-	_init_world()
+ 
 	_register_global_shader_params()
-	_spawn_player()
-	_init_colony()
-	_place_starter_hive()
-	
-	# --- TEMP DEBUG ---
-	print("_bee: ", _bee)
-	print("_camera_rig: ", _camera_rig)
-	print("CameraRig.for_player(1): ", CameraRig.for_player(1))
-	if _camera_rig:
-		print("camera_rig target: ", _camera_rig.target)
-	# --- END DEBUG ---
-	
+ 
+	# Always initialize world substrate — terrain is procedural and not saved
+	_init_world()
+ 
 	var gb := GrassBender.new()
 	add_child(gb)
 	gb.name = "GrassBender"
-	
+ 
+	if SaveManager.has_save(SaveManager.AUTOSAVE_SLOT):
+		_load_world()
+	else:
+		_init_new_world()
+
 
 func _process(delta: float) -> void:
 	_tick_wind_shader(delta)
 
+
+func _input(event: InputEvent) -> void:
+	
+	if event.is_action_pressed("p1_save_game"):
+		SaveManager.save_game()
+		# TODO: show save notification in HUD
+	if event.is_action_pressed("p1_load_game"):
+		get_tree().reload_current_scene()   # cleanest load — re-runs _ready()
+		# SaveManager.has_save() will be true so _load_world() fires
+
+
+
 # ════════════════════════════════════════════════════════════════════════════ #
 #  World initialisation
 # ════════════════════════════════════════════════════════════════════════════ #
+func _init_new_world() -> void:
+	_spawn_player()
+	_init_colony()
+	_place_starter_hive()
+	if _bee:
+		_bee.refresh_name_tag()
+
 
 func _init_world() -> void:
 	# HexWorldState.initialize() builds registry, baseline, simulation,
 	# registers engine_time global shader param, and loads saved deltas.
 	HexWorldState.initialize(terrain_config)
+	HiveSystem.set_visual_parent(self)
+
 	if time_config:
 		TimeService.initialize(time_config)
 	else:
@@ -164,47 +182,120 @@ static func _infer_global_param_type(value: Variant) -> int:
 			return RenderingServer.GLOBAL_VAR_TYPE_FLOAT
 	return RenderingServer.GLOBAL_VAR_TYPE_FLOAT
 
+
+func _load_world() -> void:
+	# Restore all system state from the autosave
+	SaveManager.load_game(SaveManager.AUTOSAVE_SLOT)
+ 
+	# Respawn player pawn from restored PawnRegistry state
+	_respawn_player_from_save()
+
+
+
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Player spawn
 # ════════════════════════════════════════════════════════════════════════════ #
-
+ 
 func _spawn_player() -> void:
 	_bee = BEE_SCENE.instantiate() as CharacterBody3D
 	if not _bee:
 		push_error("WorldRoot: failed to instantiate bee scene")
 		return
-
 	_camera_rig = CAMERA_RIG_SCENE.instantiate() as Node3D
 	if not _camera_rig:
 		push_error("WorldRoot: failed to instantiate camera_rig scene")
 		return
 
+	# Connect BEFORE add_child — _ready() fires synchronously during add_child
+	EventBus.pawn_registered.connect(_on_player_pawn_registered)
+
 	add_child(_bee)
 	add_child(_camera_rig)
-	
+
 	if _terrain_manager:
 		_terrain_manager.player = _bee
-	
+
 	_bee.global_position = bee_spawn_position
-	_bee.pawn_id = 0
-	_bee.add_to_group("pawns")
 	_bee.add_to_group("grass_bender")
 
-	PossessionManager.request_possess(1, 0)
-
-	# Signal that player pawn is in the tree and ready
 	EventBus.player_pawn_ready.emit(_bee, 1)
+
+
+func _respawn_player_from_save() -> void:
+	var queen_id: int = ColonyState.get_queen_id(0)
+	if queen_id < 0:
+		push_warning("WorldRoot: no queen found in save — starting new world")
+		_init_new_world()
+		return
+
+	var state: PawnState = PawnRegistry.get_state(queen_id)
+	if state == null:
+		push_warning("WorldRoot: queen state missing from PawnRegistry — starting new world")
+		_init_new_world()
+		return
+
+	_camera_rig = CAMERA_RIG_SCENE.instantiate() as Node3D
+	if _camera_rig:
+		add_child(_camera_rig)
+
+	_bee = BEE_SCENE.instantiate() as CharacterBody3D
+	if not _bee:
+		push_error("WorldRoot: failed to instantiate bee scene on load")
+		return
+
+	_bee.pawn_id = queen_id
+
+	# DO NOT connect pawn_registered — bee won't emit it on load path
+	add_child(_bee)   # _ready() fires here — PawnBase wires loaded state
+
+	var w: Vector2 = HexConsts.AXIAL_TO_WORLD(
+		state.last_known_cell.x,
+		state.last_known_cell.y
+	)
+	_bee.global_position = Vector3(w.x, 8.0, w.y)
+	_bee.add_to_group("grass_bender")
+
+	if _terrain_manager:
+		_terrain_manager.player = _bee
+
+	if state.inventory != null:
+		_bee.state = state
+
+	_bee.refresh_name_tag()
+
+	# _ready() has fired — possess directly, no signal needed
+	PossessionManager.request_possess(1, queen_id)
+
+	EventBus.player_pawn_ready.emit(_bee, 1)
+ 
+
+func _on_player_pawn_registered(pawn_id: int, _colony_id: int) -> void:
+	print("_on_player_pawn_registered: pawn_id=", pawn_id, " _bee=", _bee)
+	var node: PawnBase = PawnRegistry.get_pawn(pawn_id)
+	print("node=", node, " matches _bee=", node == _bee)
+	if node != _bee:
+		return
+	EventBus.pawn_registered.disconnect(_on_player_pawn_registered)
+	print("calling request_possess(1, ", pawn_id, ")")
+	PossessionManager.request_possess(1, pawn_id)
+
+
+
+
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Colony init
 # ════════════════════════════════════════════════════════════════════════════ #
 
 func _init_colony() -> void:
-	# Create player colony (id 0) if it doesn't exist yet.
-	# SaveManager will populate this from save data on subsequent loads.
 	if ColonyState.get_player_colony() == null:
 		var colony_id: int = ColonyState.create_colony()
-		assert(colony_id == 0, "Player colony must always be id 0")
+		assert(colony_id == 0)
+	# Set the bee as queen once it has a valid pawn_id
+	# (called after _spawn_player() so pawn is registered)
+	if _bee and _bee.pawn_id >= 0:
+		ColonyState.set_queen(0, _bee.pawn_id)
+
 
 
 func _place_starter_hive() -> void:
@@ -222,7 +313,7 @@ func _place_starter_hive() -> void:
 	if hive_cell == Vector2i(-9999, -9999):
 		hive_cell = anchor_cell
 
-	var hive_id: int = HiveSystem.register_hive(hive_cell, 0, -1, true, 16, 6)
+	var hive_id: int = HiveSystem.register_hive(hive_cell, 0, -1, true, 19, 6)
 
 	var queen_id: int = ColonyState.get_queen_id(0)
 	if queen_id >= 0:

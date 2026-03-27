@@ -1,6 +1,6 @@
 [gd_resource type="StandardMaterial3D" format=3 uid="uid://kqcdfh8rsfgy"]
 
-[ext_resource type="Texture2D" uid="uid://bxn7184msxk7a" path="res://entities/ant/Ant_ant_atlas.png" id="1_ciuqq"]
+[ext_resource type="Texture2D" uid="uid://bxn7184msxk7a" path="res://pawns/ant/Ant_ant_atlas.png" id="1_ciuqq"]
 
 [resource]
 resource_name = "ant_material"
@@ -8,7 +8,7 @@ transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
 cull_mode = 2
-diffuse_mode = 3
+diffuse_mode = 2
 specular_mode = 1
 albedo_texture = ExtResource("1_ciuqq")
 metallic = 0.33

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SlotDesignationDef" format=3 uid="uid://q31wv0e8gbwr"]
+
+[ext_resource type="Script" uid="uid://b3ua7ybdiir7q" path="res://defs/hive/slot_designation_def.gd" id="1_swtc6"]
+
+[resource]
+script = ExtResource("1_swtc6")
+designation_id = 5
+display_name = "Nursery"
+label_initial = "🥚"
+icon_col = 5
+color = Color(1, 0.7977378, 0.85430586, 1)
+progress_type = 2
+item_icon_behavior = 4
+can_deposit = true
+can_feed_egg = true
+metadata/_custom_type_script = "uid://b3ua7ybdiir7q"

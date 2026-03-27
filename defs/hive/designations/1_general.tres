@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SlotDesignationDef" format=3 uid="uid://ccp6di4mid8wl"]
+
+[ext_resource type="Script" uid="uid://b3ua7ybdiir7q" path="res://defs/hive/slot_designation_def.gd" id="1_a76qc"]
+
+[resource]
+script = ExtResource("1_a76qc")
+designation_id = 1
+display_name = "General"
+label_initial = "G"
+icon_col = 1
+color = Color(0.7977378, 0.7977378, 0.7977378, 1)
+item_icon_behavior = 4
+can_deposit = true
+can_withdraw = true
+can_sleep = true
+metadata/_custom_type_script = "uid://b3ua7ybdiir7q"

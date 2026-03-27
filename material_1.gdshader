@@ -1,7 +1,7 @@
 // NOTE: Shader automatically converted from Godot Engine 4.6.stable.double's StandardMaterial3D.
 // Added: wind, entity bending, bend highlight
 shader_type spatial;
-render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_toon, specular_toon;
+render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_lambert_wrap, specular_toon;
 
 group_uniforms albedo;
 uniform vec4 albedo : source_color;

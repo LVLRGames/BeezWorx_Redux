@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode diffuse_lambert_wrap;
+render_mode diffuse_lambert_wrap, specular_toon;
 
 uniform float tint_noise_scale = 0.05;
 uniform sampler2D tint_noise : filter_nearest; // Prevents "blurring" between tiles
