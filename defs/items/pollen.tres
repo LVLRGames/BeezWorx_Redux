@@ -1,7 +1,12 @@
 [gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c1huv4rk7vk5"]
 
 [ext_resource type="Script" uid="uid://4lode384gbct" path="res://defs/items/item_def.gd" id="1_b2sdn"]
+[ext_resource type="Texture2D" uid="uid://cxv1a4fvg18ti" path="res://ui/pollen_icon.png" id="1_u786k"]
 
 [resource]
 script = ExtResource("1_b2sdn")
+item_id = &"pollen"
+display_name = "Pollen"
+icon_tint = Color(1, 0.7953644, 0, 1)
+icon = ExtResource("1_u786k")
 metadata/_custom_type_script = "uid://4lode384gbct"

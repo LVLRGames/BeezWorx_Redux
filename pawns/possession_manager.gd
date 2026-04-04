@@ -31,19 +31,12 @@ const MAX_PLAYERS: int = 4
 ## Request that player_slot takes possession of pawn with pawn_id.
 ## Returns false if pawn is not eligible.
 func request_possess(player_slot: int, pawn_id: int) -> bool:
-	print("request_possess: slot=", player_slot, " pawn_id=", pawn_id)
 	var pawn: PawnBase = _find_pawn(pawn_id)
-	print("found pawn: ", pawn)
 	if pawn == null:
 		return false
 	if not _can_possess(player_slot, pawn):
-		print("_can_possess returned false")
 		return false
-
-	# Release current possession for this slot if any
-	if _possessed.get(player_slot, -1) != -1:
-		request_release(player_slot)
-
+	# Don't call request_release here — _local_possess handles it
 	_local_possess(pawn, player_slot)
 	EventBus.pawn_possessed.emit(player_slot, pawn_id)
 	return true
@@ -84,28 +77,33 @@ func get_possessor(pawn_id: int) -> int:
 
 func _local_possess(pawn: PawnBase, player_slot: int) -> void:
 	print("_local_possess: pawn_id=", pawn.pawn_id, " slot=", player_slot)
-	var pc := PlayerController.new()
-	pc.player_index = player_slot
-	pawn.controller = pc
 
+	# Grab existing controller from previously possessed pawn before releasing
+	var pc: PlayerController = null
+	var prev_id: int = _possessed.get(player_slot, -1)
+	if prev_id >= 0:
+		var prev_pawn: PawnBase = _find_pawn(prev_id)
+		if prev_pawn != null and prev_pawn.controller is PlayerController:
+			pc = prev_pawn.controller as PlayerController
+			prev_pawn.controller = null
+			prev_pawn.on_unpossessed()
+	_possessed.erase(player_slot)
+
+	if pc == null:
+		pc = PlayerController.new()
+		pc.player_index = player_slot
+
+	pawn.controller = pc
 	pawn.on_possessed(player_slot)
 	_possessed[player_slot] = pawn.pawn_id
-
-	## Point camera rig at the new pawn
-	#var rig: CameraRig = CameraRig.for_player(player_slot)
-	#if rig:
-		#rig.set_target(pawn)
-
-	EventBus.pawn_spawned.emit(pawn.pawn_id, 0, Vector2i.ZERO)
-	# TODO Phase 3: emit EventBus.pawn_possessed(pawn_id, player_slot)
+	EventBus.pawn_possessed.emit(player_slot, pawn.pawn_id)
 
 
 func _local_release(pawn: PawnBase, player_slot: int) -> void:
 	# Restore AI — PawnAI takes over if present, otherwise null controller
 	pawn.controller = null
 	pawn.on_unpossessed()
-
-	# TODO Phase 3: emit EventBus.pawn_released(pawn_id, player_slot)
+	EventBus.pawn_released.emit(pawn.pawn_id, player_slot)
 	# TODO Phase 3: trigger queen safety behavior if releasing queen outside hive
 
 func _can_possess(player_slot: int, pawn: PawnBase) -> bool:

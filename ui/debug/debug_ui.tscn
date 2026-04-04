@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://b05tekehk87yi"]
+
+[ext_resource type="Script" uid="uid://hcujianys218" path="res://dev/fps_label.gd" id="1_0kc0p"]
+[ext_resource type="Script" uid="uid://ilxk372wq08t" path="res://ui/debug/debug_ui.gd" id="1_22b5d"]
+[ext_resource type="Script" uid="uid://c63tnw6da0cul" path="res://ui/debug/hex_cell_debug.gd" id="2_0kc0p"]
+
+[node name="Control" type="Control" unique_id=241847079]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_22b5d")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=513268788]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="FPSLabel" type="Label" parent="MarginContainer" unique_id=457247762]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+script = ExtResource("1_0kc0p")
+
+[node name="HexDebugLabel" type="RichTextLabel" parent="MarginContainer" unique_id=194459776]
+custom_minimum_size = Vector2(250, 300)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("2_0kc0p")

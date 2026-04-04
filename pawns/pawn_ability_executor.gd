@@ -60,13 +60,13 @@ func get_action_prompt() -> String:
 	var ability: AbilityDef = _resolve(pawn.action_abilities)
 	if ability == null:
 		return ""
-	return ability.get_prompt(_make_context())
+	return ability.get_prompt(make_context())
 
 func get_alt_prompt() -> String:
 	var ability: AbilityDef = _resolve(pawn.alt_abilities)
 	if ability == null:
 		return ""
-	return ability.get_prompt(_make_context())
+	return ability.get_prompt(make_context())
 
 ## Returns the ability that would fire for action right now, or null.
 func peek_action() -> AbilityDef:
@@ -93,7 +93,7 @@ func has_alt() -> bool:
 func _resolve(abilities: Array) -> AbilityDef:
 	if abilities.is_empty():
 		return null
-	var ctx: AbilityContext = _make_context()
+	var ctx: AbilityContext = make_context()
 	for entry in abilities:
 		var ability: AbilityDef = entry as AbilityDef
 		if ability == null:
@@ -109,7 +109,7 @@ func _resolve(abilities: Array) -> AbilityDef:
 # ════════════════════════════════════════════════════════════════════════════ #
 
 func _execute_resolved(ability: AbilityDef) -> bool:
-	var ctx: AbilityContext = _make_context()
+	var ctx: AbilityContext = make_context()
 	# Re-check — context may have changed between resolve and execute
 	if not ability.can_use(ctx):
 		return false
@@ -123,7 +123,7 @@ func _execute_resolved(ability: AbilityDef) -> bool:
 #  Context
 # ════════════════════════════════════════════════════════════════════════════ #
 
-func _make_context() -> AbilityContext:
+func make_context() -> AbilityContext:
 	var ctx := AbilityContext.new()
 	ctx.pawn       = pawn
 	ctx.pawn_cell  = HexConsts.WORLD_TO_AXIAL(
@@ -131,7 +131,38 @@ func _make_context() -> AbilityContext:
 		pawn.global_position.z
 	)
 	ctx.world_time = TimeService.world_time
+ 
+	var detector: InteractionDetector = pawn.get_node_or_null("InteractionDetector")
+	if detector != null:
+		var info: Dictionary = detector.get_current_target()
+		match info.get("type", &""):
+			&"plant":
+				ctx.target_cell = info.get("cell", Vector2i(-9999, -9999))
+			&"hive":
+				ctx.target_hive_id = info.get("hive_id", -1)
+			&"pawn":
+				var pid: int = info.get("pawn_id", -1)
+				if pid >= 0:
+					ctx.target_pawn = PawnRegistry.get_pawn(pid)
+ 
+	# Always resolve nearest hive for deposit range checks
+	if pawn.state != null:
+		var hives: Array[HiveState] = HiveSystem.get_hives_for_colony(pawn.state.colony_id)
+		var best_dist: int = 4
+		for hs: HiveState in hives:
+			var dist: int = _hex_dist(ctx.pawn_cell, hs.anchor_cell)
+			if dist < best_dist:
+				best_dist        = dist
+				ctx.target_hive_id = hs.hive_id
+ 
 	return ctx
+
+
+static func _hex_dist(a: Vector2i, b: Vector2i) -> int:
+	var dq: int = b.x - a.x
+	var dr: int = b.y - a.y
+	return (absi(dq) + absi(dr) + absi(dq + dr)) / 2
+
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Cooldowns

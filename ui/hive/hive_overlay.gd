@@ -28,7 +28,7 @@ enum FocusArea { GRID, PANEL }
 @onready var _select_layer:     TileMapLayer   = $MainContainer/VBoxContainer/ContentRow/SubViewportContainer/SubViewport/SelectLayer
 @onready var _slot_panel:       PanelContainer = $MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel
 @onready var _slot_title:       Label          = $MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/SlotTitle
-@onready var _designation_box:  VBoxContainer  = $MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions
+@onready var _designation_box:  HBoxContainer  = $MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions
 @onready var _contents_label:   Label          = $MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/ContentsLabel
 @onready var _contents_grid:    GridContainer  = $MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/ContentsGrid
 @onready var _deposit_section:  VBoxContainer  = $MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DepositSection
@@ -433,7 +433,19 @@ func _rebuild_slot_panel() -> void:
 		return
 
 	var def: SlotDesignationDef = SlotDesignationRegistry.get_def(slot.designation)
-	_slot_title.text = "Slot %d — %s" % [slot_index, def.display_name]
+	var title: String = "Slot %d — %s" % [slot_index, def.display_name]
+
+	# Show lock info in title
+	if slot.designation == HiveSlot.SlotDesignation.STORAGE:
+		if slot.locked_item_id != &"":
+			title += "  [%s only]" % str(slot.locked_item_id)
+		else:
+			title += "  [any item]" % str(slot.locked_item_id)
+			
+	elif slot.designation == HiveSlot.SlotDesignation.CRAFTING and slot.locked_item_id != &"":
+		title += "  [recipe: %s]" % str(slot.locked_item_id)
+
+	_slot_title.text = title
 
 	_rebuild_designation_section(slot)
 	_rebuild_contents_section(slot)
@@ -455,12 +467,21 @@ func _rebuild_designation_section(slot: HiveSlot) -> void:
 		if def.is_locked:
 			continue
 		var btn := Button.new()
-		btn.text           = def.display_name
 		btn.toggle_mode    = true
 		btn.focus_mode     = Control.FOCUS_ALL
 		btn.button_pressed = (slot.designation == def.designation_id)
 		btn.add_theme_color_override("font_color", def.color)
 		btn.pressed.connect(_on_designation_pressed.bind(def.designation_id))
+		# Icon
+		if def.icon != null:
+			btn.icon          = def.icon
+			btn.custom_minimum_size = Vector2(40, 40)
+			btn.expand_icon   = true
+			btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			# No text — icon only
+		else:
+			btn.text = def.display_name   # fallback if no icon authored yet
+
 		_designation_box.add_child(btn)
 
 # ── Contents section ──────────────────────────────────────────────────────────

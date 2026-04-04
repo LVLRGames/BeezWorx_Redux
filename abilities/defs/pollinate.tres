@@ -1,9 +1,16 @@
-[gd_resource type="Resource" script_class="PollinateAbilityDef" format=3 uid="uid://bi7lqj8xch4mf"]
+[gd_resource type="Resource" script_class="DepositAbilityDef" format=3 uid="uid://bi7lqj8xch4mf"]
 
-[ext_resource type="Script" uid="uid://bstjrw25exsag" path="res://abilities/pollinate_ability_def.gd" id="1_c02pu"]
+[ext_resource type="Texture2D" uid="uid://cxv1a4fvg18ti" path="res://ui/pollen_icon.png" id="1_3pl6r"]
+[ext_resource type="Script" uid="uid://cv4e3ko80pugk" path="res://abilities/deposit_ability_def.gd" id="1_c02pu"]
 
 [resource]
 script = ExtResource("1_c02pu")
+item_id = &"pollen"
+valid_stages = Array[int]([3])
 ability_id = &"pollinate"
-display_name = "Pollinate"
-metadata/_custom_type_script = "uid://bstjrw25exsag"
+display_name = "Deposit Pollen"
+description = "Deposit pollen on flowering plants"
+icon = ExtResource("1_3pl6r")
+require_pawn_has_mode = 1
+require_pawn_has = Array[StringName]([&"pollen"])
+metadata/_custom_type_script = "uid://cv4e3ko80pugk"

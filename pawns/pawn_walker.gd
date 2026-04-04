@@ -80,7 +80,8 @@ func move_in_plane(input_dir: Vector3, delta: float) -> void:
 
 	var target_normal: Vector3 = _resolve_surface_normal().normalized()
 	var t: float = 1.0 - pow(0.0001, delta * surface_align_rate)
-	_surface_normal = _surface_normal.slerp(target_normal, t).normalized()
+	_surface_normal = _surface_normal.lerp(target_normal, t).normalized()
+	_surface_normal = _surface_normal / _surface_normal.length()
 	up_direction    = _surface_normal
 
 	var a: Vector3 = input_dir
@@ -90,7 +91,9 @@ func move_in_plane(input_dir: Vector3, delta: float) -> void:
 	a = a - _surface_normal * a.dot(_surface_normal)
 
 	if _surface_normal.dot(Vector3.UP) < 0.5 and a.length_squared() > 0.0001:
-		a = a.rotated(_surface_normal, deg_to_rad(-90.0))
+		var axis: Vector3 = Vector3(_surface_normal.x, 0.0, _surface_normal.z).normalized()
+		if axis.length_squared() > 0.5:
+			a = a.rotated(axis, deg_to_rad(-90.0))
 
 	velocity += a * accel * delta
 	velocity += _surface_normal * -gravity_force * delta

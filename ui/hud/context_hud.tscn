@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://bs0mqucvv06hf"]
+
+[ext_resource type="Script" uid="uid://cdwpakeuii0w2" path="res://ui/hud/context_hud.gd" id="1_am50y"]
+[ext_resource type="PackedScene" uid="uid://biw41nn80oef2" path="res://ui/hud/context_panel.tscn" id="2_nx67b"]
+[ext_resource type="PackedScene" uid="uid://ckkuw7r8uxtuw" path="res://ui/hud/action_panel.tscn" id="3_buls0"]
+[ext_resource type="PackedScene" uid="uid://cwr6p0kd1lmsv" path="res://ui/hud/inventory_panel.tscn" id="4_gremm"]
+
+[node name="ContextHUD" type="HBoxContainer" unique_id=1384546645]
+texture_filter = 1
+offset_left = 320.0
+offset_top = 536.0
+offset_right = 832.0
+offset_bottom = 648.0
+alignment = 1
+script = ExtResource("1_am50y")
+
+[node name="ContextPanel" parent="." unique_id=1367830322 instance=ExtResource("2_nx67b")]
+texture_filter = 1
+layout_mode = 2
+
+[node name="ActionPanel" parent="." unique_id=75525813 instance=ExtResource("3_buls0")]
+texture_filter = 1
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+
+[node name="InventoryPanel" parent="." unique_id=147736376 instance=ExtResource("4_gremm")]
+texture_filter = 1
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2

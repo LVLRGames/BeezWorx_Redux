@@ -31,6 +31,9 @@ var _next_id:   int = 0
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Registration
 # ════════════════════════════════════════════════════════════════════════════ #
+func _ready() -> void:
+	_states.clear()
+
 
 ## Register a pawn node. Returns the assigned pawn_id.
 ## Creates a PawnState populated from the pawn's exports.
@@ -43,7 +46,8 @@ func register(pawn: PawnBase) -> int:
 	var state := PawnState.new()
 	state.pawn_id   = id
 	state.colony_id = 0   # default to player colony; caller can override
-
+	state.scene_path = pawn.scene_file_path
+	
 	# Read species/role from exports if available
 	if pawn.species_def and pawn.species_def.get("species_id"):
 		state.species_id = pawn.species_def.get("species_id")
@@ -60,8 +64,8 @@ func register(pawn: PawnBase) -> int:
 		if cap != null:
 			inv_capacity = cap
 	state.inventory = PawnInventory.new()
-	state.inventory.setup(inv_capacity)
-
+	state.inventory.setup(id, inv_capacity)
+	
 	# Generate a name if none set
 	if state.pawn_name.is_empty():
 		state.pawn_name = _generate_name(id)

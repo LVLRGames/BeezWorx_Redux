@@ -1,12 +1,14 @@
 [gd_resource type="Resource" script_class="SlotDesignationDef" format=3 uid="uid://dha3vfp10pjt4"]
 
 [ext_resource type="Script" uid="uid://b3ua7ybdiir7q" path="res://defs/hive/slot_designation_def.gd" id="1_pe3qw"]
+[ext_resource type="Texture2D" uid="uid://kkh2pvb6nygw" path="res://ui/hive/designation_icon_crafting.png" id="1_sri2o"]
 
 [resource]
 script = ExtResource("1_pe3qw")
 designation_id = 4
 display_name = "Crafting"
 label_initial = "⚒️"
+icon = ExtResource("1_sri2o")
 icon_col = 4
 color = Color(0.735357, 0.95468724, 0.735357, 1)
 progress_type = 2

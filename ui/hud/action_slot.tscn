@@ -1,0 +1,100 @@
+[gd_scene format=3 uid="uid://bi0m7b5fi37pw"]
+
+[ext_resource type="Script" uid="uid://d1n2b4vrjgsxr" path="res://ui/hud/hex_picker_slot.gd" id="1_qq5ve"]
+[ext_resource type="Script" uid="uid://cmsdkxif1d8yl" path="res://ui/hex_grid_container.gd" id="2_ogxgx"]
+[ext_resource type="Shader" uid="uid://ch5wx3ea8x01d" path="res://ui/hive/hive_overlay_shader.gdshader" id="3_184d4"]
+
+[sub_resource type="Curve" id="Curve_ogxgx"]
+_data = [Vector2(0, 0), 0.0, 1.4, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nteuh"]
+shader = ExtResource("3_184d4")
+shader_parameter/inner_radius = 0.206000009785
+shader_parameter/outer_radius = 1.0
+shader_parameter/corner_shape = 2.0
+shader_parameter/vignette_intensity = 1.0
+shader_parameter/darkness_power = 3.0
+shader_parameter/edge_clamping = 1.0
+
+[node name="HexPickerSlot" type="Control" unique_id=1519447004]
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -34.0
+offset_top = -68.0
+offset_right = 34.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_qq5ve")
+min_visible_slots = 1
+falloff_curve = SubResource("Curve_ogxgx")
+preview_cell_count = 19
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1394837742]
+clip_contents = false
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 3
+
+[node name="HexGridContainer" type="Container" parent="ScrollContainer" unique_id=1224452024]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("2_ogxgx")
+grow_direction = 1
+columns = 3
+
+[node name="VignetteOverlay" type="ColorRect" parent="." unique_id=12369528]
+visible = false
+material = SubResource("ShaderMaterial_nteuh")
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="InfoLabel" type="RichTextLabel" parent="." unique_id=1098402880]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(64, 18)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -32.0
+offset_top = -30.0
+offset_right = 32.0
+offset_bottom = -12.0
+grow_horizontal = 2
+bbcode_enabled = true
+text = "fdududd"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1

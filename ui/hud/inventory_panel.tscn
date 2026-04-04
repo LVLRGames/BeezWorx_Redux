@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://cwr6p0kd1lmsv"]
+
+[ext_resource type="Script" uid="uid://bwbuc1dhcpjr7" path="res://ui/hud/inventory_panel.gd" id="1_oadtx"]
+[ext_resource type="PackedScene" uid="uid://dciom4o0eujxf" path="res://ui/hud/inventory_slot.tscn" id="2_edlck"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_edlck"]
+
+[node name="InventoryPanel" type="PanelContainer" unique_id=147736376]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 8
+theme_override_styles/panel = SubResource("StyleBoxEmpty_edlck")
+script = ExtResource("1_oadtx")
+metadata/_custom_type_script = "uid://bwbuc1dhcpjr7"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2040836176]
+layout_mode = 2
+
+[node name="InventorySlot" parent="VBoxContainer" unique_id=1519447004 instance=ExtResource("2_edlck")]
+layout_mode = 2
+
+[node name="WeightBar" type="ProgressBar" parent="VBoxContainer" unique_id=2139486517]
+layout_mode = 2

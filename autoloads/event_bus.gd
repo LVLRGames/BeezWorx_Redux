@@ -3,6 +3,10 @@
 # class_name EventBus
 extends Node
 @warning_ignore_start("unused_signal")
+
+signal interaction_target_changed(pawn_id:int, target_info:Dictionary)
+
+
 # World signals
 signal cell_occupied(cell: Vector2i, category: int)
 signal cell_cleared(cell: Vector2i)
@@ -39,6 +43,8 @@ signal pawn_hit(attacker_id: int, target_id: int, damage: float, effects: Array)
 signal pawn_loyalty_changed(pawn_id: int, new_loyalty: float)
 signal pawn_aged(pawn_id: int, new_age_days: int)
 signal pawn_possessed(player_slot: int, pawn_id: int)
+signal pawn_inventory_changed(pawn_id: int, item_id: StringName)
+signal pawn_action_context_changed(pawn_id: int)
 signal queen_died(colony_id: int, had_heir: bool)
 signal colony_founded(colony_id: int)
 signal colony_dissolved(colony_id: int)

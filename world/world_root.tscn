@@ -5,13 +5,11 @@
 [ext_resource type="PackedScene" uid="uid://b48swbf3xeqid" path="res://world/hex_terrain_manager.tscn" id="2_terrain"]
 [ext_resource type="Resource" uid="uid://t3k06j6stg01" path="res://defs/terrain_config.tres" id="2_tw417"]
 [ext_resource type="Environment" uid="uid://c3mbwr4a8u3kr" path="res://world/world_environment.tres" id="3_env"]
-[ext_resource type="Script" uid="uid://hcujianys218" path="res://dev/fps_label.gd" id="5_tw417"]
-[ext_resource type="Script" uid="uid://bvgoru757gy6p" path="res://dev/hex_debug_label.gd" id="6_ogoty"]
 [ext_resource type="Texture2D" uid="uid://deosj6tdvr6ch" path="res://world/moon.png" id="6_s1nyb"]
 [ext_resource type="Texture2D" uid="uid://bvwvouh50rejv" path="res://world/sun.png" id="7_8lsw5"]
 [ext_resource type="Texture2D" uid="uid://dp35xfwf865ex" path="res://assets/textures/terrain/water.png" id="7_olpku"]
 [ext_resource type="Script" uid="uid://bb0nxpgjxi6qa" path="res://world/day_night_cycle.gd" id="7_y5d58"]
-[ext_resource type="PackedScene" uid="uid://t6q2b4wqnk2o" path="res://ui/hive/hive_overlay.tscn" id="10_x8cgq"]
+[ext_resource type="PackedScene" uid="uid://ca0xw03h464ox" path="res://ui/ui_root.tscn" id="12_x8cgq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1nyb"]
 render_priority = -1
@@ -62,7 +60,7 @@ time_config = ExtResource("2_qit3l")
 terrain_config = ExtResource("2_tw417")
 
 [node name="HexTerrainManager" parent="." unique_id=340424999 instance=ExtResource("2_terrain")]
-view_radius_chunks = 10
+view_radius_chunks = 8
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1783947265]
 environment = ExtResource("3_env")
@@ -75,23 +73,23 @@ mesh = SubResource("QuadMesh_y5d58")
 transform = Transform3D(1, 0, 0, 0, -1, -1.2246467991473532e-16, 0, 1.2246467991473532e-16, -1, 0, -6.270191611634448e-14, -512)
 mesh = SubResource("QuadMesh_x8cgq")
 
-[node name="SunLight" type="DirectionalLight3D" parent="." unique_id=1377799032]
-light_color = Color(1, 0.99215686, 0.49019608, 1)
-shadow_enabled = true
-shadow_opacity = 0.66
-directional_shadow_split_1 = 0.33
-directional_shadow_split_2 = 0.66
-directional_shadow_split_3 = 0.9
-directional_shadow_fade_start = 0.66
-directional_shadow_max_distance = 128.0
-
-[node name="MoonLight" type="DirectionalLight3D" parent="SunLight" unique_id=2122607906]
+[node name="MoonLight" type="DirectionalLight3D" parent="." unique_id=2122607906]
 transform = Transform3D(1, 0, 0, 0, -1, -1.2246467991473532e-16, 0, 1.2246467991473532e-16, -1, 0, 0, 0)
 light_color = Color(0.45882353, 0.7490196, 1, 1)
 shadow_enabled = true
 directional_shadow_split_1 = 0.33
 directional_shadow_split_2 = 0.66
 directional_shadow_split_3 = 0.9
+directional_shadow_max_distance = 128.0
+
+[node name="SunLight" type="DirectionalLight3D" parent="." unique_id=1377799032]
+light_color = Color(1, 0.99215686, 0.49019608, 1)
+shadow_enabled = true
+shadow_opacity = 0.33
+directional_shadow_split_1 = 0.33
+directional_shadow_split_2 = 0.66
+directional_shadow_split_3 = 0.9
+directional_shadow_fade_start = 0.66
 directional_shadow_max_distance = 128.0
 
 [node name="DayNightCycle" type="Node" parent="." unique_id=1702669855 node_paths=PackedStringArray("sky_env", "sun_light", "sun_disc", "moon_light", "moon_disc")]
@@ -110,7 +108,7 @@ sun_light = NodePath("../SunLight")
 sun_disc = NodePath("../SunDisk")
 sun_sun_angle = 18.0
 sun_color_day = Color(1, 0.99215686, 0.49019608, 1)
-moon_light = NodePath("../SunLight/MoonLight")
+moon_light = NodePath("../MoonLight")
 moon_disc = NodePath("../MoonDisc")
 moon_sun_angle = 13.0
 moon_min_energy = 0.2
@@ -120,42 +118,4 @@ moon_max_energy = 0.66
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 mesh = SubResource("PlaneMesh_ogoty")
 
-[node name="HUD" type="CanvasLayer" parent="." unique_id=364234763]
-
-[node name="UI" type="CanvasLayer" parent="." unique_id=2022507397]
-
-[node name="Control" type="Control" parent="UI" unique_id=1962448967]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="MarginContainer" type="MarginContainer" parent="UI/Control" unique_id=184126340]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="FPSLabel" type="Label" parent="UI/Control/MarginContainer" unique_id=2029600479]
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 0
-script = ExtResource("5_tw417")
-
-[node name="HexDebugLabel" type="Label" parent="UI/Control/MarginContainer" unique_id=1616518724]
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
-script = ExtResource("6_ogoty")
-
-[node name="HiveOverlay" parent="." unique_id=1481496615 instance=ExtResource("10_x8cgq")]
+[node name="UIRoot" parent="." unique_id=201789707 instance=ExtResource("12_x8cgq")]

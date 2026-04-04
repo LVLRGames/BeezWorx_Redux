@@ -47,6 +47,7 @@ var _prev_day:        int  = -1
 var _prev_season:     int  = -1
 var _prev_year:       int  = -1
 var _prev_is_daytime: bool = true
+var is_initialized:   bool = false
 
 # ── Defaults used before config is assigned ───────────────────────────────────
 const _DEFAULT_DAY_LENGTH:    float = 600.0
@@ -89,6 +90,8 @@ func initialize(p_config: Resource) -> void:
 	_prev_season     = current_season
 	_prev_year       = current_year
 	_prev_is_daytime = is_daytime
+	
+	is_initialized = true
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Derived value computation

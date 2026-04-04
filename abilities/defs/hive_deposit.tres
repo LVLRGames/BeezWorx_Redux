@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DepositAbilityDef" format=3 uid="uid://dyu2xt6txlmn2"]
+
+[ext_resource type="Script" uid="uid://cv4e3ko80pugk" path="res://abilities/deposit_ability_def.gd" id="1_xpxew"]
+[ext_resource type="Texture2D" uid="uid://dqaalnvybkhlk" path="res://ui/hive/nursery_icon.png" id="1_yxkkn"]
+
+[resource]
+script = ExtResource("1_xpxew")
+deposit_target = 1
+ability_id = &"hive_deposit"
+display_name = "Deposit in Hive"
+description = "Deposit resources into hive"
+icon = ExtResource("1_yxkkn")
+metadata/_custom_type_script = "uid://cv4e3ko80pugk"

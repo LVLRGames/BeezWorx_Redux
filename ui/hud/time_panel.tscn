@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://8ny5rfc0gnxt"]
+
+[ext_resource type="Script" uid="uid://or85d6ph11q2" path="res://ui/hud/time_panel.gd" id="1_egxbv"]
+
+[node name="TimePanel" type="PanelContainer" unique_id=336327032]
+custom_minimum_size = Vector2(256, 0)
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+script = ExtResource("1_egxbv")
+metadata/_custom_type_script = "uid://or85d6ph11q2"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1224424527]
+layout_mode = 2
+alignment = 1
+
+[node name="SeasonLabel" type="Label" parent="HBoxContainer" unique_id=1913177860]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DayLabel" type="Label" parent="HBoxContainer" unique_id=192192068]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TimeLabel" type="Label" parent="HBoxContainer" unique_id=1492439862]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+horizontal_alignment = 1
+vertical_alignment = 1

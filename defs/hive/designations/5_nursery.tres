@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="SlotDesignationDef" format=3 uid="uid://q31wv0e8gbwr"]
 
+[ext_resource type="Texture2D" uid="uid://ebwium1kqmm4" path="res://ui/hive/designation_icon_nursery.png" id="1_2asmw"]
 [ext_resource type="Script" uid="uid://b3ua7ybdiir7q" path="res://defs/hive/slot_designation_def.gd" id="1_swtc6"]
 
 [resource]
@@ -7,6 +8,7 @@ script = ExtResource("1_swtc6")
 designation_id = 5
 display_name = "Nursery"
 label_initial = "🥚"
+icon = ExtResource("1_2asmw")
 icon_col = 5
 color = Color(1, 0.7977378, 0.85430586, 1)
 progress_type = 2

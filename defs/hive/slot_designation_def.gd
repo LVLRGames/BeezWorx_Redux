@@ -12,6 +12,7 @@ extends Resource
 @export var designation_id:  int        = 0
 @export var display_name:    String     = ""
 @export var label_initial:   String     = "?"
+@export var icon: Texture2D = null
 
 # ── Visual ────────────────────────────────────────────────────────────────────
 @export_group("Visual")
@@ -36,7 +37,6 @@ extends Resource
 @export var can_feed_egg:       bool = false
 @export var can_change_desig:   bool = true    # queen only gate is in overlay
 @export var is_locked:          bool = false   # true only for LOCKED designation
-
 # ── Progress thresholds ───────────────────────────────────────────────────────
 @export_group("Progress")
 ## For LINEAR_FILL: max units for a full bar (eg storage capacity)

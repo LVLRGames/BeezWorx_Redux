@@ -1,4 +1,5 @@
-extends Label
+class_name HexCellDebug
+extends RichTextLabel
 
 var _pawn
 

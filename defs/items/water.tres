@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dyb5vxlrgfoq2"]
+
+[ext_resource type="Texture2D" uid="uid://i5tw57xlai42" path="res://ui/nectar_icon.png" id="1_74um0"]
+[ext_resource type="Script" uid="uid://4lode384gbct" path="res://defs/items/item_def.gd" id="1_ityqe"]
+
+[resource]
+script = ExtResource("1_ityqe")
+item_id = &"water"
+display_name = "Water"
+description = "Nothing washes thirst away quite like good clean water"
+icon_tint = Color(0.31398866, 0.7385567, 0.99999994, 1)
+icon = ExtResource("1_74um0")
+is_liquid = true
+metadata/_custom_type_script = "uid://4lode384gbct"

@@ -385,7 +385,7 @@ frequency = 0.0344
 
 [resource]
 script = ExtResource("3_mm1lq")
-world_seed = 1738
+world_seed = 18264
 beach_bottom_steps = -15
 lowland_flatten_threshold = 0.5
 lowland_flatten_power = 2.0

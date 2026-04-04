@@ -5,15 +5,16 @@
 [ext_resource type="Script" uid="uid://3dhdnxl0m1fs" path="res://pawns/name_tag.gd" id="2_vie5o"]
 [ext_resource type="Script" uid="uid://tqm3ihutobji" path="res://defs/species/species_def.gd" id="2_xj2v4"]
 [ext_resource type="Script" uid="uid://jpstd3ccbwrt" path="res://abilities/ability_def.gd" id="3_jh1p8"]
-[ext_resource type="Resource" uid="uid://bwwk88jep1t3j" path="res://abilities/defs/gather_nectar.tres" id="3_r76cy"]
+[ext_resource type="Resource" uid="uid://4ubwvlfar2ho" path="res://abilities/defs/gather_nectar.tres" id="3_r76cy"]
 [ext_resource type="Resource" uid="uid://bi7lqj8xch4mf" path="res://abilities/defs/pollinate.tres" id="4_30x7m"]
 [ext_resource type="Script" uid="uid://22yg3lg1daa6" path="res://pawns/bee/Trail3D.gd" id="4_700o4"]
 [ext_resource type="Script" uid="uid://le4viuv31iwv" path="res://pawns/bee/bee.gd" id="4_qf6nb"]
 [ext_resource type="Resource" uid="uid://ydut6ug3ggk4" path="res://abilities/defs/water_plant.tres" id="5_jh1p8"]
 [ext_resource type="Script" uid="uid://dccjpewnyjd5w" path="res://pawns/pawn_ability_executor.gd" id="5_tw73s"]
 [ext_resource type="Resource" uid="uid://c46alge8wrs8a" path="res://abilities/defs/gather_pollen.tres" id="5_xj2v4"]
-[ext_resource type="Resource" uid="uid://bbexkfdf8u4jx" path="res://abilities/defs/deposit.tres" id="6_5qaix"]
 [ext_resource type="Script" uid="uid://b6u0tks3q2u6e" path="res://pawns/pawn_ai.gd" id="6_cwe4e"]
+[ext_resource type="Resource" uid="uid://dyu2xt6txlmn2" path="res://abilities/defs/hive_deposit.tres" id="7_5qaix"]
+[ext_resource type="PackedScene" uid="uid://3qf5isgraicy" path="res://pawns/interaction_detector.tscn" id="15_5qaix"]
 
 [sub_resource type="Resource" id="Resource_5qaix"]
 script = ExtResource("2_xj2v4")
@@ -31,16 +32,31 @@ metadata/_custom_type_script = "uid://s5xuvn33qbrq"
 [sub_resource type="SphereShape3D" id="SphereShape3D_700o4"]
 radius = 1.0
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5qaix"]
+render_priority = 1
+transparency = 1
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(0.9471994, 0.9471994, 0.9471994, 1)
+grow_amount = 0.06
+stencil_mode = 3
+stencil_flags = 1
+stencil_compare = 5
+metadata/_stencil_owned = true
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wdcd2"]
 resource_name = "Bee"
+next_pass = SubResource("StandardMaterial3D_5qaix")
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
 cull_mode = 2
 albedo_texture = ExtResource("2_ogg2i")
-emission_enabled = true
-emission = Color(0.060530342, 0.06053035, 0.060530327, 1)
 texture_filter = 2
+stencil_mode = 2
+stencil_flags = 2
+stencil_color = Color(0.9471994, 0.9471994, 0.9471994, 1)
+stencil_outline_thickness = 0.06
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xnwyx"]
 resource_name = "Wings"
@@ -686,37 +702,12 @@ _data = {
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_1q2x0"]
 
-[sub_resource type="Curve" id="Curve_700o4"]
-_limits = [0.0, 0.09999999999990904, 0.0, 1.0]
-_data = [Vector2(0, 0), 0.0, 0.9730031, 0, 0, Vector2(0.24481866, 0.0954113965464568), 0.0, 0.0, 0, 0, Vector2(1, 0), -0.050545648, 0.0, 0, 0]
-point_count = 3
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_700o4"]
 transparency = 1
 blend_mode = 1
 cull_mode = 2
 albedo_color = Color(1, 1, 1, 0.5294118)
 emission_enabled = true
-
-[sub_resource type="ImmediateMesh" id="ImmediateMesh_jwarq"]
-
-[sub_resource type="Curve" id="Curve_fwyw6"]
-_limits = [0.0, 0.09999999999990904, 0.0, 1.0]
-_data = [Vector2(0, 0), 0.0, 0.9730031, 0, 0, Vector2(0.24481866, 0.0954113965464568), 0.0, 0.0, 0, 0, Vector2(1, 0), -0.050545648, 0.0, 0, 0]
-point_count = 3
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ohcfi"]
-transparency = 1
-blend_mode = 1
-cull_mode = 2
-albedo_color = Color(1, 1, 1, 0.5294118)
-emission_enabled = true
-
-[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_qf6nb"]
-material = SubResource("StandardMaterial3D_ohcfi")
-shape = 0
-size = 0.1
-curve = SubResource("Curve_fwyw6")
 
 [node name="Bee" type="CharacterBody3D" unique_id=850494392 node_paths=PackedStringArray("name_tag") groups=["bees", "grass_benders", "pawns", "selector"]]
 collision_layer = 4
@@ -731,13 +722,14 @@ vertical_accel_scale = 0.99
 species_def = SubResource("Resource_5qaix")
 role_def = SubResource("Resource_xj2v4")
 action_abilities = Array[ExtResource("3_jh1p8")]([ExtResource("3_r76cy"), ExtResource("5_xj2v4")])
-alt_abilities = Array[ExtResource("3_jh1p8")]([ExtResource("6_5qaix"), ExtResource("4_30x7m"), ExtResource("5_jh1p8")])
+alt_abilities = Array[ExtResource("3_jh1p8")]([ExtResource("7_5qaix"), ExtResource("4_30x7m"), ExtResource("5_jh1p8")])
 turn_speed = 120.0
 bend_strength = 50.0
 name_tag = NodePath("NameTag")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1064260663]
 transform = Transform3D(1, 0, 0, 0, 6.123233995736766e-17, -1, 0, 1, 6.123233995736766e-17, 0, 0, 0)
+visible = false
 shape = SubResource("SphereShape3D_700o4")
 
 [node name="GFX" type="Node3D" parent="." unique_id=216937669]
@@ -936,16 +928,12 @@ outline_render_priority = 9
 text = "Nme"
 script = ExtResource("2_vie5o")
 
-[node name="Trail" type="Node" parent="." unique_id=318799420 node_paths=PackedStringArray("mesh_instance", "target") groups=["trails"]]
+[node name="Trail" type="Node3D" parent="." unique_id=988017963 node_paths=PackedStringArray("target") groups=["trails"]]
+visible = false
 script = ExtResource("4_700o4")
-curve = SubResource("Curve_700o4")
-material = SubResource("StandardMaterial3D_700o4")
-mesh_instance = NodePath("../TrailMesh")
-immediate_mesh = SubResource("ImmediateMesh_jwarq")
 target = NodePath("..")
-
-[node name="TrailMesh" type="MeshInstance3D" parent="." unique_id=183006482]
-mesh = SubResource("RibbonTrailMesh_qf6nb")
+size = 0.2
+material = SubResource("StandardMaterial3D_700o4")
 
 [node name="PawnAbilityExecutor" type="Node" parent="." unique_id=271650774]
 script = ExtResource("5_tw73s")
@@ -954,3 +942,12 @@ metadata/_custom_type_script = "uid://dccjpewnyjd5w"
 [node name="PawnAI" type="Node" parent="." unique_id=1377602772]
 script = ExtResource("6_cwe4e")
 metadata/_custom_type_script = "uid://b6u0tks3q2u6e"
+
+[node name="InteractionDetector" parent="." unique_id=1667052132 instance=ExtResource("15_5qaix")]
+visible = false
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=299467979]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+visible = false
+light_color = Color(0.9514809, 1, 0.7700766, 1)
+omni_range = 60.0

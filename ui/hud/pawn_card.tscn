@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://ckxo617u77uhx"]
+
+[ext_resource type="Script" uid="uid://cj0fk3dko6xtg" path="res://ui/hud/pawn_card_panel.gd" id="1_53bvw"]
+
+[node name="PawnCard" type="PanelContainer" unique_id=2139542588]
+custom_minimum_size = Vector2(256, 0)
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_53bvw")
+metadata/_custom_type_script = "uid://cj0fk3dko6xtg"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=398644496]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="VBoxContainer" unique_id=187622840]
+layout_mode = 2
+
+[node name="HealthBar" type="ProgressBar" parent="VBoxContainer" unique_id=423179990]
+layout_mode = 2
+
+[node name="FatigueBar" type="ProgressBar" parent="VBoxContainer" unique_id=656566506]
+layout_mode = 2
+
+[node name="RoleLabel" type="Label" parent="VBoxContainer" unique_id=854438348]
+layout_mode = 2

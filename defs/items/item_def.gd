@@ -6,6 +6,7 @@ extends Resource
 @export var item_id: StringName = &""
 @export var display_name: String = ""
 @export_multiline var description: String = ""
+@export var icon_tint: Color = Color.WHITE
 @export var icon: Texture2D = null
 @export var mesh: Mesh = null
 ## How many units fit in one inventory slot

@@ -7,24 +7,34 @@ class_name PlayerController
 @export var stationary_threshold: float = 0.15
 
 var accel_dir := Vector3.ZERO
-
+var _just_switched: bool = false
 
 
 func physics_tick(delta: float) -> void:
 	if pawn == null:
 		return
 
-	# Only drive input if we are the multiplayer authority (or singleplayer)
-	if pawn.multiplayer.has_multiplayer_peer() and !pawn.is_multiplayer_authority():
+
+	# Reset switch flag at start of frame
+	if _just_switched:
+		_just_switched = false
+		return   # skip this frame after a switch
+
+	var px: String = "p%d_" % player_index
+	
+	if Input.is_action_pressed(px + "toggle_inventory"):
+		return
+	
+
+	if Input.is_action_just_pressed(px + "next_pawn"):
+		_just_switched = true
+		_switch_pawn(1)
+		return
+	if Input.is_action_just_pressed(px + "prev_pawn"):
+		_just_switched = true
+		_switch_pawn(-1)
 		return
 
-	var px := "p%d_" % player_index
-
-	if Input.is_action_just_pressed(px+"prev_pawn") or Input.is_action_just_pressed(px+"next_pawn"):
-		var next_pawn = pawn.get_tree().get_nodes_in_group("pawns").pick_random()
-		print(next_pawn)
-		PossessionManager._local_possess(next_pawn, player_index)
-		return
 	
 	
 	var move2 := Input.get_vector(px+"move_left", px+"move_right", px+"move_forward", px+"move_back")
@@ -68,7 +78,31 @@ func physics_tick(delta: float) -> void:
 		pawn.alt_interact()
 
 
-
+func _switch_pawn(direction: int) -> void:
+	
+	if pawn == null or pawn.state == null:
+		return
+	var colony_id: int = pawn.state.colony_id
+	print("_switch_pawn: pawn=", pawn.name, " colony=", pawn.state.colony_id if pawn.state else "null")
+	var all_pawns: Array = PawnRegistry.get_pawns_for_colony(pawn.state.colony_id)
+	print("eligible pool: ", all_pawns)
+	var eligible: Array[int] = []
+	for pid: int in all_pawns:
+		var s: PawnState = PawnRegistry.get_state(pid)
+		if s == null or not s.is_alive or not s.is_awake:
+			continue
+		var possessor: int = PossessionManager.get_possessor(pid)
+		if possessor >= 0 and possessor != player_index:
+			continue
+		eligible.append(pid)
+	if eligible.size() <= 1:
+		return
+	var current_idx: int = eligible.find(pawn.pawn_id)
+	if current_idx < 0:
+		current_idx = 0
+	var next_id: int = eligible[posmod(current_idx + direction, eligible.size())]
+	if next_id != pawn.pawn_id:
+		PossessionManager.request_possess(player_index, next_id)
 
 
 

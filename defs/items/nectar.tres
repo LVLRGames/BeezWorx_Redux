@@ -1,7 +1,14 @@
 [gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dxec75hqabhtd"]
 
 [ext_resource type="Script" uid="uid://4lode384gbct" path="res://defs/items/item_def.gd" id="1_a467w"]
+[ext_resource type="Texture2D" uid="uid://i5tw57xlai42" path="res://ui/nectar_icon.png" id="1_nf5ea"]
 
 [resource]
 script = ExtResource("1_a467w")
+item_id = &"nectar"
+display_name = "Nectar"
+description = "Sweet juices of a fruiting plant."
+icon_tint = Color(0.41346756, 0.061289497, 0.5165919, 1)
+icon = ExtResource("1_nf5ea")
+is_liquid = true
 metadata/_custom_type_script = "uid://4lode384gbct"

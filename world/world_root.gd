@@ -51,9 +51,13 @@ extends Node3D
 
 var _bee: PawnBase = null
 var _camera_rig: Node3D   = null
+var _is_reloading: bool = false
+
 
 # ── Packed scenes ─────────────────────────────────────────────────────────────
 const BEE_SCENE        := preload("res://pawns/bee/bee.tscn")
+const ANT_SCENE := preload("res://pawns/ant/ant.tscn")
+const GRASSHOPPER_SCENE := preload("uid://ch6oki808pp3q")
 const CAMERA_RIG_SCENE := preload("res://camera/camera_rig.tscn")
 
 # ════════════════════════════════════════════════════════════════════════════ #
@@ -74,8 +78,9 @@ func _ready() -> void:
 	add_child(gb)
 	gb.name = "GrassBender"
  
-	if SaveManager.has_save(SaveManager.AUTOSAVE_SLOT):
-		_load_world()
+	var most_recent: String = SaveManager.get_most_recent_slot()
+	if not most_recent.is_empty():
+		_load_world_from_slot(most_recent)
 	else:
 		_init_new_world()
 
@@ -85,14 +90,25 @@ func _process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	
 	if event.is_action_pressed("p1_save_game"):
-		SaveManager.save_game()
-		# TODO: show save notification in HUD
-	if event.is_action_pressed("p1_load_game"):
-		get_tree().reload_current_scene()   # cleanest load — re-runs _ready()
-		# SaveManager.has_save() will be true so _load_world() fires
+		SaveManager.save_game(SaveManager.AUTOSAVE_SLOT)
+	if event.is_action_pressed("p1_load_game") and not _is_reloading:
+		_is_reloading = true
+		get_tree().reload_current_scene()
+		
+	if event.is_action_pressed("ui_accept"):   # Enter key by default
+		_debug_damage_possessed_pawn()
 
+func _debug_damage_possessed_pawn() -> void:
+	var pawn: PawnBase = PossessionManager.get_possessed_pawn(1)
+	if pawn == null or pawn.state == null:
+		return
+	pawn.state.health   = maxf(pawn.state.health - 10.0, 0.0)
+	pawn.state.fatigue  = minf(pawn.state.fatigue + 0.1, 1.0)
+	EventBus.pawn_hit.emit(-1, pawn.pawn_id, 10.0, [])
+	print("debug damage: pawn=%s health=%.1f fatigue=%.2f" % [
+		pawn.state.pawn_name, pawn.state.health, pawn.state.fatigue
+	])
 
 
 # ════════════════════════════════════════════════════════════════════════════ #
@@ -102,6 +118,8 @@ func _init_new_world() -> void:
 	_spawn_player()
 	_init_colony()
 	_place_starter_hive()
+	_spawn_ant()
+	_spawn_grasshopper()
 	if _bee:
 		_bee.refresh_name_tag()
 
@@ -184,13 +202,17 @@ static func _infer_global_param_type(value: Variant) -> int:
 
 
 func _load_world() -> void:
-	# Restore all system state from the autosave
-	SaveManager.load_game(SaveManager.AUTOSAVE_SLOT)
- 
-	# Respawn player pawn from restored PawnRegistry state
+	SaveManager.load_game(SaveManager.get_most_recent_slot())
 	_respawn_player_from_save()
+	print("calling _respawn_colony_pawns")
+	_respawn_colony_pawns()
 
 
+func _load_world_from_slot(slot_name: String) -> void:
+	SaveManager.load_game(slot_name)
+	_respawn_player_from_save()
+	print("load_world_from_slots]  calling _respawn_colony_pawns")
+	_respawn_colony_pawns()
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Player spawn
@@ -244,15 +266,11 @@ func _respawn_player_from_save() -> void:
 		return
 
 	_bee.pawn_id = queen_id
-
 	# DO NOT connect pawn_registered — bee won't emit it on load path
 	add_child(_bee)   # _ready() fires here — PawnBase wires loaded state
 
-	var w: Vector2 = HexConsts.AXIAL_TO_WORLD(
-		state.last_known_cell.x,
-		state.last_known_cell.y
-	)
-	_bee.global_position = Vector3(w.x, 8.0, w.y)
+	_bee.global_position = state.last_world_pos
+	print(state.last_world_pos)
 	_bee.add_to_group("grass_bender")
 
 	if _terrain_manager:
@@ -268,6 +286,71 @@ func _respawn_player_from_save() -> void:
 
 	EventBus.player_pawn_ready.emit(_bee, 1)
  
+
+func _respawn_colony_pawns() -> void:
+	var queen_id: int = ColonyState.get_queen_id(0)
+	for pawn_id: int in PawnRegistry.get_pawns_for_colony(0):
+		if pawn_id == queen_id:
+			continue
+		var state: PawnState = PawnRegistry.get_state(pawn_id)
+		if state == null or not state.is_alive:
+			continue
+		if state.scene_path.is_empty():
+			push_warning("_respawn_colony_pawns: no scene_path for pawn %d" % pawn_id)
+			continue
+		var scene: PackedScene = load(state.scene_path) as PackedScene
+		if scene == null:
+			continue
+		var node: CharacterBody3D = scene.instantiate() as CharacterBody3D
+		if node == null:
+			continue
+		node.pawn_id = pawn_id
+		add_child(node)
+		node.global_position = state.last_world_pos
+		var pb: PawnBase = node as PawnBase
+		if pb:
+			pb.refresh_name_tag()
+
+
+func _get_pawn_scene(species_id: StringName) -> PackedScene:
+	match species_id:
+		&"red_ant":   return ANT_SCENE
+		&"bee":   return BEE_SCENE
+		&"grasshopper":   return GRASSHOPPER_SCENE
+		_:        return null
+
+
+func _spawn_ant() -> void:
+	var ant: CharacterBody3D = ANT_SCENE.instantiate() as CharacterBody3D
+	if ant == null:
+		return
+	add_child(ant)
+	# Spawn near the bee
+	ant.global_position = bee_spawn_position + Vector3(2.0, 0.0, 2.0)
+	# Refresh name tag after registration
+	var ant_pawn: PawnBase = ant as PawnBase
+	if ant_pawn:
+		ant_pawn.refresh_name_tag()
+	# Add to player colony
+	if ant.state:
+		ant.state.colony_id = 0
+
+
+func _spawn_grasshopper() -> void:
+	var grasshopper: CharacterBody3D = GRASSHOPPER_SCENE.instantiate() as CharacterBody3D
+	if grasshopper == null:
+		return
+	add_child(grasshopper)
+	# Spawn near the bee
+	grasshopper.global_position = bee_spawn_position + Vector3(-2.0, 0.0, -2.0)
+	# Refresh name tag after registration
+	var grasshopper_pawn: PawnBase = grasshopper as PawnBase
+	if grasshopper_pawn:
+		grasshopper_pawn.refresh_name_tag()
+	# Add to player colony
+	if grasshopper.state:
+		grasshopper.state.colony_id = 0
+
 
 func _on_player_pawn_registered(pawn_id: int, _colony_id: int) -> void:
 	print("_on_player_pawn_registered: pawn_id=", pawn_id, " _bee=", _bee)
@@ -301,12 +384,12 @@ func _init_colony() -> void:
 func _place_starter_hive() -> void:
 	if not HiveSystem.get_hives_for_colony(0).is_empty():
 		return
-
+	
 	var anchor_cell: Vector2i = HexConsts.WORLD_TO_AXIAL(
 		bee_spawn_position.x,
 		bee_spawn_position.z
 	)
-
+	
 	# The hive anchors at the tree cell — spawn_position is the adjacent
 	# empty cell, so step back to the tree
 	var hive_cell: Vector2i = _find_nearest_tree_cell(anchor_cell, 3)
@@ -324,14 +407,7 @@ func _place_starter_hive() -> void:
 ## Search hex rings outward from origin for the nearest TREE category cell.
 ## Returns Vector2i(-9999, -9999) if none found within max_radius.
 func _find_nearest_tree_cell(origin: Vector2i, max_radius: int) -> Vector2i:
-	var biome = HexWorldState.cfg.get_cell_biome(0, 0)
-	for r in range(1, 13):
-		for cell in HexWorldBaseline.hex_ring(Vector2i(0,0), r):
-			var b = HexWorldState.cfg.get_cell_biome(cell.x, cell.y)
-			if b != biome:
-				print("first different biome at ring %d: %s = %s" % [r, cell, b])
-				return Vector2i.ZERO
-				
+	# Remove the biome check block entirely — it was using (0,0) as origin
 	var found_categories: Dictionary = {}
 	for r: int in range(0, max_radius + 1):
 		var ring: Array = HexWorldBaseline.hex_ring(origin, r) if r > 0 \

@@ -63,10 +63,10 @@ enum CellChangeMutationHint {
 	MARKER_CHANGE    = 3,  # Territory marker placed or removed. Territory system listens.
 }
 
-const HEX_SIZE:    float = 4.0
+const HEX_SIZE:    float = 6.0
 const CHUNK_SIZE:  int   = 16
 const MAX_HEIGHT:  float = 512.0
-const HEIGHT_STEP: float = 2
+const HEIGHT_STEP: float = 3
 const SQRT3:       float = 1.7320508075688772   # sqrt(3) — avoids runtime sqrt calls
 
 const TERRAIN_ATLAS_COLS: int   = 16            # one column per biome

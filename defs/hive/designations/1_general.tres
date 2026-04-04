@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="SlotDesignationDef" format=3 uid="uid://ccp6di4mid8wl"]
 
+[ext_resource type="Texture2D" uid="uid://cjgod7jij02m8" path="res://ui/hive/designation_icon_general.png" id="1_6erui"]
 [ext_resource type="Script" uid="uid://b3ua7ybdiir7q" path="res://defs/hive/slot_designation_def.gd" id="1_a76qc"]
 
 [resource]
@@ -7,6 +8,7 @@ script = ExtResource("1_a76qc")
 designation_id = 1
 display_name = "General"
 label_initial = "G"
+icon = ExtResource("1_6erui")
 icon_col = 1
 color = Color(0.7977378, 0.7977378, 0.7977378, 1)
 item_icon_behavior = 4

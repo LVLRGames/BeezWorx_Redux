@@ -113,7 +113,8 @@ func _update_sun(phase: float, split: float, is_day: bool, delta: float) -> void
 	if is_day:
 		_sky_material.sun_angle_max = sun_sun_angle
 		var t: float = phase / split
-		sun_light.rotation_degrees = Vector3(lerpf(0.0, -180.0, t), -30.0, 0.0)
+		sun_light.rotation_degrees = Vector3(lerpf(0.0, -180.0, t), 90.0, 0.0)
+		#sun_light.rotation_degrees = Vector3(lerpf(0.0, -180.0, t), -30.0, 0.0)
 		sun_light.light_energy     = 1.0
 		var edge_t: float          = clampf(sin(t * PI) * 2.0, 0.0, 1.0)
 		sun_light.light_color      = sun_color_dawn.lerp(sun_color_day, edge_t)
@@ -121,7 +122,7 @@ func _update_sun(phase: float, split: float, is_day: bool, delta: float) -> void
 	else:
 		# Continue rotating so child MoonLight arcs correctly
 		var night_t: float = clampf((phase - split) / (1.0 - split), 0.0, 1.0)
-		sun_light.rotation_degrees = Vector3(lerpf(-180.0, -360.0, night_t), -30.0, 0.0)
+		sun_light.rotation_degrees = Vector3(lerpf(-180.0, -360.0, night_t), -90.0, 0.0)
 		sun_light.light_energy     = lerpf(sun_light.light_energy, 0.0, delta * 3.0)
 
 	_update_disc(sun_disc, sun_light, is_day, sun_disc_distance, delta)
@@ -135,21 +136,30 @@ func _update_moon(delta: float) -> void:
 	if moon_light == null:
 		return
 
-	var moon_forward:   Vector3 = -moon_light.global_transform.basis.z
-	var moon_elevation: float   = moon_forward.y   # positive = above horizon
+	var lunar_cycle_days: float = 29.5
+	var day_of_cycle: float     = fmod(float(TimeService.current_day), lunar_cycle_days)
+	var moon_day_offset: float  = day_of_cycle / lunar_cycle_days
+	var moon_phase: float       = fposmod(TimeService.day_phase + moon_day_offset, 1.0)
+	var moon_x_rot: float       = lerpf(0.0, -360.0, moon_phase)
+	moon_light.rotation_degrees = Vector3(moon_x_rot, 90.0, 0.0)
 
-	if moon_elevation < 0.0:
-		_sky_material.sun_angle_max = moon_sun_angle
-		var phase_t:   float = _get_moon_phase_t()
-		var horizon_t: float = clampf(moon_elevation / 0.15, 0.0, 1.0)
-		moon_light.light_energy = lerpf(moon_min_energy, moon_max_energy, phase_t) 
+	var phase_t: float        = _get_moon_phase_t()
+	var moon_forward: Vector3 = -moon_light.global_transform.basis.z
+	var moon_elevation: float = moon_forward.y
+
+	if moon_elevation > 0.0:
+		if _sky_material:
+			_sky_material.sun_angle_max = moon_sun_angle
+		moon_light.light_energy = lerpf(moon_min_energy, moon_max_energy, phase_t)
 		moon_light.light_color  = moon_color_crescent.lerp(moon_color_full, phase_t)
-		moon_disc.mesh.surface_get_material(0).set("albedo_color", moon_light.light_color)
+		if moon_disc and moon_disc.mesh and moon_disc.mesh.surface_get_material(0):
+			moon_disc.mesh.surface_get_material(0).set("albedo_color", moon_light.light_color)
 	else:
 		moon_light.light_energy = lerpf(moon_light.light_energy, 0.0, delta * 3.0)
+		if _sky_material and TimeService.is_daytime:
+			_sky_material.sun_angle_max = sun_sun_angle
 
-	# Moon disc
-	_update_disc(moon_disc, moon_light, moon_elevation < 0.0, moon_disc_distance, delta)
+	_update_disc(moon_disc, moon_light, moon_elevation > 0.0, moon_disc_distance, delta)
 
 
 func _get_moon_phase_t() -> float:

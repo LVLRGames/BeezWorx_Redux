@@ -203,12 +203,16 @@ func _get_terrain_height(cell: Vector2i) -> float:
 	# Falls back to 0 if cell not loaded yet
 	var state: HexCellState = HexWorldState.get_cell(cell)
 	if state == null:
+		push_warning("[HiveSystem._get_terrain_height()] couldnt get cell state... spawning hive at y=0")
 		return 0.0
 	# HexCellState doesn't store height directly — use the baseline noise
 	# Same approach as HexChunk._hc() but we only need one cell
 	if HexWorldState.cfg == null:
+		push_warning("[HiveSystem._get_terrain_height()] couldnt get terrain height... spawning hive at y=0")
 		return 0.0
-	return HexWorldState.cfg.get_height(cell.x, cell.y)
+	var w: Vector2 = HexConsts.AXIAL_TO_WORLD(cell.x, cell.y)
+	return snappedf(HexWorldState.cfg.get_height(w.x, w.y), HexConsts.HEIGHT_STEP)
+
 
 func get_controller(hive_id: int) -> HiveController:
 	return _controllers.get(hive_id, null)
@@ -515,6 +519,13 @@ func save_state() -> Dictionary:
 
 func load_state(data: Dictionary) -> void:
 	print("HiveSystem.load_state: hive count=", data.get("hives", []).size())
+	for d: Dictionary in data.get("hives", []):
+		var hs: HiveState = HiveState.from_dict(d)
+		print("  hive %d: slot_count=%d slots_loaded=%d first_slot_desig=%d" % [
+			hs.hive_id, hs.slot_count, hs.slots.size(),
+			hs.slots[0].designation if hs.slots.size() > 0 else -1
+		])
+
 	_hives.clear()
 	_hives_by_cell.clear()
 	_colony_inventory_cache.clear()

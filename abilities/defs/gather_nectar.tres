@@ -1,11 +1,15 @@
-[gd_resource type="Resource" script_class="GatherAbilityDef" format=3 uid="uid://bwwk88jep1t3j"]
+[gd_resource type="Resource" script_class="CollectAbilityDef" format=3 uid="uid://4ubwvlfar2ho"]
 
-[ext_resource type="Script" uid="uid://mfwaghwivjb1" path="res://abilities/gather_ability_def.gd" id="1_pgdtr"]
+[ext_resource type="Texture2D" uid="uid://i5tw57xlai42" path="res://ui/nectar_icon.png" id="1_mfxae"]
+[ext_resource type="Script" uid="uid://bj0nk1kkdv2l8" path="res://abilities/collect_ability_def.gd" id="1_pgdtr"]
 
 [resource]
 script = ExtResource("1_pgdtr")
+item_id = &"nectar"
+valid_stages = Array[int]([4, 5])
 ability_id = &"gather_nectar"
-display_name = "Gather Nectar"
-description = "Gather nectar from fruiting plants"
-cooldown = 0.3
-metadata/_custom_type_script = "uid://mfwaghwivjb1"
+display_name = "Collect Nectar"
+description = "Collect nectar from fruiting plants"
+icon = ExtResource("1_mfxae")
+require_ctx_has_mode = 1
+require_ctx_has = Array[StringName]([&"nectar"])

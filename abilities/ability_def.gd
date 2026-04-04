@@ -1,57 +1,106 @@
 # ability_def.gd
 # res://abilities/ability_def.gd
-#
-# Abstract base for all ability definitions.
-# Subclass this for each ability type — do not instantiate directly.
-#
-# EXECUTION FLOW:
-#   PawnAbilityExecutor calls:
-#     1. can_use(ctx)        — gate check (cooldown, inventory, stage, etc.)
-#     2. resolve_target(ctx) — find best valid target, return null if none
-#     3. execute(ctx, target) — perform the effect
-#
-# AUTOLOAD ACCESS:
-#   Defs call autoloads directly (HexWorldState, HiveSystem, etc.)
-#   Context provides only pre-computed per-call data.
 
 @abstract
 class_name AbilityDef
 extends Resource
+
+enum RequireMode { ALL, ANY, NONE }
 
 @export var ability_id:    StringName = &""
 @export var display_name:  String     = ""
 @export var description:   String     = ""
 @export var icon:          Texture2D  = null
 
-# ── Timing ────────────────────────────────────────────────────────────────────
-@export var cooldown:         float = 0.5    # seconds between uses
-@export var channel_duration: float = 0.0   # 0 = instant
+@export_group("Timing")
+@export var cooldown:         float = 0.5
+@export var channel_duration: float = 0.0
 
-# ── Targeting ─────────────────────────────────────────────────────────────────
-@export var range: float = 2.0   # max distance from pawn to valid target
+@export_group("Targeting")
+@export var range: float = 2.0
 
-# ── AI hints ──────────────────────────────────────────────────────────────────
+@export_group("Requirements")
+## Items pawn must have in inventory to use this ability
+@export var require_pawn_has_mode: RequireMode       = RequireMode.ALL
+@export var require_pawn_has:      Array[StringName] = []
+## Resource ids the context target must have (nectar, pollen, water, etc.)
+@export var require_ctx_has_mode:  RequireMode       = RequireMode.ALL
+@export var require_ctx_has:       Array[StringName] = []
+
+@export_group("AI")
 @export var ai_priority: float = 1.0
 
 # ════════════════════════════════════════════════════════════════════════════ #
-#  Virtual interface — override in subclasses
+#  Requirement helpers — called by subclass can_use()
 # ════════════════════════════════════════════════════════════════════════════ #
 
-## Return false to block use (inventory full, wrong stage, on cooldown etc.)
-## Cooldown is checked by the executor before calling this — no need to recheck.
-func can_use(ctx: AbilityContext) -> bool:
+func _pawn_has_requirements(ctx: AbilityContext) -> bool:
+	if require_pawn_has.is_empty():
+		return true
+	if ctx.pawn.state == null or ctx.pawn.state.inventory == null:
+		return require_pawn_has_mode == RequireMode.NONE
+	var inv: PawnInventory = ctx.pawn.state.inventory
+	match require_pawn_has_mode:
+		RequireMode.ALL:
+			for item: StringName in require_pawn_has:
+				if not inv.has_item(item):
+					return false
+			return true
+		RequireMode.ANY:
+			for item: StringName in require_pawn_has:
+				if inv.has_item(item):
+					return true
+			return false
+		RequireMode.NONE:
+			for item: StringName in require_pawn_has:
+				if inv.has_item(item):
+					return false
+			return true
 	return true
 
-## Return the best valid target for this ability, or null if none in range.
-## Target type varies by ability: Vector2i for world cells, PawnBase for pawns.
+func _ctx_has_requirements(ctx: AbilityContext) -> bool:
+	if require_ctx_has.is_empty():
+		return true
+	var cell_state: HexCellState = ctx.get_pawn_cell_state()
+	if cell_state == null:
+		return require_ctx_has_mode == RequireMode.NONE
+	match require_ctx_has_mode:
+		RequireMode.ALL:
+			for res_id: StringName in require_ctx_has:
+				if not _cell_has_resource(cell_state, res_id):
+					return false
+			return true
+		RequireMode.ANY:
+			for res_id: StringName in require_ctx_has:
+				if _cell_has_resource(cell_state, res_id):
+					return true
+			return false
+		RequireMode.NONE:
+			for res_id: StringName in require_ctx_has:
+				if _cell_has_resource(cell_state, res_id):
+					return false
+			return true
+	return true
+
+static func _cell_has_resource(state: HexCellState, res_id: StringName) -> bool:
+	match res_id:
+		&"nectar": return state.nectar_amount > 0.0
+		&"pollen": return state.pollen_amount > 0.0 and state.has_pollen
+		&"water":  return state.water_amount  > 0.0
+		_:         return false
+
+# ════════════════════════════════════════════════════════════════════════════ #
+#  Virtual interface
+# ════════════════════════════════════════════════════════════════════════════ #
+
+func can_use(ctx: AbilityContext) -> bool:
+	return _pawn_has_requirements(ctx) and _ctx_has_requirements(ctx)
+
 func resolve_target(ctx: AbilityContext) -> Variant:
 	return null
 
-## Perform the ability effect. Target is the value returned by resolve_target().
 func execute(ctx: AbilityContext, target: Variant) -> void:
 	pass
 
-## Human-readable description of what this ability does right now.
-## Used by HUD to show context-sensitive button labels.
 func get_prompt(ctx: AbilityContext) -> String:
 	return display_name

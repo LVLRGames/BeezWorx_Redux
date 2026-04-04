@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://ckkuw7r8uxtuw"]
+
+[ext_resource type="Script" uid="uid://cgs3ehx0wfd2i" path="res://ui/hud/action_panel.gd" id="1_46gsk"]
+[ext_resource type="PackedScene" uid="uid://bgj3v2isw76t4" path="res://ui/hud/ability_slot.tscn" id="2_3mcvu"]
+
+[sub_resource type="Curve" id="Curve_2fvvy"]
+_data = [Vector2(0, 0), 0.0, 1.4, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_3mcvu"]
+_data = [Vector2(0, 0), 0.0, 1.4, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="ActionPanel" type="HBoxContainer" unique_id=75525813]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 8
+script = ExtResource("1_46gsk")
+
+[node name="ActionSlot" parent="." unique_id=1519447004 instance=ExtResource("2_3mcvu")]
+layout_mode = 2
+min_visible_slots = 1
+falloff_curve = SubResource("Curve_2fvvy")
+
+[node name="AltSlot" parent="." unique_id=1582222518 instance=ExtResource("2_3mcvu")]
+layout_mode = 2
+min_visible_slots = 1
+falloff_curve = SubResource("Curve_3mcvu")

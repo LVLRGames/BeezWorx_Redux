@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cjedwfsjxwrb3" path="res://ui/hive/hive_overlay.gd" id="1_x836q"]
 [ext_resource type="TileSet" uid="uid://csdxsydsiitou" path="res://ui/hive/hive_slot_tileset.tres" id="2_obd7w"]
 [ext_resource type="Shader" uid="uid://ch5wx3ea8x01d" path="res://ui/hive/hive_overlay_shader.gdshader" id="2_yp8ek"]
+[ext_resource type="Texture2D" uid="uid://cdekqupb4xrbf" path="res://ui/hive/designation_atlas.png" id="4_j041p"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_j041p"]
 shader = ExtResource("2_yp8ek")
@@ -28,6 +29,38 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jtl5n"]
+atlas = ExtResource("4_j041p")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_j041p"]
+load_path = "res://.godot/imported/designation_atlas.png-43724dd2650affc0e6d81f985db07d6a.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ej4ea"]
+atlas = SubResource("CompressedTexture2D_j041p")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_6t6si"]
+load_path = "res://.godot/imported/designation_atlas.png-43724dd2650affc0e6d81f985db07d6a.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u2xcs"]
+atlas = SubResource("CompressedTexture2D_6t6si")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_3xqyv"]
+load_path = "res://.godot/imported/designation_atlas.png-43724dd2650affc0e6d81f985db07d6a.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spqs1"]
+atlas = SubResource("CompressedTexture2D_3xqyv")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_skm1v"]
+load_path = "res://.godot/imported/designation_atlas.png-43724dd2650affc0e6d81f985db07d6a.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ueraa"]
+atlas = SubResource("CompressedTexture2D_skm1v")
+region = Rect2(80, 0, 16, 16)
 
 [node name="HiveOverlay" type="CanvasLayer" unique_id=1481496615 groups=["hive_overlay"]]
 script = ExtResource("1_x836q")
@@ -153,23 +186,38 @@ layout_mode = 2
 size_flags_vertical = 8
 text = "Designation"
 
-[node name="DesignationOptions" type="VBoxContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=438360483]
+[node name="DesignationOptions" type="HBoxContainer" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=55274166]
 layout_mode = 2
 
 [node name="DesignationButton" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=201778764]
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+icon = SubResource("AtlasTexture_jtl5n")
+expand_icon = true
 
 [node name="DesignationButton2" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=1612946978]
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+icon = SubResource("AtlasTexture_ej4ea")
+expand_icon = true
 
 [node name="DesignationButton3" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=1077782406]
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+icon = SubResource("AtlasTexture_u2xcs")
+expand_icon = true
 
 [node name="DesignationButton4" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=730367484]
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+icon = SubResource("AtlasTexture_spqs1")
+expand_icon = true
 
 [node name="DesignationButton5" type="Button" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent/DesignationOptions" unique_id=1845255516]
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
+icon = SubResource("AtlasTexture_ueraa")
+expand_icon = true
 
 [node name="HSeparator2" type="HSeparator" parent="MainContainer/VBoxContainer/ContentRow/PanelAnchor/SlotPanel/SlotPanelScroll/SlotPanelContent" unique_id=1702143391]
 layout_mode = 2

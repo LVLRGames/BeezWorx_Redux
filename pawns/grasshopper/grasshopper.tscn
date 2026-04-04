@@ -1,0 +1,117 @@
+[gd_scene format=3 uid="uid://ch6oki808pp3q"]
+
+[ext_resource type="Script" uid="uid://b6pg6nqjvjm6a" path="res://pawns/grasshopper/grasshopper.gd" id="1_cxp5l"]
+[ext_resource type="PackedScene" uid="uid://c5265jp4yme6" path="res://pawns/grasshopper/grasshopper.gltf" id="1_ievoc"]
+[ext_resource type="Script" uid="uid://cv6lxdtdm4i32" path="res://pawns/grasshopper/gfx_grasshopper.gd" id="2_fw6ki"]
+[ext_resource type="Resource" uid="uid://bqish8wyb8fxs" path="res://defs/species/ant.tres" id="2_jvbvb"]
+[ext_resource type="Script" uid="uid://s5xuvn33qbrq" path="res://defs/roles/role_def.gd" id="3_eb4c8"]
+[ext_resource type="Script" uid="uid://dfkj5rf48q1c6" path="res://pawns/pawn_footprinter.gd" id="4_jvbvb"]
+[ext_resource type="Script" uid="uid://jpstd3ccbwrt" path="res://abilities/ability_def.gd" id="4_vw2u2"]
+[ext_resource type="Texture2D" uid="uid://dtcpxw3w4mpbv" path="res://pawns/ant/ant_trail.png" id="5_eb4c8"]
+[ext_resource type="Resource" uid="uid://ydut6ug3ggk4" path="res://abilities/defs/water_plant.tres" id="5_tvamj"]
+[ext_resource type="Script" uid="uid://dccjpewnyjd5w" path="res://pawns/pawn_ability_executor.gd" id="6_bfier"]
+[ext_resource type="Script" uid="uid://3dhdnxl0m1fs" path="res://pawns/name_tag.gd" id="7_vw2u2"]
+[ext_resource type="PackedScene" uid="uid://3qf5isgraicy" path="res://pawns/interaction_detector.tscn" id="8_tvamj"]
+
+[sub_resource type="Resource" id="Resource_bfier"]
+script = ExtResource("3_eb4c8")
+role_id = &"landscaper"
+display_name = "Landscaper"
+metadata/_custom_type_script = "uid://s5xuvn33qbrq"
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_sq6d6"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_4ati5"]
+radius = 0.33
+height = 1.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y6kuk"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("5_eb4c8")
+texture_filter = 2
+
+[node name="Grasshopper" type="CharacterBody3D" unique_id=1055721662 node_paths=PackedStringArray("name_tag")]
+script = ExtResource("1_cxp5l")
+species_def = ExtResource("2_jvbvb")
+role_def = SubResource("Resource_bfier")
+action_abilities = Array[ExtResource("4_vw2u2")]([ExtResource("5_tvamj")])
+name_tag = NodePath("NameTag")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=805147185]
+replication_config = SubResource("SceneReplicationConfig_sq6d6")
+
+[node name="GFX" parent="." unique_id=1217696303 node_paths=PackedStringArray("anim", "pivot") instance=ExtResource("1_ievoc")]
+script = ExtResource("2_fw6ki")
+anim = NodePath("AnimationPlayer")
+pivot = NodePath("armature")
+
+[node name="Skeleton3D" parent="GFX/armature" parent_id_path=PackedInt32Array(1217696303, 342319657) index="0" unique_id=244031819]
+bones/1/rotation = Quaternion(0.6427876273097094, 0, 0, 0.7660444283313823)
+bones/3/rotation = Quaternion(-0.29956152517174395, -0.07730808720425118, -0.04024404217749911, 0.9500877692922977)
+bones/4/rotation = Quaternion(-0.29956152517174395, 0.07730808720425118, 0.04024404217749911, 0.9500877692922977)
+bones/6/scale = Vector3(1, 1, 1)
+bones/9/rotation = Quaternion(-0.706433772186435, -0.030843565203201216, -0.030843565203201216, 0.706433772186435)
+bones/10/rotation = Quaternion(-0.706433772186435, 0.030843565203201216, 0.030843565203201216, 0.706433772186435)
+bones/11/rotation = Quaternion(-0.7125716027752573, -0.03111154693027201, -0.030573231319996886, 0.7002421438992089)
+bones/12/rotation = Quaternion(-0.7125716027752573, 0.03111154693027201, 0.030573231319996886, 0.7002421438992089)
+bones/13/rotation = Quaternion(0.1530459226232662, -0.1530459226232662, -0.6903455262174103, 0.6903455262174104)
+bones/14/rotation = Quaternion(-1.445527876013018e-17, -9.9380033204089e-18, -0.2798290208305869, 0.9600498524040275)
+bones/15/rotation = Quaternion(-0.13794968498618201, 0.13794968498618201, -0.6935199235870685, 0.6935199235870684)
+bones/16/rotation = Quaternion(0, 0, -0.27982902083058686, 0.9600498524040275)
+bones/17/rotation = Quaternion(-0.06162841529880643, 0.06162841529880644, -0.7044160265267663, 0.7044160265267663)
+bones/18/rotation = Quaternion(-0.46042795668950404, -0.43811773016396355, -0.5150143358678687, 0.5751688317922686)
+bones/19/rotation = Quaternion(0.1530459226232662, 0.1530459226232662, 0.6903455262174103, 0.6903455262174104)
+bones/20/rotation = Quaternion(-1.445527876013018e-17, 9.9380033204089e-18, 0.2798290208305869, 0.9600498524040275)
+bones/21/rotation = Quaternion(-0.13794968498618201, -0.13794968498618201, 0.6935199235870685, 0.6935199235870684)
+bones/22/rotation = Quaternion(0, 0, 0.27982902083058686, 0.9600498524040275)
+bones/23/rotation = Quaternion(-0.06162841529880643, -0.06162841529880644, 0.7044160265267663, 0.7044160265267663)
+bones/24/rotation = Quaternion(-0.46042795668950404, 0.43811773016396355, 0.5150143358678687, 0.5751688317922686)
+
+[node name="AnimationPlayer" parent="GFX" index="1" unique_id=248529352]
+autoplay = &"idle"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=956780936]
+transform = Transform3D(2, 0, 0, 0, 1.2246467991473532e-16, -2, 0, 2, 1.2246467991473532e-16, 0, 0.6699999999982538, -0.26700000000710133)
+shape = SubResource("CapsuleShape3D_4ati5")
+
+[node name="Trail" type="Node" parent="." unique_id=1251535715 node_paths=PackedStringArray("target")]
+script = ExtResource("4_jvbvb")
+target = NodePath("")
+max_marks = 64
+step_distance = 1.0
+lifetime = 5.0
+material = SubResource("StandardMaterial3D_y6kuk")
+mark_size = Vector2(1, 1)
+min_speed_to_stamp = 1.0
+
+[node name="GroundRay" type="RayCast3D" parent="." unique_id=875051617]
+target_position = Vector3(0, -10, 0)
+
+[node name="LandRay" type="RayCast3D" parent="." unique_id=1053966284]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+target_position = Vector3(0, -2, 0)
+collision_mask = 7
+
+[node name="PawnAbilityExecutor" type="Node" parent="." unique_id=1093191093]
+script = ExtResource("6_bfier")
+metadata/_custom_type_script = "uid://dccjpewnyjd5w"
+
+[node name="NameTag" type="Label3D" parent="." unique_id=952267116]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6341345147057753, 0)
+pixel_size = 0.0015
+offset = Vector2(0, 64)
+billboard = 1
+no_depth_test = true
+fixed_size = true
+texture_filter = 0
+render_priority = 2
+outline_render_priority = 1
+text = "Name"
+script = ExtResource("7_vw2u2")
+metadata/_custom_type_script = "uid://3dhdnxl0m1fs"
+
+[node name="InteractionDetector" parent="." unique_id=1253570386 instance=ExtResource("8_tvamj")]
+
+[editable path="GFX"]

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://ca0xw03h464ox"]
+
+[ext_resource type="Script" uid="uid://jj0fcouqpg1k" path="res://ui/ui_root.gd" id="1_nowai"]
+[ext_resource type="PackedScene" uid="uid://t6q2b4wqnk2o" path="res://ui/hive/hive_overlay.tscn" id="2_bkvho"]
+[ext_resource type="PackedScene" uid="uid://ckxo617u77uhx" path="res://ui/hud/pawn_card.tscn" id="3_nowai"]
+[ext_resource type="PackedScene" uid="uid://g27t5a3bbq0g" path="res://ui/hud/compass_panel.tscn" id="4_bkvho"]
+[ext_resource type="PackedScene" uid="uid://8ny5rfc0gnxt" path="res://ui/hud/time_panel.tscn" id="5_h72ba"]
+[ext_resource type="PackedScene" uid="uid://bs0mqucvv06hf" path="res://ui/hud/context_hud.tscn" id="7_8sumc"]
+[ext_resource type="PackedScene" uid="uid://b05tekehk87yi" path="res://ui/debug/debug_ui.tscn" id="9_bkvho"]
+
+[node name="UIRoot" type="CanvasLayer" unique_id=201789707]
+script = ExtResource("1_nowai")
+
+[node name="DebugUI" parent="." unique_id=241847079 instance=ExtResource("9_bkvho")]
+texture_filter = 1
+mouse_filter = 2
+
+[node name="HiveOverlay" parent="." unique_id=1481496615 instance=ExtResource("2_bkvho")]
+visible = false
+
+[node name="PawnCard" parent="." unique_id=2139542588 instance=ExtResource("3_nowai")]
+texture_filter = 1
+
+[node name="CompassPanel" parent="." unique_id=1412443352 instance=ExtResource("4_bkvho")]
+texture_filter = 1
+
+[node name="TimePanel" parent="." unique_id=336327032 instance=ExtResource("5_h72ba")]
+texture_filter = 1
+
+[node name="ContextHUD" parent="." unique_id=1384546645 instance=ExtResource("7_8sumc")]

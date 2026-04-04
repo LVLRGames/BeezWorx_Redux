@@ -58,6 +58,7 @@ func _process(delta: float) -> void:
 
 ## Save to slot_name. Uses active slot if slot_name is empty.
 ## Returns true on success.
+# Manual save writes to named slot AND updates autosave
 func save_game(slot_name: String = "") -> bool:
 	if _is_saving or _is_loading:
 		return false
@@ -70,18 +71,21 @@ func save_game(slot_name: String = "") -> bool:
 	_active_slot = slot
 
 	var data: Dictionary = _collect_save_data(slot)
-	var ok: bool         = _write_save_file(slot, data)
+
+	# Write to named slot
+	var ok: bool = _write_save_file(slot, data)
+
+	# Always mirror to autosave unless this IS the autosave
+	if ok and slot != AUTOSAVE_SLOT:
+		_write_save_file(AUTOSAVE_SLOT, data)
 
 	_is_saving = false
 
 	if ok:
 		EventBus.game_saved.emit(slot)
-		print("[SaveManager]: Game saved successfully. -- %s" % [slot])
 	else:
 		EventBus.save_failed.emit(slot, "write error")
-		print("[SaveManager]: Game failed to save. -- %s" % [slot])
 
-	
 	return ok
 
 ## Load from slot_name. Returns true on success.
@@ -152,6 +156,16 @@ func get_save_slots() -> Array[Dictionary]:
 	dir.list_dir_end()
 	out.sort_custom(func(a, b): return a.get("timestamp", 0) > b.get("timestamp", 0))
 	return out
+
+
+## Returns the slot_name of the most recently saved game, or "" if none exist.
+func get_most_recent_slot() -> String:
+	var slots: Array[Dictionary] = get_save_slots()
+	if slots.is_empty():
+		return ""
+	# get_save_slots() already sorts by timestamp descending
+	return slots[0].get("slot_name", "")
+
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Save orchestration

@@ -109,11 +109,21 @@ func _ready() -> void:
 	else:
 		# Fresh spawn — register normally
 		pawn_id = PawnRegistry.register(self)
-	
+	# If not possessed, assign AI controller
+	if pawn_id >= 0 and not is_possessed:
+		if _pawn_ai != null:
+			controller = controller
+		# else: null controller — pawn just stands there
 	print("PawnBase ready: pawn_id=", pawn_id, " controller=", controller, " is_possessed=", is_possessed)
 
 
 func _physics_process(delta: float) -> void:
+	if state:
+		state.last_known_cell = HexConsts.WORLD_TO_AXIAL(
+			global_position.x, global_position.z
+		)
+		state.last_world_pos = global_position
+	
 	# PlayerController drives the pawn directly via physics_tick().
 	if controller != null:
 		controller.call("physics_tick", delta)
@@ -127,6 +137,8 @@ func _physics_process(delta: float) -> void:
 		var cell := HexConsts.WORLD_TO_AXIAL(global_position.x, global_position.z)
 		if not state or cell != state.last_known_cell:
 			PawnRegistry.update_cell(pawn_id, cell)
+	
+	
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Navigation (called by PawnAI)
@@ -241,6 +253,7 @@ func on_possessed(by_player_slot: int) -> void:
 	if name_tag:
 		name_tag.info = "[P%d] %s" % [by_player_slot, \
 			_get_display_name() if state else name]
+		name_tag.hide()
 
 
 func on_unpossessed() -> void:
@@ -252,6 +265,7 @@ func on_unpossessed() -> void:
 		_pawn_ai.set("ai_active", true)
 	if name_tag:
 		name_tag.info = _get_display_name() if state else name
+		name_tag.show()
 
 
 # ════════════════════════════════════════════════════════════════════════════ #

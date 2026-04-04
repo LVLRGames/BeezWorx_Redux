@@ -1,9 +1,15 @@
-[gd_resource type="Resource" script_class="WaterPlantAbilityDef" format=3 uid="uid://ydut6ug3ggk4"]
+[gd_resource type="Resource" script_class="DepositAbilityDef" format=3 uid="uid://ydut6ug3ggk4"]
 
-[ext_resource type="Script" uid="uid://c6d5mh0eidtc1" path="res://abilities/water_plant_ability_def.gd" id="1_iwgb3"]
+[ext_resource type="Script" uid="uid://cv4e3ko80pugk" path="res://abilities/deposit_ability_def.gd" id="1_iwgb3"]
+[ext_resource type="Texture2D" uid="uid://i5tw57xlai42" path="res://ui/nectar_icon.png" id="1_one5x"]
 
 [resource]
 script = ExtResource("1_iwgb3")
+item_id = &"water"
 ability_id = &"water_plant"
 display_name = "Water Plant"
-metadata/_custom_type_script = "uid://c6d5mh0eidtc1"
+description = "Water a plant to relieve its thirst"
+icon = ExtResource("1_one5x")
+require_pawn_has_mode = 1
+require_pawn_has = Array[StringName]([&"water"])
+metadata/_custom_type_script = "uid://cv4e3ko80pugk"

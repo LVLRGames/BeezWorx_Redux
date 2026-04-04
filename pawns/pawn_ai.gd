@@ -89,7 +89,7 @@ func _pick_wander_target() -> void:
 
 	# Flying pawns add slight vertical variation
 	if pawn is PawnFlyer:
-		offset.y = randf_range(-2.0, 3.0)
+		offset.y = randf_range(-2.0, 1.8)
 
 	_current_nav_target = pawn.global_position + offset
 	pawn.navigate_to(_current_nav_target)

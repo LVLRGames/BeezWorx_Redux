@@ -104,10 +104,14 @@ func _process(dt: float) -> void:
 	if _hive_mode:
 		return
 	
+	var px := "p%d_" % player_index
+	
+	if Input.is_action_pressed(px + "toggle_inventory"):
+		return
+		
 	if target:
 		global_position = lerp(global_position,target.global_position, dt * follow_speed)
 
-	var px := "p%d_" % player_index
 	var look := Input.get_vector(px+"look_left", px+"look_right", px+"look_down", px+"look_up")
 
 	# Yaw always

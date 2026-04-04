@@ -12,12 +12,13 @@ var slots:    Array[PawnInventorySlot] = []
 
 # Fast lookup: item_id → total count across all slots
 var _totals: Dictionary[StringName, int] = {}
-
+var owner_pawn_id:int = -1
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Initialisation
 # ════════════════════════════════════════════════════════════════════════════ #
 
-func setup(p_capacity: int) -> void:
+func setup(owner_pawn:int, p_capacity: int) -> void:
+	owner_pawn_id = owner_pawn
 	capacity = p_capacity
 	slots.clear()
 	_totals.clear()
@@ -61,8 +62,11 @@ func add_item(item_id: StringName, count: int) -> int:
 	var added: int = count - remaining
 	if added > 0:
 		_totals[item_id] = _totals.get(item_id, 0) + added
+		if owner_pawn_id >= 0:
+			EventBus.pawn_inventory_changed.emit(owner_pawn_id, item_id)
+	return remaining
 
-	return remaining   # overflow
+
 
 ## Remove count units of item_id. Returns false if insufficient.
 func remove_item(item_id: StringName, count: int) -> bool:
@@ -84,6 +88,8 @@ func remove_item(item_id: StringName, count: int) -> bool:
 	_totals[item_id] = maxi(0, _totals.get(item_id, 0) - count)
 	if _totals[item_id] == 0:
 		_totals.erase(item_id)
+
+	EventBus.pawn_inventory_changed.emit(owner_pawn_id, item_id)  # after removal
 	return true
 
 ## Total count of item_id across all slots.
@@ -145,8 +151,9 @@ func to_dict() -> Dictionary:
 		"slots":    slot_data,
 	}
 
-static func from_dict(d: Dictionary) -> PawnInventory:
+static func from_dict(d: Dictionary, owner_id: int = -1) -> PawnInventory:
 	var inv := PawnInventory.new()
+	inv.owner_pawn_id = owner_id
 	inv.capacity = d.get("capacity", 5)
 	inv.slots.clear()
 	inv._totals.clear()

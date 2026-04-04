@@ -17,6 +17,7 @@ var species_id:    StringName  = &""    # references SpeciesDef
 var role_id:       StringName  = &""    # references RoleDef
 var colony_id:     int         = -1     # -1 = wild/neutral
 var movement_type: int         = 0      # MovementType enum (0=GROUND, 1=FLYING)
+var scene_path:    String      = ""
 
 # ── Vitals ────────────────────────────────────────────────────────────────────
 var health:       float = 100.0
@@ -39,6 +40,7 @@ var ai_resume_state: Dictionary = {}
 
 # ── World position ────────────────────────────────────────────────────────────
 var last_known_cell: Vector2i = Vector2i.ZERO
+var last_world_pos: Vector3 = Vector3.ZERO
 
 # ── Inventory ─────────────────────────────────────────────────────────────────
 var inventory: PawnInventory = null
@@ -50,6 +52,7 @@ var inventory: PawnInventory = null
 
 func to_dict() -> Dictionary:
 	return {
+		"scene_path":        scene_path,
 		"pawn_id":           pawn_id,
 		"pawn_name":         pawn_name,
 		"species_id":        str(species_id),
@@ -67,6 +70,9 @@ func to_dict() -> Dictionary:
 		"possessor_id":      possessor_id,
 		"last_known_cell_x": last_known_cell.x,
 		"last_known_cell_y": last_known_cell.y,
+		"last_world_pos_x":  last_world_pos.x,
+		"last_world_pos_y":  last_world_pos.y,
+		"last_world_pos_z":  last_world_pos.z,
 		"ai_resume_state":   ai_resume_state,
 		"schema_version":    1,
 		"inventory":         inventory.to_dict() if inventory else {},
@@ -74,6 +80,7 @@ func to_dict() -> Dictionary:
 
 static func from_dict(d: Dictionary) -> PawnState:
 	var s := PawnState.new()
+	s.scene_path    = d.get("scene_path", "")
 	s.pawn_id       = d.get("pawn_id",       -1)
 	s.pawn_name     = d.get("pawn_name",      "")
 	s.species_id    = StringName(d.get("species_id",  ""))
@@ -89,18 +96,23 @@ static func from_dict(d: Dictionary) -> PawnState:
 	s.is_awake      = d.get("is_awake",       true)
 	s.loyalty       = d.get("loyalty",        1.0)
 	if d.has("inventory") and not d["inventory"].is_empty():
-		s.inventory = PawnInventory.from_dict(d["inventory"])
+		s.inventory = PawnInventory.from_dict(d["inventory"],s.pawn_id)
 	else:
 		# Create default inventory — capacity set later when species_def is read
 		s.inventory = PawnInventory.new()
 		var spec: SpeciesDef = load("res://defs/species/%s.tres" % str(s.species_id))
-		s.inventory.setup(spec.inventory_capacity if spec else 10)
+		s.inventory.setup(s.pawn_id, spec.inventory_capacity if spec else 10)
 
 
 	s.possessor_id  = d.get("possessor_id",  -1)
 	s.last_known_cell = Vector2i(
 		d.get("last_known_cell_x", 0),
 		d.get("last_known_cell_y", 0)
+	)
+	s.last_world_pos = Vector3(
+		d.get("last_world_pos_x", 0.0),
+		d.get("last_world_pos_y", 8.0),
+		d.get("last_world_pos_z", 0.0)
 	)
 	s.ai_resume_state = d.get("ai_resume_state", {})
 	return s
