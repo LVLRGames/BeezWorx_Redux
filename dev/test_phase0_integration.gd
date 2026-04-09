@@ -354,7 +354,7 @@ func _make_minimal_config() -> HexTerrainConfig:
 
 	var plant_def := HexPlantDef.new()
 	plant_def.id             = "test_flower"
-	plant_def.category       = HexGridObjectDef.Category.RESOURCE_PLANT
+	plant_def.category       = HexGridObjectDef.Category.PLANT
 	plant_def.valid_biomes   = ["grassland"]
 	plant_def.placement_threshold = 0.3
 	plant_def.exclusion_radius    = 1

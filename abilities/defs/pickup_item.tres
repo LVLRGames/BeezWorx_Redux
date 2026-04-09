@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PickupAbilityDef" format=3 uid="uid://ksaaxhnftw3r"]
+
+[ext_resource type="Texture2D" uid="uid://c4mjyut4aagl" path="res://ui/hive/designation_icon_storage.png" id="1_csvdt"]
+[ext_resource type="Script" uid="uid://dh7ex3qqynjvf" path="res://abilities/pickup_ability_def.gd" id="1_shbem"]
+
+[resource]
+script = ExtResource("1_shbem")
+ability_id = &"pickup_item"
+display_name = "Pick up item"
+description = "Pick up item and carry it"
+icon = ExtResource("1_csvdt")

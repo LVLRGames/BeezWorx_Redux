@@ -6,6 +6,7 @@
 script = ExtResource("1_so8i7")
 species_id = &"grasshopper"
 display_name = "Grasshopper"
+valid_role_ids = Array[StringName]([&"landscaper"])
 inventory_capacity = 2
 carry_weight_limit = 5.0
 metadata/_custom_type_script = "uid://tqm3ihutobji"

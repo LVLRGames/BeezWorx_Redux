@@ -3,38 +3,29 @@
 #
 # Puts an item from the pawn's inventory into a target.
 # Target can be a plant cell, a hive, or another pawn.
-# Author one .tres per deposit type — everything is configured via exports.
 #
 # Example resources:
-#   pollinate.tres    — item_id=pollen, target=PLANT, valid_stages=[FLOWERING]
-#   water_plant.tres  — item_id=water,  target=PLANT, valid_stages=[WILT]
-#   hive_deposit.tres — item_id="",     target=HIVE,  deposit_range=3
-#   give_pawn.tres    — item_id="",     target=PAWN,  deposit_range=2
+#   pollinate.tres    — item_id=pollen, deposit_target=PLANT, valid_stages=[FLOWERING]
+#   water_plant.tres  — item_id=water,  deposit_target=PLANT, valid_stages=[WILT]
+#   hive_deposit.tres — item_id="",     deposit_target=HIVE,  deposit_range=3
+#   give_pawn.tres    — item_id="",     deposit_target=PAWN,  deposit_range=2
 
 class_name DepositAbilityDef
 extends AbilityDef
 
 enum DepositTarget { PLANT, HIVE, PAWN, ANY }
 
-## What type of target receives the deposit
 @export var deposit_target: DepositTarget = DepositTarget.PLANT
+@export var item_id:        StringName    = &""
+@export var item_count:     int           = 1
 
-## Item to deposit. Empty string = deposit everything in inventory.
-@export var item_id: StringName = &""
-
-## How many units to deposit per use. 0 = deposit all available.
-@export var item_count: int = 1
-
-## Plant stages valid for deposit (plant target only, empty = any)
+## Plant stages valid for plant deposit (empty = any)
 @export var valid_stages: Array[HexWorldState.Stage] = []
 
-## Cell categories valid for plant deposit
-@export var valid_categories: Array[HexGridObjectDef.Category] = [HexGridObjectDef.Category.RESOURCE_PLANT]
+## HexPlantDef.PlantSubcategory ints valid for plant deposit (empty = any plant)
+@export var valid_plant_subcategories: Array[int] = [HexPlantDef.PlantSubcategory.RESOURCE]
 
-## Range in hex cells for hive/pawn targeting
-@export var deposit_range: int = 3
-
-## How much resource the deposit adds to the plant (plant target only)
+@export var deposit_range:  int   = 3
 @export var deposit_amount: float = 1.0
 
 # ════════════════════════════════════════════════════════════════════════════ #
@@ -44,13 +35,10 @@ enum DepositTarget { PLANT, HIVE, PAWN, ANY }
 func can_use(ctx: AbilityContext) -> bool:
 	if ctx.pawn.state == null or ctx.pawn.state.inventory == null:
 		return false
-	# Must have the required item if specified
 	if item_id != &"" and not ctx.pawn.state.inventory.has_item(item_id):
 		return false
-	# Must have something to deposit if no item_id
 	if item_id == &"" and not ctx.pawn.state.inventory.has_any():
 		return false
-	# Target-specific checks
 	match deposit_target:
 		DepositTarget.PLANT: return _can_use_plant(ctx)
 		DepositTarget.HIVE:  return _resolve_hive(ctx) != null
@@ -61,15 +49,18 @@ func can_use(ctx: AbilityContext) -> bool:
 				or _resolve_pawn(ctx) != null
 	return false
 
+
 func _can_use_plant(ctx: AbilityContext) -> bool:
-	var cell: HexCellState = ctx.get_pawn_cell_state()
+	var cell: HexCellState = _get_plant_cell(ctx)
 	if cell == null or not cell.occupied:
 		return false
-	if not valid_categories.has(cell.category):
+	if cell.category != HexGridObjectDef.Category.PLANT:
+		return false
+	if not valid_plant_subcategories.is_empty() \
+			and not valid_plant_subcategories.has(cell.plant_subcategory):
 		return false
 	if not valid_stages.is_empty() and not valid_stages.has(cell.stage):
 		return false
-	# Base requirement checks
 	return super.can_use(ctx)
 
 # ════════════════════════════════════════════════════════════════════════════ #
@@ -89,29 +80,35 @@ func resolve_target(ctx: AbilityContext) -> Variant:
 			return _resolve_pawn(ctx)
 	return null
 
+
 func _resolve_plant(ctx: AbilityContext) -> Variant:
-	var cell: HexCellState = ctx.get_pawn_cell_state()
+	var cell: HexCellState = _get_plant_cell(ctx)
 	if cell == null or not cell.occupied:
 		return null
-	if not valid_categories.has(cell.category):
+	if cell.category != HexGridObjectDef.Category.PLANT:
+		return null
+	if not valid_plant_subcategories.is_empty() \
+			and not valid_plant_subcategories.has(cell.plant_subcategory):
 		return null
 	if not valid_stages.is_empty() and not valid_stages.has(cell.stage):
 		return null
-	return ctx.pawn_cell
+	return ctx.target_cell if ctx.has_target_cell() else ctx.pawn_cell
+
 
 func _resolve_hive(ctx: AbilityContext) -> HiveState:
 	if ctx.pawn.state == null:
 		return null
 	var colony_id: int = ctx.pawn.state.colony_id
 	var hives: Array[HiveState] = HiveSystem.get_hives_for_colony(colony_id)
-	var best: HiveState  = null
-	var best_dist: int   = deposit_range + 1
+	var best: HiveState = null
+	var best_dist: int  = deposit_range + 1
 	for hs: HiveState in hives:
 		var dist: int = _hex_dist(ctx.pawn_cell, hs.anchor_cell)
 		if dist <= deposit_range and dist < best_dist:
 			best_dist = dist
 			best      = hs
 	return best
+
 
 func _resolve_pawn(ctx: AbilityContext) -> PawnBase:
 	if ctx.target_pawn == null:
@@ -121,6 +118,12 @@ func _resolve_pawn(ctx: AbilityContext) -> PawnBase:
 			ctx.target_pawn.global_position.x,
 			ctx.target_pawn.global_position.z))
 	return ctx.target_pawn if dist <= deposit_range else null
+
+
+func _get_plant_cell(ctx: AbilityContext) -> HexCellState:
+	if ctx.has_target_cell():
+		return ctx.get_target_cell_state()
+	return ctx.get_pawn_cell_state()
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  execute
@@ -134,6 +137,7 @@ func execute(ctx: AbilityContext, target: Variant) -> void:
 	elif target is PawnBase:
 		_execute_pawn(ctx, target)
 
+
 func _execute_plant(ctx: AbilityContext, cell: Vector2i) -> void:
 	var inv: PawnInventory = ctx.pawn.state.inventory
 	var actual_item: StringName = item_id
@@ -142,10 +146,9 @@ func _execute_plant(ctx: AbilityContext, cell: Vector2i) -> void:
 		match actual_item:
 			&"pollen": HexWorldState.apply_pollen(cell, cell)
 			&"water":  HexWorldState.water_plant(cell)
-			_:
-				# Generic deposit — extend here for future plant interactions
-				pass
+			_: pass
 		EventBus.item_used.emit(ctx.pawn.pawn_id, actual_item, amount)
+
 
 func _execute_hive(ctx: AbilityContext, hive: HiveState) -> void:
 	var inv: PawnInventory = ctx.pawn.state.inventory
@@ -158,6 +161,7 @@ func _execute_hive(ctx: AbilityContext, hive: HiveState) -> void:
 		if deposited > 0:
 			inv.remove_item(id, deposited)
 			EventBus.item_deposited.emit(ctx.pawn.pawn_id, hive.hive_id, id, deposited)
+
 
 func _execute_pawn(ctx: AbilityContext, target: PawnBase) -> void:
 	if target.state == null or target.state.inventory == null:
@@ -191,8 +195,6 @@ func get_prompt(ctx: AbilityContext) -> String:
 			return "Give"
 		_:
 			return display_name
-
-# ── Hex distance ──────────────────────────────────────────────────────────────
 
 static func _hex_dist(a: Vector2i, b: Vector2i) -> int:
 	var dq: int = b.x - a.x

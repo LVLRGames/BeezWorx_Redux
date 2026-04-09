@@ -125,6 +125,11 @@ func _init_new_world() -> void:
 
 
 func _init_world() -> void:
+	# Reset autoload state from any previous session before re-initialising.
+	# PawnRegistry and PossessionManager are singletons that persist across
+	# reload_current_scene() — clear them so ghost pawn IDs don't accumulate.
+	PawnRegistry.reset()
+	PossessionManager.reset()
 	# HexWorldState.initialize() builds registry, baseline, simulation,
 	# registers engine_time global shader param, and loads saved deltas.
 	HexWorldState.initialize(terrain_config)
@@ -417,7 +422,8 @@ func _find_nearest_tree_cell(origin: Vector2i, max_radius: int) -> Vector2i:
 			if state.occupied:
 				found_categories[state.category] = \
 					found_categories.get(state.category, 0) + 1
-			if state.occupied and state.category == HexGridObjectDef.Category.TREE:
+			if state.occupied and state.definition is HexPlantDef \
+					and (state.definition as HexPlantDef).plant_subcategory == HexPlantDef.PlantSubcategory.TREE:
 				return cell
 	print("_find_nearest_tree: categories found in radius %d: %s" % [max_radius, found_categories])
 	return Vector2i(-9999, -9999)
@@ -436,7 +442,7 @@ func _find_world_start() -> Vector2i:
 			if obj_id.is_empty():
 				continue
 			var def: HexGridObjectDef = HexWorldState.registry.get_definition(obj_id)
-			if def != null and def.category == HexGridObjectDef.Category.TREE:
+			if def is HexPlantDef and (def as HexPlantDef).plant_subcategory == HexPlantDef.PlantSubcategory.TREE:
 				return cell
 	return Vector2i(0, 0)
 

@@ -99,6 +99,16 @@ func register(pawn: PawnBase) -> int:
 
 ## Deregister a pawn. Call from PawnBase when pawn dies or is permanently removed.
 ## State is erased — use unload_node() instead for temporary chunk unloads.
+
+## Full reset for scene reload. Clears all pawn data and resets the ID counter.
+## Call from WorldRoot._init_world() before any new pawn spawning.
+func reset() -> void:
+	_states.clear()
+	_nodes.clear()
+	_by_colony.clear()
+	_by_cell.clear()
+	_next_id = 0
+
 func deregister(pawn_id: int) -> void:
 	var state: PawnState = _states.get(pawn_id)
 	if state == null:

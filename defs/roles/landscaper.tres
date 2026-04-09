@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RoleDef" format=3 uid="uid://doud7cnnnqvnb"]
+
+[ext_resource type="Script" uid="uid://jpstd3ccbwrt" path="res://abilities/ability_def.gd" id="1_3pygx"]
+[ext_resource type="Script" uid="uid://s5xuvn33qbrq" path="res://defs/roles/role_def.gd" id="1_8uo8w"]
+[ext_resource type="Resource" uid="uid://bvk8vsay2g18h" path="res://abilities/defs/eat_grass.tres" id="2_abjlt"]
+[ext_resource type="Resource" uid="uid://dyu2xt6txlmn2" path="res://abilities/defs/hive_deposit.tres" id="3_6wen5"]
+
+[resource]
+script = ExtResource("1_8uo8w")
+role_id = &"landscaper"
+display_name = "Landscaper"
+action_abilities = Array[ExtResource("1_3pygx")]([ExtResource("2_abjlt"), ExtResource("3_6wen5")])
+metadata/_custom_type_script = "uid://s5xuvn33qbrq"

@@ -391,6 +391,100 @@ func _baseline_tree_object(
 
 	return def.id
 
+
+# ════════════════════════════════════════════════════════════════════ #
+#  Grass slot baseline (plant system overhaul)
+# ════════════════════════════════════════════════════════════════════ #
+
+## Returns a baseline HexCellState for a grass plant in slot 1-5 of a cell.
+## Returns an empty (unoccupied) state if no grass should appear here.
+func get_baseline_grass_slot(
+	cell:       Vector2i,
+	slot:       int,
+	world_time: float,
+	gen_cache:  HexChunkGenCache = null
+) -> HexCellState:
+	var empty := HexCellState.new()
+	empty.origin     = cell
+	empty.slot_index = slot
+
+	if cfg == null or registry == null:
+		return empty
+
+	# Biome must support logical grass.
+	var biome_id: StringName = _biome_at(cell, gen_cache)
+	var biome: HexBiome = cfg.get_biome_definition(biome_id)
+	if biome == null or not biome.has_grass or biome.grass_plant_id.is_empty():
+		return empty
+
+	# If the primary object (slot 0) is multi-slot (tree), no grass in any slot.
+	var primary_id: String = get_baseline_object_id(cell, gen_cache)
+	if not primary_id.is_empty():
+		var primary_def: HexGridObjectDef = registry.get_definition(primary_id)
+		if primary_def != null and primary_def.slots_occupied > 1:
+			return empty
+
+	# Cell-level density check — same noise used by the visual multimesh.
+	var cell_noise: float = cfg.grass_density_noise.get_noise_2dv(
+		Vector2(cell.x, cell.y) * 10.1
+	)
+	if cell_noise < biome.grass_density_threshold:
+		return empty
+
+	# Per-slot hash — not every slot in a grass cell gets a plant.
+	# max_grass_per_hex controls how many slots (out of 5) fill with grass.
+	var slot_hash: int = (cell.x * 92821 + cell.y * 68917 + slot * 31337) ^ (cell.x * 1619)
+	var slot_t: float  = float(slot_hash & 0xFFFF) / float(0xFFFF)
+	var slots_available: int = clampi(cfg.max_grass_per_hex - 1, 0, 5)
+	if slot_t > float(slots_available) / 5.0:
+		return empty
+
+	# Resolve GrassDef.
+	var grass_obj: HexGridObjectDef = registry.get_definition(biome.grass_plant_id)
+	if not (grass_obj is HexPlantDef):
+		print("grass def not found: '", biome.grass_plant_id, "' — is it in object_definitions?")
+		return empty
+	var grass_def: HexPlantDef = grass_obj as HexPlantDef
+
+	# Build state.
+	var state       := HexCellState.new()
+	state.occupied        = true
+	state.origin          = cell
+	state.object_id       = biome.grass_plant_id
+	state.definition      = grass_def
+	state.category        = HexGridObjectDef.Category.PLANT
+	state.plant_subcategory = HexPlantDef.PlantSubcategory.GRASS
+	state.source          = &"baseline"
+	state.slot_index      = slot
+
+	var pd: HexPlantData = grass_def.plant_data
+	if pd == null or grass_def.genes == null:
+		state.stage = HexWorldState.Stage.GROWTH
+		return state
+
+	# Derive lifecycle — stagger birth by slot so stages vary across slots.
+	var genes: HexPlantGenes  = baseline_genes(cell, grass_def)
+	var birth: float          = derive_birth(cell, pd, genes.cycle_speed)
+	birth -= float(slot) * 50.0   # slot offset staggers stages visually
+	var cycles: int           = derive_cycles_done(pd, genes.cycle_speed, birth, world_time)
+	var stage: int            = pd.compute_stage(birth, world_time, genes.cycle_speed, cycles)
+
+	state.genes             = genes
+	state.birth_time        = birth
+	state.stage             = stage
+	state.fruit_cycles_done = cycles
+	state.plant_variant     = HexConsts.PlantVariant.NORMAL
+
+	var pollen_amt: float = pd.pollen_at_stage(stage, genes.pollen_yield_mult)
+	state.has_pollen    = pd.can_produce_pollen 		and stage == HexWorldState.Stage.FLOWERING 		and pollen_amt > 0.0
+	state.pollen_amount = pollen_amt
+	state.nectar_amount = pd.nectar_at_stage(stage, genes.nectar_yield_mult)
+
+	if stage == HexWorldState.Stage.DEAD:
+		state.occupied = false
+
+	return state
+
 # ════════════════════════════════════════════════════════════════════ #
 #  Hex helpers
 # ════════════════════════════════════════════════════════════════════ #

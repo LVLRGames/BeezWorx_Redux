@@ -17,9 +17,12 @@ func set_ability(ability: AbilityDef) -> void:
 	if ability == null:
 		set_empty()
 		return
-	_icon.texture   = ability.icon
+	if ability.icon != null:
+		_icon.texture = ability.icon
+	else:
+		_icon.texture = null
 	_icon.visible   = ability.icon != null
-	var words       := ability.display_name.split(" ")
+	var words       := ability.display_name.split(" ", false)
 	_name_label.text    = words[0] if words.size() > 0 else ""
 	_name_label.visible = true
 

@@ -20,66 +20,69 @@ enum PlantVariant {
 	ROYAL  = 3,
 }
 
-## Describes what a hex cell is currently occupied by.
-## Used by HexCellState.category and queried by colony, job, and rendering systems.
-## Extends HexGridObjectDef.Category with colony-specific occupant types.
+## Colony-layer semantic category for a cell occupant.
+## Used by HiveSystem, TerritorySystem, JobSystem, and colony abilities
+## to classify what kind of object occupies a cell.
 ##
-## IMPORTANT: The integer values of RESOURCE_PLANT through DEFENSIVE_ACTIVE must
-## stay numerically identical to HexGridObjectDef.Category so that existing
-## HexChunk rendering branches that compare category integers remain correct.
-## When HexGridObjectDef.Category gains new entries, mirror them here.
+## DECOUPLED (plant system overhaul):
+##   CellCategory is NO LONGER numerically tied to HexGridObjectDef.Category.
+##   HexGridObjectDef.Category now only has PLANT / ROCK / PORTAL.
+##   Colony systems that need to distinguish plant types (RESOURCE vs TREE vs
+##   GRASS etc.) should read HexCellState.plant_subcategory directly instead
+##   of comparing HexCellState.category against these values.
+##
+## MIGRATION PATTERN:
+##   Old: state.category == HexGridObjectDef.Category.RESOURCE_PLANT
+##   New: state.plant_subcategory == HexPlantDef.PlantSubcategory.RESOURCE
+##
+##   Old: state.category == HexGridObjectDef.Category.TREE
+##   New: state.plant_subcategory == HexPlantDef.PlantSubcategory.TREE
 enum CellCategory {
 	# ── Terrain baseline ──────────────────────────────────────────────
-	EMPTY             = -1,  # No occupant. Default for unoccupied cells.
+	EMPTY             = -1,   # No occupant. Default for unoccupied cells.
 
-	# ── Mirror of HexGridObjectDef.Category (values must match) ───────
-	RESOURCE_PLANT    = 0,   # Harvestable plant — nectar, pollen, fruit.
-	TREE              = 1,   # Tree trunk anchor. Hives can be built here.
-	ROCK              = 2,   # Impassable terrain object.
-	PORTAL            = 3,   # Reserved — world transition node.
-	DEFENSIVE_PASSIVE = 4,   # Passive obstacle (thorns, dense brush).
-	DEFENSIVE_ACTIVE  = 5,   # Combat plant — attacks nearby hostiles.
+	# ── Plant subcategories (for colony-layer use; not tied to HexGridObjectDef) ─
+	RESOURCE_PLANT    = 0,    # Harvestable plant — nectar, pollen, fruit.
+	TREE              = 1,    # Tree trunk anchor. Hives can be built here.
+	ROCK              = 2,    # Impassable terrain object.
+	PORTAL            = 3,    # Reserved — world transition node.
+	DEFENSIVE_PASSIVE = 4,    # Passive obstacle (thorns, dense brush).
+	DEFENSIVE_ACTIVE  = 5,    # Combat plant — attacks nearby hostiles.
 
-	# ── Colony layer (new in Phase 0) ─────────────────────────────────
-	HIVE_ANCHOR       = 10,  # Cell holds a constructed hive structure.
-	TERRITORY_MARKER  = 11,  # Queen-placed scent / command marker.
-	PAWN_SPAWN        = 12,  # Designated pawn spawn point (nursery exit).
-	RESOURCE_NODE     = 13,  # Non-plant harvestable (mineral, resin, water).
-	TRAVERSABLE_STRUCTURE = 14, # Walkable colony construction (ramp, bridge).
+	# ── Colony layer ──────────────────────────────────────────────────
+	HIVE_ANCHOR           = 10,  # Cell holds a constructed hive structure.
+	TERRITORY_MARKER      = 11,  # Queen-placed scent / command marker.
+	PAWN_SPAWN            = 12,  # Designated pawn spawn point (nursery exit).
+	RESOURCE_NODE         = 13,  # Non-plant harvestable (mineral, resin, water).
+	TRAVERSABLE_STRUCTURE = 14,  # Walkable colony construction (ramp, bridge).
 }
 
 ## Hints passed with HexWorldState.cell_changed so listeners can skip
 ## full re-queries when the change is minor.
-##
-## Usage:
-##   HexWorldState.cell_changed.emit(cell, CellChangeMutationHint.STAGE_CHANGE)
-##
-## Listeners that only care about structure (chunk rebuild) can ignore
-## RESOURCE_CHANGE and MARKER_CHANGE entirely.
 enum CellChangeMutationHint {
-	STRUCTURAL       = 0,  # Object placed, removed, or replaced. Full re-query needed.
-	STAGE_CHANGE     = 1,  # Plant stage advanced. Re-query plant state only.
-	RESOURCE_CHANGE  = 2,  # Pollen/nectar amount changed. No mesh rebuild needed.
-	MARKER_CHANGE    = 3,  # Territory marker placed or removed. Territory system listens.
+	STRUCTURAL    = 0,  # Object placed, removed, or replaced. Full re-query needed.
+	STAGE_CHANGE  = 1,  # Plant stage advanced. Re-query plant state only.
+	RESOURCE_CHANGE = 2, # Pollen/nectar amount changed. No mesh rebuild needed.
+	MARKER_CHANGE = 3,  # Territory marker placed or removed.
 }
 
 const HEX_SIZE:    float = 6.0
 const CHUNK_SIZE:  int   = 16
 const MAX_HEIGHT:  float = 512.0
 const HEIGHT_STEP: float = 3
-const SQRT3:       float = 1.7320508075688772   # sqrt(3) — avoids runtime sqrt calls
+const SQRT3:       float = 1.7320508075688772
 
-const TERRAIN_ATLAS_COLS: int   = 16            # one column per biome
-const TERRAIN_ATLAS_ROWS: int   = 4             # top / skirt-first / skirt-cont / spare
-const TERRAIN_TILE_U:     float = 1.0 / TERRAIN_ATLAS_COLS   # 0.0625
-const TERRAIN_TILE_V:     float = 1.0 / TERRAIN_ATLAS_ROWS   # 0.25
+const TERRAIN_ATLAS_COLS: int   = 16
+const TERRAIN_ATLAS_ROWS: int   = 4
+const TERRAIN_TILE_U:     float = 1.0 / TERRAIN_ATLAS_COLS
+const TERRAIN_TILE_V:     float = 1.0 / TERRAIN_ATLAS_ROWS
 
 static func WORLD_TO_AXIAL(wx: float, wz: float) -> Vector2i:
 	var qf := (SQRT3 / 3.0 * wx - 1.0 / 3.0 * wz) / HEX_SIZE
 	var rf := (2.0 / 3.0 * wz) / HEX_SIZE
-	var q := roundf(qf)
-	var r := roundf(rf)
-	var s := roundf(-qf - rf)
+	var q  := roundf(qf)
+	var r  := roundf(rf)
+	var s  := roundf(-qf - rf)
 	var q_diff := absf(q - qf)
 	var r_diff := absf(r - rf)
 	var s_diff := absf(s - (-qf - rf))
@@ -90,6 +93,6 @@ static func WORLD_TO_AXIAL(wx: float, wz: float) -> Vector2i:
 	return Vector2i(int(q), int(r))
 
 static func AXIAL_TO_WORLD(q: int, r: int) -> Vector2:
-	var x = HEX_SIZE * (SQRT3 * q + SQRT3 * 0.5 * r)
-	var z = HEX_SIZE * 1.5 * r
+	var x: float = HEX_SIZE * (SQRT3 * q + SQRT3 * 0.5 * r)
+	var z: float = HEX_SIZE * 1.5 * r
 	return Vector2(x, z)

@@ -1,14 +1,8 @@
 [gd_scene format=3 uid="uid://7v7lc6o5cxas"]
 
 [ext_resource type="Script" uid="uid://dxfo37uwehw3d" path="res://pawns/ant/ant.gd" id="1_ubgiu"]
-[ext_resource type="Script" uid="uid://tqm3ihutobji" path="res://defs/species/species_def.gd" id="2_3xqgp"]
-[ext_resource type="Script" uid="uid://s5xuvn33qbrq" path="res://defs/roles/role_def.gd" id="3_r16xt"]
-[ext_resource type="Script" uid="uid://jpstd3ccbwrt" path="res://abilities/ability_def.gd" id="4_kpmo8"]
-[ext_resource type="Resource" uid="uid://ydut6ug3ggk4" path="res://abilities/defs/water_plant.tres" id="5_kpmo8"]
-[ext_resource type="Resource" uid="uid://4ubwvlfar2ho" path="res://abilities/defs/gather_nectar.tres" id="5_x05hc"]
-[ext_resource type="Resource" uid="uid://c46alge8wrs8a" path="res://abilities/defs/gather_pollen.tres" id="6_5r50i"]
-[ext_resource type="Resource" uid="uid://dyu2xt6txlmn2" path="res://abilities/defs/hive_deposit.tres" id="7_v5jmq"]
-[ext_resource type="Resource" uid="uid://bi7lqj8xch4mf" path="res://abilities/defs/pollinate.tres" id="9_v5jmq"]
+[ext_resource type="Resource" uid="uid://hl0t4n6piqcd" path="res://defs/species/red_ant.tres" id="2_v5jmq"]
+[ext_resource type="Resource" uid="uid://ce1mx0r02b1bw" path="res://defs/roles/item_carrier.tres" id="3_hhqy7"]
 [ext_resource type="Script" uid="uid://lfs1fkv65cg2" path="res://pawns/ant/gfx.gd" id="10_5r50i"]
 [ext_resource type="PackedScene" uid="uid://cdboe6ugl86t5" path="res://pawns/ant/Ant.glb" id="10_kpmo8"]
 [ext_resource type="Script" uid="uid://dccjpewnyjd5w" path="res://pawns/pawn_ability_executor.gd" id="11_hhqy7"]
@@ -16,20 +10,6 @@
 [ext_resource type="Texture2D" uid="uid://dtcpxw3w4mpbv" path="res://pawns/ant/ant_trail.png" id="13_v5jmq"]
 [ext_resource type="Script" uid="uid://3dhdnxl0m1fs" path="res://pawns/name_tag.gd" id="14_x05hc"]
 [ext_resource type="PackedScene" uid="uid://3qf5isgraicy" path="res://pawns/interaction_detector.tscn" id="15_5r50i"]
-
-[sub_resource type="Resource" id="Resource_r5mcm"]
-script = ExtResource("2_3xqgp")
-species_id = &"red_ant"
-display_name = "Red Ant"
-movement_type = 0
-inventory_capacity = 1
-metadata/_custom_type_script = "uid://tqm3ihutobji"
-
-[sub_resource type="Resource" id="Resource_787c8"]
-script = ExtResource("3_r16xt")
-role_id = &"carrier"
-display_name = "Carrier"
-metadata/_custom_type_script = "uid://s5xuvn33qbrq"
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3737y"]
 radius = 0.1
@@ -80,10 +60,8 @@ collision_layer = 0
 collision_mask = 7
 script = ExtResource("1_ubgiu")
 max_speed = 30.0
-species_def = SubResource("Resource_r5mcm")
-role_def = SubResource("Resource_787c8")
-action_abilities = Array[ExtResource("4_kpmo8")]([ExtResource("5_x05hc"), ExtResource("6_5r50i")])
-alt_abilities = Array[ExtResource("4_kpmo8")]([ExtResource("7_v5jmq"), ExtResource("5_kpmo8"), ExtResource("9_v5jmq")])
+species_def = ExtResource("2_v5jmq")
+role_def = ExtResource("3_hhqy7")
 name_tag = NodePath("NameTag")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=637545569]
@@ -93,13 +71,13 @@ shape = SubResource("CapsuleShape3D_3737y")
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=852160161]
 replication_config = SubResource("SceneReplicationConfig_rhvf2")
 
-[node name="GFX" parent="." unique_id=967005004 node_paths=PackedStringArray("anim", "anim_tree", "pivot") instance=ExtResource("10_kpmo8")]
+[node name="GFX" parent="." unique_id=1119826730 node_paths=PackedStringArray("anim", "anim_tree", "pivot") instance=ExtResource("10_kpmo8")]
 script = ExtResource("10_5r50i")
 anim = NodePath("AnimationPlayer")
 anim_tree = NodePath("AnimationTree")
 pivot = NodePath("Armature")
 
-[node name="AnimationPlayer" parent="GFX" index="1" unique_id=911535391]
+[node name="AnimationPlayer" parent="GFX" index="1" unique_id=904705643]
 deterministic = true
 autoplay = &"idle"
 
@@ -109,7 +87,7 @@ anim_player = NodePath("../AnimationPlayer")
 parameters/motion/idle_v_walk/blend_amount = 0.0
 parameters/motion/TimeScale/scale = 1.0
 
-[node name="Trail" type="Node" parent="." unique_id=577253293 node_paths=PackedStringArray("target")]
+[node name="Trail" type="Node" parent="." unique_id=577253293 node_paths=PackedStringArray("target") groups=["trails"]]
 script = ExtResource("12_5r50i")
 target = NodePath("..")
 max_marks = 64

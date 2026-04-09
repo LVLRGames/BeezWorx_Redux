@@ -9,5 +9,6 @@ display_name = "Savanna"
 terrain_atlas_col = 11.0
 grass_tint = Color(1, 0.765, 0.060000002, 1)
 grass_density_threshold = 0.05
+grass_plant_id = &"grass"
 preferred_temperature = 3
 preferred_moisture = 1

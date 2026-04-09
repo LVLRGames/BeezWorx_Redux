@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SpeciesDef" format=3 uid="uid://sk15anuhsxvk"]
+
+[ext_resource type="Script" uid="uid://tqm3ihutobji" path="res://defs/species/species_def.gd" id="1_nbqsh"]
+
+[resource]
+script = ExtResource("1_nbqsh")
+species_id = &"honey bee"
+display_name = "Honey Bee"
+valid_role_ids = Array[StringName]([&"bee_queen"])
+inventory_capacity = 19
+metadata/_custom_type_script = "uid://tqm3ihutobji"

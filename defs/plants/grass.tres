@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="GrassDef" format=3 uid="uid://dovtqkt1drua2"]
+
+[ext_resource type="Script" uid="uid://smuul3l3pn0k" path="res://world/hex_plant_genes.gd" id="1_2bdh6"]
+[ext_resource type="Script" uid="uid://kgmwjry15s83" path="res://world/grass_def.gd" id="1_hfucq"]
+[ext_resource type="Material" uid="uid://bog1vlglh2qp4" path="res://assets/materials/grass_material.tres" id="2_5bopp"]
+[ext_resource type="Script" uid="uid://bt7l6upa6vav" path="res://world/hex_plant_data.gd" id="2_axfy5"]
+[ext_resource type="ArrayMesh" uid="uid://c50nmigd8m1ui" path="res://assets/meshes/grass/blockbench_export_mesh.res" id="3_mfn47"]
+
+[sub_resource type="Resource" id="Resource_5bopp"]
+script = ExtResource("1_2bdh6")
+metadata/_custom_type_script = "uid://smuul3l3pn0k"
+
+[sub_resource type="Resource" id="Resource_mfn47"]
+script = ExtResource("2_axfy5")
+metadata/_custom_type_script = "uid://bt7l6upa6vav"
+
+[resource]
+script = ExtResource("1_hfucq")
+plant_subcategory = 0
+genes = SubResource("Resource_5bopp")
+plant_data = SubResource("Resource_mfn47")
+drop_item_id = &"plant_fiber"
+id = "grass"
+category = 0
+mesh = ExtResource("3_mfn47")
+material = ExtResource("2_5bopp")
+metadata/_custom_type_script = "uid://kgmwjry15s83"

@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="HexGridObjectDef" format=3 uid="uid://c05bqavgvdyjb"]
-
-[ext_resource type="Script" uid="uid://cjfuymmy5nge1" path="res://world/hex_grid_object_def.gd" id="1_sfv5b"]
-
-[resource]
-script = ExtResource("1_sfv5b")
-id = "dandelion"
-valid_biomes = Array[String](["grassland", "meadow"])
-metadata/_custom_type_script = "uid://djvfkcbhyxxo5"

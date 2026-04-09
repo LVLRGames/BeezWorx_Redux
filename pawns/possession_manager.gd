@@ -30,6 +30,11 @@ const MAX_PLAYERS: int = 4
 
 ## Request that player_slot takes possession of pawn with pawn_id.
 ## Returns false if pawn is not eligible.
+
+## Full reset for scene reload. Call from WorldRoot._init_world().
+func reset() -> void:
+	_possessed.clear()
+
 func request_possess(player_slot: int, pawn_id: int) -> bool:
 	var pawn: PawnBase = _find_pawn(pawn_id)
 	if pawn == null:
@@ -37,8 +42,7 @@ func request_possess(player_slot: int, pawn_id: int) -> bool:
 	if not _can_possess(player_slot, pawn):
 		return false
 	# Don't call request_release here — _local_possess handles it
-	_local_possess(pawn, player_slot)
-	EventBus.pawn_possessed.emit(player_slot, pawn_id)
+	_local_possess(pawn, player_slot)  # already emits pawn_possessed
 	return true
 
 ## Release whatever pawn player_slot is currently possessing.

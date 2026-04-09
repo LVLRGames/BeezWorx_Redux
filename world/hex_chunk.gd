@@ -34,7 +34,8 @@ var object_mms: Dictionary[String, MultiMesh] = {}
 var _object_batch_meta: Dictionary[String, HexStaticBatch] = {}
 var _active_scenes: Dictionary[Vector2i, PackedScene] = {}
 
-var _plant_mm: MultiMesh = null
+var _plant_mm:       MultiMesh = null
+var _grass_plant_mm: MultiMesh = null
 
 var _terrain_material: Material = null
 var _height_cache: PackedFloat32Array
@@ -42,11 +43,17 @@ var _skirt_masks: PackedByteArray
 var _ramp_edges: PackedByteArray
 var _grass_node: MultiMeshInstance3D = null
 
-var _cell_states: Dictionary[Vector2i, HexCellState] = {}
-var _plant_instance_map: Dictionary[Vector2i, HexPlantInstanceRef] = {}
-var _pending_bounces: Dictionary[Vector2i, bool] = {}
+# ── Instance tracking (slot-keyed) ───────────────────────────────────────
+var _cell_states: Dictionary[Vector3i, HexCellState] = {}
+var _plant_instance_map: Dictionary[Vector3i, HexPlantInstanceRef] = {}
+var _pending_bounces:       Dictionary[Vector3i, bool] = {}
+var _pending_grass_slot_keys: Array[Vector3i] = []
+## Ordered slot keys matching _plant_mm instance indices.
+var _pending_plant_slot_keys: Array[Vector3i] = []
+## Cells dirtied by cell_changed signal; flushed once per frame.
+var _dirty_cells: Dictionary[Vector2i, bool] = {}
 var _next_check_time: float = 0.0
-var _next_transition: Dictionary[Vector2i, float] = {}
+var _next_transition: Dictionary[Vector3i, float] = {}
 var _has_tree_collision: bool = false
 var terrain_manager: HexTerrainManager
 var _first_check_done: bool = false
@@ -59,6 +66,7 @@ func _init(coord: Vector2i, puffy: bool) -> void:
 	use_puffy = puffy
 
 func _ready() -> void:
+	add_to_group("hex_chunks")
 	if Engine.is_editor_hint():
 		if not HexWorldState.cell_changed.is_connected(_on_cell_changed):
 			HexWorldState.cell_changed.connect(_on_cell_changed)
@@ -70,6 +78,10 @@ func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 
+	# Flush batched dirty cells every frame.
+	if not _dirty_cells.is_empty():
+		_flush_dirty_cells()
+
 	var now: float = TimeService.world_time
 	if now < _next_check_time:
 		return
@@ -78,11 +90,7 @@ func _process(_delta: float) -> void:
 	if not _is_near_player():
 		return
 
-	#var t0 := Time.get_ticks_usec()
 	_check_stale_plants()
-	#var elapsed := Time.get_ticks_usec() - t0
-	#if elapsed > 500:
-		#print("stale check: %d us, chunk: %s" % [elapsed, chunk_coord])
 
 	var should_have: bool = _should_have_tree_collision()
 	if should_have and not _has_tree_collision:
@@ -156,7 +164,7 @@ func generate_all_data() -> void:
 	_precompute_heights()
 	_precompute_ramps()
 	_generate_terrain_mesh()
-	_generate_grass()
+	# _generate_grass() retired — grass is now a logical plant in baseline slots.
 	_generate_objects()
 
 func _precompute_heights() -> void:
@@ -439,15 +447,21 @@ func _generate_grass() -> void:
 
 	grass_mm = mm
 
+
 func _generate_objects() -> void:
 	object_mms.clear()
 	_object_batch_meta.clear()
 	_active_scenes.clear()
 	_cell_states.clear()
- 
+
 	var plant_xforms: Array[Transform3D] = []
 	var plant_colors: Array[Color] = []
 	var plant_custom: Array[Color] = []
+	var grass_xforms: Array[Transform3D] = []
+	var grass_colors: Array[Color] = []
+	var grass_custom: Array[Color] = []
+	_pending_grass_slot_keys.clear()
+	_pending_plant_slot_keys.clear()
 
 	var static_batches: Dictionary[String, HexStaticBatch] = {}
 
@@ -455,83 +469,129 @@ func _generate_objects() -> void:
 		for dr: int in CHUNK_SIZE:
 			var q: int = chunk_coord.x * CHUNK_SIZE + dq
 			var r: int = chunk_coord.y * CHUNK_SIZE + dr
-			var cell: Vector2i = Vector2i(q, r)
-
-			var state: HexCellState = HexWorldState.get_cell_ref(cell, _generation_world_time, _gen_cache)
-			_cell_states[cell] = state
-
-			if not state.occupied:
-				continue
-			if state.origin != cell:
-				continue
-
-			var def: HexGridObjectDef = state.definition
-			if not def:
-				continue
+			var cell := Vector2i(q, r)
 
 			var w: Vector2 = HexConsts.AXIAL_TO_WORLD(q, r)
 			var wp: Vector3 = Vector3(w.x, 0.0, w.y)
 			wp.y = _hc(dq, dr)
 
-			match def.category:
-				HexGridObjectDef.Category.RESOURCE_PLANT:
-					_batch_plant(state, wp, plant_xforms, plant_colors, plant_custom)
+			# Query all 6 slots per cell.
+			for slot: int in 6:
+				var sk := Vector3i(q, r, slot)
+				var state: HexCellState = HexWorldState.get_slot_ref(
+					cell, slot, _generation_world_time, _gen_cache
+				)
+				_cell_states[sk] = state
 
-				HexGridObjectDef.Category.DEFENSIVE_ACTIVE:
-					_active_scenes[cell] = def.scene
+				if not state.occupied:
+					continue
+				if state.origin != cell:
+					continue   # satellite of a multi-cell object; origin renders it
 
-				_:
-					var batch_key: String = def.id
-					var batch_mesh: Mesh = def.mesh
-					var batch_material: Material = def.material
-					var variant_scale_range: Vector2 = def.random_scale_range
-					var rot_offset_radians: float = 0.0
-					var tree_variant: HexTreeVariant = null
+				var def: HexGridObjectDef = state.definition
+				if not def:
+					continue
 
-					if def is HexTreeDef:
-						var tree_def: HexTreeDef = def as HexTreeDef
-						var variant_index: int = _pick_tree_variant_index(cell, tree_def)
-						if variant_index >= 0:
-							tree_variant = tree_def.get_variant(variant_index)
-							if tree_variant != null:
-								batch_key = "%s::v%d" % [def.id, variant_index]
-								batch_mesh = tree_variant.mesh if tree_variant.mesh != null else def.mesh
-								batch_material = tree_variant.material if tree_variant.material != null else def.material
-								variant_scale_range = tree_variant.scale_range
-								rot_offset_radians = deg_to_rad(tree_variant.y_rotation_offset_degrees)
+				# Multi-slot objects (trees, big rocks): only render from slot 0.
+				if def.slots_occupied > 1 and slot > 0:
+					continue
 
-					if batch_mesh == null:
-						continue
+				match def.category:
+					HexGridObjectDef.Category.PLANT:
+						var plant_def: HexPlantDef = def as HexPlantDef
+						match plant_def.plant_subcategory:
+							HexPlantDef.PlantSubcategory.RESOURCE, \
+							HexPlantDef.PlantSubcategory.PASSIVE_DEFENSE:
+								_batch_plant(state, wp, plant_xforms, plant_colors, plant_custom)
 
-					if not static_batches.has(batch_key):
-						static_batches[batch_key] = HexStaticBatch.new(
-							def,
-							batch_mesh,
-							batch_material,
-							tree_variant
+							HexPlantDef.PlantSubcategory.GRASS:
+								var biome_id2: StringName = _gen_cache.get_biome(cell) if _gen_cache else &""
+								var biome2: HexBiome = HexWorldState.cfg.get_biome_definition(biome_id2)
+								_batch_grass_plant(state, wp, biome2, grass_xforms, grass_colors, grass_custom)
+
+							HexPlantDef.PlantSubcategory.ACTIVE_DEFENSE:
+								_active_scenes[cell] = def.scene
+
+							HexPlantDef.PlantSubcategory.TREE:
+								var tree_def: HexTreeDef = def as HexTreeDef
+								var batch_key: String         = def.id
+								var batch_mesh: Mesh           = def.mesh
+								var batch_material: Material   = def.material
+								var variant_scale_range: Vector2 = def.random_scale_range
+								var rot_offset_radians: float  = 0.0
+								var tree_variant: HexTreeVariant = null
+
+								var variant_index: int = _pick_tree_variant_index(cell, tree_def)
+								if variant_index >= 0:
+									tree_variant = tree_def.get_variant(variant_index)
+									if tree_variant != null:
+										batch_key          = "%s::v%d" % [def.id, variant_index]
+										batch_mesh         = tree_variant.mesh if tree_variant.mesh != null else def.mesh
+										batch_material     = tree_variant.material if tree_variant.material != null else def.material
+										variant_scale_range = tree_variant.scale_range
+										rot_offset_radians = deg_to_rad(tree_variant.y_rotation_offset_degrees)
+
+								if batch_mesh == null:
+									continue
+
+								if not static_batches.has(batch_key):
+									static_batches[batch_key] = HexStaticBatch.new(
+										def, batch_mesh, batch_material, tree_variant
+									)
+
+								var basis: Basis = Basis(Vector3.UP, _det_angle(cell) + rot_offset_radians) \
+									if def.random_rotation else Basis()
+								var hash_val: int = (cell.x * 1619 + cell.y * 31337) ^ (cell.x * 6971)
+								var scale_t: float = float(hash_val & 0xFFFF) / float(0xFFFF)
+								var scale: float   = lerpf(variant_scale_range.x, variant_scale_range.y, scale_t)
+
+								static_batches[batch_key].xforms.append(
+									Transform3D(basis.scaled(Vector3.ONE * scale), wp)
+								)
+								static_batches[batch_key].customs.append(Color.WHITE)
+
+					_:   # ROCK, PORTAL — non-plant static objects
+						var batch_key: String       = def.id
+						var batch_mesh: Mesh         = def.mesh
+						var batch_mat: Material      = def.material
+						var scale_range: Vector2     = def.random_scale_range
+
+						if batch_mesh == null:
+							continue
+
+						if not static_batches.has(batch_key):
+							static_batches[batch_key] = HexStaticBatch.new(
+								def, batch_mesh, batch_mat, null
+							)
+
+						var basis2: Basis = Basis(Vector3.UP, _det_angle(cell)) \
+							if def.random_rotation else Basis()
+						var hv: int = (cell.x * 1619 + cell.y * 31337) ^ (cell.x * 6971)
+						var st2: float = float(hv & 0xFFFF) / float(0xFFFF)
+						var sc: float  = lerpf(scale_range.x, scale_range.y, st2)
+
+						static_batches[batch_key].xforms.append(
+							Transform3D(basis2.scaled(Vector3.ONE * sc), wp)
 						)
+						static_batches[batch_key].customs.append(Color.WHITE)
 
-					var basis: Basis = Basis(Vector3.UP, _det_angle(cell) + rot_offset_radians) if def.random_rotation else Basis()
-					var hash_val: int = (cell.x * 1619 + cell.y * 31337) ^ (cell.x * 6971)
-					var scale_t: float = float(hash_val & 0xFFFF) / float(0xFFFF)
-					var scale: float = lerpf(variant_scale_range.x, variant_scale_range.y, scale_t)
-
-					var batch: HexStaticBatch = static_batches[batch_key]
-					batch.xforms.append(Transform3D(basis.scaled(Vector3.ONE * scale), wp))
-					batch.customs.append(Color.WHITE)
-
-	_plant_mm = _build_plant_mm(plant_mesh, plant_xforms, plant_colors, plant_custom)
-
+	_plant_mm       = _build_plant_mm(plant_mesh, plant_xforms, plant_colors, plant_custom)
+	var grass_mesh_res: Mesh = HexWorldState.cfg.grass_mesh if HexWorldState.cfg else null
+	_grass_plant_mm = _build_plant_mm(grass_mesh_res, grass_xforms, grass_colors, grass_custom)
 	_rebuild_plant_instance_map()
 
+	# Build next-transition table for all plant slots.
 	_next_transition.clear()
-	for c: Vector2i in _cell_states:
-		var st: HexCellState = _cell_states[c]
-		if st.category != HexGridObjectDef.Category.RESOURCE_PLANT:
+	for sk: Vector3i in _cell_states:
+		var st: HexCellState = _cell_states[sk]
+		if st.category != HexGridObjectDef.Category.PLANT:
 			continue
-		if st.origin != c:
+		var cell2 := Vector2i(sk.x, sk.y)
+		if st.origin != cell2:
 			continue
-		_next_transition[c] = _compute_next_transition(c, st)
+		if st.definition and (st.definition as HexGridObjectDef).slots_occupied > 1 and sk.z > 0:
+			continue
+		_next_transition[sk] = _compute_next_transition(Vector2i(sk.x, sk.y), st)
 
 	for batch_key: String in static_batches:
 		var batch: HexStaticBatch = static_batches[batch_key]
@@ -551,6 +611,21 @@ func _generate_objects() -> void:
 		object_mms[batch_key] = mm
 		_object_batch_meta[batch_key] = batch
 
+
+# Slot centroid offsets (normalized XZ directions × 0.35 × HEX_SIZE).
+# Slot K = triangle toward NDIRS[K]. Jitter is added inside the triangle.
+static func _slot_centroid_offset(slot: int, hex_size: float) -> Vector3:
+	const DIRS: Array[Vector2] = [
+		Vector2( 1.0,    0.0  ),   # slot 0
+		Vector2( 0.5,    0.866),   # slot 1
+		Vector2(-0.5,    0.866),   # slot 2
+		Vector2(-1.0,    0.0  ),   # slot 3
+		Vector2(-0.5,   -0.866),   # slot 4
+		Vector2( 0.5,   -0.866),   # slot 5
+	]
+	var d: Vector2 = DIRS[clampi(slot, 0, 5)]
+	return Vector3(d.x, 0.0, d.y) * hex_size * 0.35
+
 func _batch_plant(
 	state: HexCellState,
 	wp: Vector3,
@@ -561,33 +636,88 @@ func _batch_plant(
 	var genes: HexPlantGenes = state.genes
 	if genes == null:
 		return
- 
+
 	var variant: int = state.plant_variant \
 		if state.plant_variant >= 0 \
 		else HexConsts.PlantVariant.NORMAL
- 
+
 	var custom_data := Color(
 		genes.pack_variants(state.stage, variant),
 		genes.pack_flower_colors(),
 		genes.pack_foliage_colors(),
-		0.0   # .a reserved for bounce start time — written by trigger_plant_bounce()
+		0.0   # .a = bounce start time; written by trigger_plant_bounce
 	)
- 
-	var inst_color := Color(state.thirst, 1.0, 1.0, 1.0)
- 
+
+	var inst_color := Color(state.thirst, state.get_health_fraction(), 1.0, 1.0)
+	# COLOR.r = thirst (desaturation shader)
+	# COLOR.g = health_fraction (browning on damage — shader reads this next session)
+
 	var origin: Vector2i = state.origin
-	if _pending_bounces.has(origin):
+	var slot: int = state.slot_index if state.slot_index >= 0 else 0
+	var sk := Vector3i(origin.x, origin.y, slot)
+
+	if _pending_bounces.has(sk):
 		custom_data.a = float(Time.get_ticks_usec()) / 1000000.0
- 
-	var hash_val: int = (origin.x * 1619 + origin.y * 31337) ^ (origin.x * 6971)
-	var angle: float  = ((hash_val & 0xFFFF) / float(0xFFFF)) * TAU
-	var dist: float   = (((hash_val >> 16) & 0xFFFF) / float(0xFFFF)) * 0.5 * HexConsts.HEX_SIZE
-	var offset: Vector3 = Vector3(cos(angle) * dist, 0.0, sin(angle) * dist)
- 
-	var _basis: Basis = Basis.from_euler(Vector3(0.0, _det_angle(origin), 0.0))
-	xf.append(Transform3D(_basis, wp + offset))
+
+	# Position: slot centroid + small jitter within triangle.
+	var centroid_offset: Vector3 = _slot_centroid_offset(slot, HexConsts.HEX_SIZE)
+	var hash_val: int = (origin.x * 1619 + origin.y * 31337 + slot * 6971) ^ (origin.x * 7)
+	var jitter_angle: float = ((hash_val & 0xFFFF) / float(0xFFFF)) * TAU
+	var jitter_dist: float  = (((hash_val >> 16) & 0xFFFF) / float(0xFFFF)) * 0.18 * HexConsts.HEX_SIZE
+	var jitter := Vector3(cos(jitter_angle) * jitter_dist, 0.0, sin(jitter_angle) * jitter_dist)
+
+	var basis: Basis = Basis.from_euler(Vector3(0.0, _det_angle(origin) + slot * (TAU / 6.0), 0.0))
+	xf.append(Transform3D(basis, wp + centroid_offset + jitter))
+	_pending_plant_slot_keys.append(sk)
 	col.append(inst_color)
 	cus.append(custom_data)
+
+func _batch_grass_plant(
+	state: HexCellState,
+	wp: Vector3,
+	biome: HexBiome,
+	xf: Array[Transform3D],
+	col: Array[Color],
+	cus: Array[Color]
+) -> void:
+	var origin: Vector2i = state.origin
+	var slot: int = state.slot_index if state.slot_index >= 0 else 0
+	var sk := Vector3i(origin.x, origin.y, slot)
+
+	var tint: Color = biome.grass_tint if biome else Color.WHITE
+	var rows: Array[int] = biome.grass_atlas_rows if biome else [0]
+	if rows.is_empty():
+		rows = [0]
+
+	var hash_val: int = (origin.x * 1619 + origin.y * 31337 + slot * 6971) ^ (origin.x * 7)
+
+	var s_n: float = 0.0
+	if HexWorldState.cfg and HexWorldState.cfg.grass_stage_noise:
+		s_n = HexWorldState.cfg.grass_stage_noise.get_noise_2d(wp.x, wp.z)
+	var base_row_idx: int = int(remap(s_n, -1.0, 1.0, 0.0, float(rows.size()))) % rows.size()
+	var deviation: float  = float(hash_val & 0xFF) / 255.0
+	var row_idx: int      = base_row_idx
+	if deviation > 0.85:
+		row_idx = (hash_val >> 8) % rows.size()
+	var atlas_col: int = hash_val & 3
+
+	var bounce_t: float = float(Time.get_ticks_usec()) / 1000000.0 		if _pending_bounces.has(sk) else 0.0
+
+	var centroid: Vector3 = _slot_centroid_offset(slot, HexConsts.HEX_SIZE)
+	var jitter_angle: float = ((hash_val & 0xFFFF) / float(0xFFFF)) * TAU
+	var jitter_dist: float  = (((hash_val >> 16) & 0xFFFF) / float(0xFFFF)) * 0.18 * HexConsts.HEX_SIZE
+	var jitter := Vector3(cos(jitter_angle) * jitter_dist, 0.0, sin(jitter_angle) * jitter_dist)
+
+	# Track slot key in order — used by _rebuild_plant_instance_map to
+	# map instance index → slot without relying on jittered world position.
+	_pending_grass_slot_keys.append(sk)
+	xf.append(Transform3D(
+		Basis.from_euler(Vector3(0.0, _det_angle(origin) + slot * (TAU / 6.0), 0.0)),
+		wp + centroid + jitter
+	))
+	col.append(tint)
+	cus.append(Color(float(atlas_col), float(rows[row_idx]), 0.0, bounce_t))
+
 
 func _pick_tree_variant_index(cell: Vector2i, def: HexTreeDef) -> int:
 	if def == null or def.variants.is_empty():
@@ -640,12 +770,17 @@ static func _build_plant_mm(
 
 func _rebuild_plant_instance_map() -> void:
 	_plant_instance_map.clear()
-	if _plant_mm == null:
-		return
-	for i: int in _plant_mm.instance_count:
-		var xform: Transform3D = _plant_mm.get_instance_transform(i)
-		var c: Vector2i = HexConsts.WORLD_TO_AXIAL(xform.origin.x, xform.origin.z)
-		_plant_instance_map[c] = HexPlantInstanceRef.new(_plant_mm, i)
+	# Direct slot→index mapping using keys tracked during batching.
+	if _plant_mm != null:
+		for i: int in _pending_plant_slot_keys.size():
+			var sk: Vector3i = _pending_plant_slot_keys[i]
+			if not _plant_instance_map.has(sk):
+				_plant_instance_map[sk] = HexPlantInstanceRef.new(_plant_mm, i)
+	if _grass_plant_mm != null:
+		for i: int in _pending_grass_slot_keys.size():
+			var sk: Vector3i = _pending_grass_slot_keys[i]
+			if not _plant_instance_map.has(sk):
+				_plant_instance_map[sk] = HexPlantInstanceRef.new(_grass_plant_mm, i)
 
 func _compute_next_transition(cell: Vector2i, state: HexCellState) -> float:
 	var def: HexGridObjectDef = state.definition
@@ -688,6 +823,12 @@ func finalize_chunk(prebuilt_shape: Shape3D = null) -> void:
 		if plant_material:
 			plant_mi.material_override = plant_material
 		add_child(plant_mi)
+	if _grass_plant_mm:
+		var grass_mi := MultiMeshInstance3D.new()
+		grass_mi.multimesh = _grass_plant_mm
+		# No material_override — grass mesh carries its own shader material.
+		grass_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		add_child(grass_mi)
 
 	for batch_key: String in object_mms:
 		if not _object_batch_meta.has(batch_key):
@@ -720,48 +861,69 @@ func finalize_chunk(prebuilt_shape: Shape3D = null) -> void:
 		sb.add_child(cs)
 		add_child(sb)
 
+
 func refresh_plants() -> void:
-	# Remove existing plant MMI
+	# Remove existing plant and grass plant MMIs.
 	for child: Node in get_children():
 		if child is MultiMeshInstance3D and child != _grass_node:
-			if child.multimesh == _plant_mm:
+			if child.multimesh == _plant_mm or child.multimesh == _grass_plant_mm:
 				child.queue_free()
- 
+
 	var plant_xforms: Array[Transform3D] = []
 	var plant_colors: Array[Color] = []
 	var plant_custom: Array[Color] = []
- 
-	for cell: Vector2i in _cell_states:
-		var state: HexCellState = HexWorldState.get_cell_ref(cell)
-		_cell_states[cell] = state
- 
+	var grass_xforms: Array[Transform3D] = []
+	var grass_colors: Array[Color] = []
+	var grass_custom: Array[Color] = []
+	_pending_plant_slot_keys.clear()
+	_pending_grass_slot_keys.clear()
+
+	for sk: Vector3i in _cell_states:
+		var cell := Vector2i(sk.x, sk.y)
+		var slot: int = sk.z
+		var state: HexCellState = HexWorldState.get_slot_ref(cell, slot)
+		_cell_states[sk] = state
+
 		if not state.occupied:
 			continue
 		if state.origin != cell:
 			continue
- 
 		var def: HexGridObjectDef = state.definition
-		if not def:
+		if not def or def.category != HexGridObjectDef.Category.PLANT:
 			continue
-		if def.category != HexGridObjectDef.Category.RESOURCE_PLANT:
+		var plant_def: HexPlantDef = def as HexPlantDef
+		if def.slots_occupied > 1 and slot > 0:
 			continue
- 
 		var w: Vector2 = HexConsts.AXIAL_TO_WORLD(cell.x, cell.y)
 		var local: Vector2i = cell - chunk_coord * CHUNK_SIZE
 		var wp := Vector3(w.x, 0.0, w.y)
 		wp.y = _hc(local.x, local.y)
- 
-		_batch_plant(state, wp, plant_xforms, plant_colors, plant_custom)
- 
+		match plant_def.plant_subcategory:
+			HexPlantDef.PlantSubcategory.RESOURCE, \
+			HexPlantDef.PlantSubcategory.PASSIVE_DEFENSE:
+				_batch_plant(state, wp, plant_xforms, plant_colors, plant_custom)
+			HexPlantDef.PlantSubcategory.GRASS:
+				var bid: StringName = HexWorldState.cfg.get_cell_biome(cell.x, cell.y)
+				var bm: HexBiome = HexWorldState.cfg.get_biome_definition(bid)
+				_batch_grass_plant(state, wp, bm, grass_xforms, grass_colors, grass_custom)
+
 	_plant_mm = _build_plant_mm(plant_mesh, plant_xforms, plant_colors, plant_custom)
+	var gmesh: Mesh = HexWorldState.cfg.grass_mesh if HexWorldState.cfg else null
+	_grass_plant_mm = _build_plant_mm(gmesh, grass_xforms, grass_colors, grass_custom)
 	_rebuild_plant_instance_map()
- 
+
 	if _plant_mm:
 		var plant_mi := MultiMeshInstance3D.new()
 		plant_mi.multimesh = _plant_mm
 		if plant_material:
 			plant_mi.material_override = plant_material
 		add_child(plant_mi)
+
+	if _grass_plant_mm:
+		var gmi2 := MultiMeshInstance3D.new()
+		gmi2.multimesh = _grass_plant_mm
+		gmi2.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		add_child(gmi2)
 
 func refresh_objects() -> void:
 	for child: Node in get_children():
@@ -787,6 +949,12 @@ func refresh_objects() -> void:
 			plant_mi.material_override = plant_material
 		add_child(plant_mi)
 
+	if _grass_plant_mm:
+		var grass_mi := MultiMeshInstance3D.new()
+		grass_mi.multimesh = _grass_plant_mm
+		grass_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		add_child(grass_mi)
+
 	for batch_key: String in object_mms:
 		if not _object_batch_meta.has(batch_key):
 			continue
@@ -810,63 +978,203 @@ func refresh_objects() -> void:
 	if _should_have_tree_collision():
 		_add_tree_collision()
 
+
 func _check_stale_plants() -> void:
 	if _next_transition.is_empty():
 		return
 
 	if not _first_check_done:
 		_first_check_done = true
-		for c: Vector2i in _cell_states:
-			if _next_transition.has(c):
-				_next_transition[c] = _compute_next_transition(c, _cell_states[c])
+		for sk: Vector3i in _cell_states:
+			if _next_transition.has(sk):
+				_next_transition[sk] = _compute_next_transition(
+					Vector2i(sk.x, sk.y), _cell_states[sk]
+				)
 		return
 
 	var now: float = TimeService.world_time
-	var changed_cells: Array[Vector2i] = []
+	var changed_slots: Array[Vector3i] = []
 
-	for cell: Vector2i in _next_transition:
-		if _next_transition[cell] > now:
+	for sk: Vector3i in _next_transition:
+		if _next_transition[sk] > now:
 			continue
-		_pending_bounces[cell] = true
-		changed_cells.append(cell)
+		changed_slots.append(sk)
 
-	if changed_cells.is_empty():
+	if changed_slots.is_empty():
 		return
 
+	# Invalidate cache for changed cells only.
+	var changed_cells: Array[Vector2i] = []
+	for sk: Vector3i in changed_slots:
+		var cell := Vector2i(sk.x, sk.y)
+		if not changed_cells.has(cell):
+			changed_cells.append(cell)
 	HexWorldState.invalidate_cells(changed_cells)
-	refresh_plants()
-	_pending_bounces.clear()
 
-	for cell: Vector2i in changed_cells:
-		if _cell_states.has(cell):
-			_next_transition[cell] = _compute_next_transition(cell, _cell_states[cell])
+	# Re-query changed slots and try in-place update.
+	var needs_rebuild: bool = false
+	for sk: Vector3i in changed_slots:
+		var cell := Vector2i(sk.x, sk.y)
+		var slot: int = sk.z
+		var old_state: HexCellState = _cell_states.get(sk)
+		var new_state: HexCellState = HexWorldState.get_slot_ref(cell, slot)
+		_cell_states[sk] = new_state
+
+		var old_occ: bool = old_state != null and old_state.occupied
+		var new_occ: bool = new_state.occupied
+
+		if old_occ != new_occ or (old_occ and new_occ and old_state.object_id != new_state.object_id):
+			needs_rebuild = true
+			break
+
+	if needs_rebuild:
+		# Fall back to full rebuild when plants appear/disappear.
+		for sk: Vector3i in changed_slots:
+			_pending_bounces[sk] = true
+		refresh_plants()
+		_pending_bounces.clear()
+	else:
+		# In-place update — just write new color + custom_data per instance.
+		for sk: Vector3i in changed_slots:
+			var state: HexCellState = _cell_states.get(sk)
+			if state != null and state.occupied:
+				_update_plant_instance_data(sk, state)
+				trigger_plant_bounce_slot(sk)
+
+	# Refresh transition timers for all tracked plants.
+	for sk: Vector3i in _next_transition:
+		if _cell_states.has(sk):
+			_next_transition[sk] = _compute_next_transition(
+				Vector2i(sk.x, sk.y), _cell_states[sk]
+			)
 
 
 func _on_cell_changed(cell: Vector2i) -> void:
 	var local: Vector2i = cell - chunk_coord * CHUNK_SIZE
 	if local.x < 0 or local.x >= CHUNK_SIZE or local.y < 0 or local.y >= CHUNK_SIZE:
 		return
-	
-	queue_bounce(cell)
-	refresh_objects()
-	_pending_bounces.clear()
+	# Debounce: accumulate and process once per frame in _process.
+	_dirty_cells[cell] = true
 
 
-func trigger_plant_bounce(cell: Vector2i) -> void:
-	if not _plant_instance_map.has(cell):
+## Process batched dirty cells. Compares old vs new state to determine
+## whether a full plant MM rebuild is needed or an in-place update suffices.
+func _flush_dirty_cells() -> void:
+	var needs_rebuild: bool = false
+	var update_slots: Array[Vector3i] = []
+
+	for cell: Vector2i in _dirty_cells:
+		if needs_rebuild:
+			break
+		for slot: int in 6:
+			var sk := Vector3i(cell.x, cell.y, slot)
+			if not _cell_states.has(sk):
+				continue
+			var old_state: HexCellState = _cell_states[sk]
+			var new_state: HexCellState = HexWorldState.get_slot_ref(cell, slot)
+
+			var old_occ: bool = old_state.occupied
+			var new_occ: bool = new_state.occupied
+
+			if old_occ != new_occ or (old_occ and new_occ and old_state.object_id != new_state.object_id):
+				needs_rebuild = true
+				break
+			elif old_occ and new_occ:
+				update_slots.append(sk)
+
+			_cell_states[sk] = new_state
+
+	_dirty_cells.clear()
+
+	if needs_rebuild:
+		refresh_plants()
+		_rebuild_next_transitions()
+	else:
+		for sk: Vector3i in update_slots:
+			var state: HexCellState = _cell_states.get(sk)
+			if state != null:
+				_update_plant_instance_data(sk, state)
+			if _next_transition.has(sk):
+				_next_transition[sk] = _compute_next_transition(
+					Vector2i(sk.x, sk.y), state
+				)
+
+
+## Update a single plant's MultiMesh instance color + custom data in-place.
+func _update_plant_instance_data(sk: Vector3i, state: HexCellState) -> void:
+	if not _plant_instance_map.has(sk):
 		return
-	var entry: HexPlantInstanceRef = _plant_instance_map[cell]
+	var entry: HexPlantInstanceRef = _plant_instance_map[sk]
+	if entry.multimesh == null or entry.index < 0 or entry.index >= entry.multimesh.instance_count:
+		return
+
+	var def: HexGridObjectDef = state.definition
+	if not (def is HexPlantDef):
+		return
+	var plant_def: HexPlantDef = def as HexPlantDef
+
+	match plant_def.plant_subcategory:
+		HexPlantDef.PlantSubcategory.RESOURCE, \
+		HexPlantDef.PlantSubcategory.PASSIVE_DEFENSE:
+			var genes: HexPlantGenes = state.genes
+			if genes == null:
+				return
+			var variant: int = state.plant_variant \
+				if state.plant_variant >= 0 \
+				else HexConsts.PlantVariant.NORMAL
+			var old_custom: Color = entry.multimesh.get_instance_custom_data(entry.index)
+			var custom := Color(
+				genes.pack_variants(state.stage, variant),
+				genes.pack_flower_colors(),
+				genes.pack_foliage_colors(),
+				old_custom.a   # preserve bounce time
+			)
+			entry.multimesh.set_instance_custom_data(entry.index, custom)
+			var new_color := Color(state.thirst, state.get_health_fraction(), 1.0, 1.0)
+			entry.multimesh.set_instance_color(entry.index, new_color)
+		HexPlantDef.PlantSubcategory.GRASS:
+			# Grass has no per-stage visual change in current implementation.
+			pass
+
+
+## Rebuild _next_transition for all tracked plant slots from current _cell_states.
+func _rebuild_next_transitions() -> void:
+	_next_transition.clear()
+	for sk: Vector3i in _cell_states:
+		var st: HexCellState = _cell_states[sk]
+		if st.category != HexGridObjectDef.Category.PLANT:
+			continue
+		var cell2 := Vector2i(sk.x, sk.y)
+		if st.origin != cell2:
+			continue
+		if st.definition and (st.definition as HexGridObjectDef).slots_occupied > 1 and sk.z > 0:
+			continue
+		_next_transition[sk] = _compute_next_transition(cell2, st)
+
+
+## Trigger the bounce animation on a specific plant slot.
+func trigger_plant_bounce_slot(slot_key: Vector3i) -> void:
+	if not _plant_instance_map.has(slot_key):
+		return
+	var entry: HexPlantInstanceRef = _plant_instance_map[slot_key]
 	if entry.multimesh == null or entry.index < 0:
 		return
 	var custom: Color = entry.multimesh.get_instance_custom_data(entry.index)
-	# Use TimeService.world_time to match engine_time shader param
 	custom.a = float(Time.get_ticks_usec()) / 1000000.0
 	entry.multimesh.set_instance_custom_data(entry.index, custom)
 
 
-func queue_bounce(cell: Vector2i) -> void:
-	_pending_bounces[cell] = true
+## Legacy compat: bounces slot 0 of the cell.
+func trigger_plant_bounce(cell: Vector2i) -> void:
+	trigger_plant_bounce_slot(Vector3i(cell.x, cell.y, 0))
 
+
+func queue_bounce(cell: Vector2i) -> void:
+	for s: int in 6:
+		_pending_bounces[Vector3i(cell.x, cell.y, s)] = true
+
+func queue_bounce_slot(slot_key: Vector3i) -> void:
+	_pending_bounces[slot_key] = true
 
 func _hc(dq: int, dr: int) -> float:
 	return _height_cache[(dq + 1) * _HC_STRIDE + (dr + 1)]

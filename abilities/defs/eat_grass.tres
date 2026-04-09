@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DamagePlantAbilityDef" format=3 uid="uid://bvk8vsay2g18h"]
+
+[ext_resource type="Texture2D" uid="uid://kkh2pvb6nygw" path="res://ui/hive/designation_icon_crafting.png" id="1_1srlb"]
+[ext_resource type="Script" uid="uid://b8dh7sjh34lrh" path="res://abilities/damage_plant_ability_def.gd" id="1_2g44r"]
+
+[resource]
+script = ExtResource("1_2g44r")
+valid_plant_subcategories = Array[int]([0, 1])
+ability_id = &"eat_grass"
+display_name = "Eat Grass"
+description = "Snack on some delicious grass. I'm sure noone will miss it"
+icon = ExtResource("1_1srlb")
+metadata/_custom_type_script = "uid://b8dh7sjh34lrh"

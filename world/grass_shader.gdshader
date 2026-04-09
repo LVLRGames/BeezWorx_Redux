@@ -24,6 +24,12 @@ global uniform vec4 bend_highlight_color : source_color;
 global uniform float bend_highlight_strength : hint_range(0.0, 1.0) = 0.66;
 uniform float bend_emission_strength : hint_range(0.0, 10.0) = 6.0;
 
+group_uniforms bounce;
+global uniform float engine_time;
+global uniform float bounce_duration;
+global uniform float bounce_squash;
+global uniform float bounce_stretch;
+
 // Bridge data between vertex and fragment functions
 varying vec2 custom_data;
 varying float sway_mask;
@@ -82,6 +88,19 @@ void vertex() {
     VERTEX.x += (final_sway + bend_offset.x) * sway_mask;
     VERTEX.z += (final_sway + bend_offset.z) * sway_mask;
     VERTEX.y += bend_offset.y * sway_mask;
+
+    // Bounce on damage — INSTANCE_CUSTOM.a = bounce start time (0 = none)
+    float bounce_start = INSTANCE_CUSTOM.a;
+    if (bounce_start > 0.0) {
+        float elapsed = engine_time - bounce_start;
+        if (elapsed > 0.0 && elapsed < bounce_duration) {
+            float t = elapsed / bounce_duration;
+            float bval = exp(-4.0 * t) * sin(t * 15.0);
+            VERTEX.y += bval * bounce_squash * sway_mask;
+            VERTEX.x *= 1.0 - bval * bounce_stretch * 0.5;
+            VERTEX.z *= 1.0 - bval * bounce_stretch * 0.5;
+        }
+    }
 }
 
 

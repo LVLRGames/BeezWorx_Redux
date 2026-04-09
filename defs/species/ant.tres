@@ -4,4 +4,6 @@
 
 [resource]
 script = ExtResource("1_ko7np")
+species_id = &"ant"
+display_name = "Ant"
 metadata/_custom_type_script = "uid://tqm3ihutobji"

@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dbjwuy6roka4k"]
+
+[ext_resource type="Texture2D" uid="uid://clja85a3tqak7" path="res://pawns/grasshopper/grasshopper_0.png" id="1_p6u7p"]
+
+[resource]
+resource_name = "material_0"
+transparency = 1
+cull_mode = 2
+depth_draw_mode = 1
+diffuse_mode = 2
+specular_mode = 1
+albedo_texture = ExtResource("1_p6u7p")
+texture_filter = 0

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="RoleDef" format=3 uid="uid://bx085euyrtq2"]
+
+[ext_resource type="Script" uid="uid://jpstd3ccbwrt" path="res://abilities/ability_def.gd" id="1_t3iwf"]
+[ext_resource type="Script" uid="uid://s5xuvn33qbrq" path="res://defs/roles/role_def.gd" id="1_wbtso"]
+[ext_resource type="Resource" uid="uid://bi7lqj8xch4mf" path="res://abilities/defs/pollinate.tres" id="2_y3y2i"]
+[ext_resource type="Resource" uid="uid://dyu2xt6txlmn2" path="res://abilities/defs/hive_deposit.tres" id="3_nvv0f"]
+[ext_resource type="Resource" uid="uid://ydut6ug3ggk4" path="res://abilities/defs/water_plant.tres" id="4_57q55"]
+[ext_resource type="Resource" uid="uid://4ubwvlfar2ho" path="res://abilities/defs/gather_nectar.tres" id="5_ess4o"]
+[ext_resource type="Resource" uid="uid://bvk8vsay2g18h" path="res://abilities/defs/eat_grass.tres" id="5_y3y2i"]
+[ext_resource type="Resource" uid="uid://c46alge8wrs8a" path="res://abilities/defs/gather_pollen.tres" id="6_qbagt"]
+
+[resource]
+script = ExtResource("1_wbtso")
+role_id = &"queen"
+display_name = "Queen"
+action_abilities = Array[ExtResource("1_t3iwf")]([ExtResource("2_y3y2i"), ExtResource("3_nvv0f"), ExtResource("4_57q55"), ExtResource("5_y3y2i")])
+alt_abilities = Array[ExtResource("1_t3iwf")]([ExtResource("5_ess4o"), ExtResource("6_qbagt")])
+metadata/_custom_type_script = "uid://s5xuvn33qbrq"

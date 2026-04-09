@@ -15,6 +15,9 @@ enum Temperature{ NONE = -1, POLAR, SUBPOLAR, TEMPERATE, TROPICAL}
 @export var grass_tint: Color = Color(1.0, 1.0, 1.0, 1.0)
 @export var grass_placement_threshold: float = 0.5
 @export var grass_density_threshold: float = 0.5
+## StringName id of the HexPlantDef (GrassDef) to spawn in empty slots.
+## Empty string = no logical grass in this biome.
+@export var grass_plant_id: StringName = &""
 @export var preferred_temperature: Temperature = Temperature.NONE
 @export var preferred_moisture: Moisture = Moisture.NONE
 

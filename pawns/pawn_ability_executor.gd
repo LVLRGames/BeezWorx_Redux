@@ -1,24 +1,18 @@
 # pawn_ability_executor.gd
 # res://pawns/pawn_ability_executor.gd
 #
-# Resolves and executes abilities from prioritized lists.
-# Both action and alt slots are fully contextual — the first ability
-# in each list whose can_use() returns true wins.
+# Resolves and executes abilities for a pawn.
 #
 # RESOLUTION ORDER:
-#   For each slot (action / alt):
-#     1. Skip if on cooldown
-#     2. Call can_use(ctx) — first true wins
-#     3. Call resolve_target(ctx)
-#     4. Call execute(ctx, target)
+#   1. Use role_def.action_abilities / alt_abilities array if non-empty.
+#   2. Fall back to pawn.default_action_ability / default_alt_ability.
+#   3. First can_use() winner in the resolved list fires.
 #
 # AI USAGE:
-#   PawnAI can call try_action() / try_alt_action() directly —
-#   same path as player input, no separate AI ability execution.
+#   PawnAI calls try_action() / try_alt_action() — same path as player input.
 #
 # HUD USAGE:
-#   Call get_action_prompt() / get_alt_prompt() each frame to get
-#   the current winning ability's label for button display.
+#   Call get_action_prompt() / get_alt_prompt() each frame.
 
 class_name PawnAbilityExecutor
 extends Node
@@ -43,13 +37,13 @@ func _process(delta: float) -> void:
 # ════════════════════════════════════════════════════════════════════════════ #
 
 func try_action() -> bool:
-	var ability: AbilityDef = _resolve(pawn.action_abilities)
+	var ability: AbilityDef = _resolve(_action_list())
 	if ability == null:
 		return false
 	return _execute_resolved(ability)
 
 func try_alt_action() -> bool:
-	var ability: AbilityDef = _resolve(pawn.alt_abilities)
+	var ability: AbilityDef = _resolve(_alt_list())
 	if ability == null:
 		return false
 	return _execute_resolved(ability)
@@ -57,40 +51,56 @@ func try_alt_action() -> bool:
 # ── HUD queries ───────────────────────────────────────────────────────────────
 
 func get_action_prompt() -> String:
-	var ability: AbilityDef = _resolve(pawn.action_abilities)
+	var ability: AbilityDef = _resolve(_action_list())
 	if ability == null:
 		return ""
 	return ability.get_prompt(make_context())
 
 func get_alt_prompt() -> String:
-	var ability: AbilityDef = _resolve(pawn.alt_abilities)
+	var ability: AbilityDef = _resolve(_alt_list())
 	if ability == null:
 		return ""
 	return ability.get_prompt(make_context())
 
-## Returns the ability that would fire for action right now, or null.
 func peek_action() -> AbilityDef:
-	return _resolve(pawn.action_abilities)
+	return _resolve(_action_list())
 
-## Returns the ability that would fire for alt right now, or null.
 func peek_alt() -> AbilityDef:
-	return _resolve(pawn.alt_abilities)
+	return _resolve(_alt_list())
 
-## True if any action ability is currently usable.
 func has_action() -> bool:
-	return _resolve(pawn.action_abilities) != null
+	return _resolve(_action_list()) != null
 
-## True if any alt ability is currently usable.
 func has_alt() -> bool:
-	return _resolve(pawn.alt_abilities) != null
+	return _resolve(_alt_list()) != null
+
+# ════════════════════════════════════════════════════════════════════════════ #
+#  List builders — role array first, single pawn default as fallback
+# ════════════════════════════════════════════════════════════════════════════ #
+
+## Public: resolved action ability list (role first, pawn default fallback).
+func action_list() -> Array[AbilityDef]:
+	return _action_list()
+
+## Public: resolved alt ability list (role first, pawn default fallback).
+func alt_list() -> Array[AbilityDef]:
+	return _alt_list()
+
+func _action_list() -> Array[AbilityDef]:
+	if pawn.role_def != null and not pawn.role_def.action_abilities.is_empty():
+		return pawn.role_def.action_abilities
+	return pawn.action_abilities   # pawn-scene fallback (preserves existing data)
+
+func _alt_list() -> Array[AbilityDef]:
+	if pawn.role_def != null and not pawn.role_def.alt_abilities.is_empty():
+		return pawn.role_def.alt_abilities
+	return pawn.alt_abilities
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Resolution
 # ════════════════════════════════════════════════════════════════════════════ #
 
-## Returns the first ability in the list whose can_use() passes.
-## Returns null if none are usable.
-func _resolve(abilities: Array) -> AbilityDef:
+func _resolve(abilities: Array[AbilityDef]) -> AbilityDef:
 	if abilities.is_empty():
 		return null
 	var ctx: AbilityContext = make_context()
@@ -110,7 +120,6 @@ func _resolve(abilities: Array) -> AbilityDef:
 
 func _execute_resolved(ability: AbilityDef) -> bool:
 	var ctx: AbilityContext = make_context()
-	# Re-check — context may have changed between resolve and execute
 	if not ability.can_use(ctx):
 		return false
 	var target: Variant = ability.resolve_target(ctx)
@@ -131,7 +140,7 @@ func make_context() -> AbilityContext:
 		pawn.global_position.z
 	)
 	ctx.world_time = TimeService.world_time
- 
+
 	var detector: InteractionDetector = pawn.get_node_or_null("InteractionDetector")
 	if detector != null:
 		var info: Dictionary = detector.get_current_target()
@@ -144,17 +153,18 @@ func make_context() -> AbilityContext:
 				var pid: int = info.get("pawn_id", -1)
 				if pid >= 0:
 					ctx.target_pawn = PawnRegistry.get_pawn(pid)
- 
-	# Always resolve nearest hive for deposit range checks
+			&"gem":
+				pass   # PickupAbilityDef scans "item_gems" group directly — no ctx field needed
+
 	if pawn.state != null:
 		var hives: Array[HiveState] = HiveSystem.get_hives_for_colony(pawn.state.colony_id)
 		var best_dist: int = 4
 		for hs: HiveState in hives:
 			var dist: int = _hex_dist(ctx.pawn_cell, hs.anchor_cell)
 			if dist < best_dist:
-				best_dist        = dist
+				best_dist          = dist
 				ctx.target_hive_id = hs.hive_id
- 
+
 	return ctx
 
 
@@ -162,7 +172,6 @@ static func _hex_dist(a: Vector2i, b: Vector2i) -> int:
 	var dq: int = b.x - a.x
 	var dr: int = b.y - a.y
 	return (absi(dq) + absi(dr) + absi(dq + dr)) / 2
-
 
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Cooldowns

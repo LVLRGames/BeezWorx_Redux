@@ -9,5 +9,6 @@ display_name = "Grassland"
 terrain_atlas_col = 7.0
 grass_tint = Color(0, 1, 0.0333333, 1)
 grass_density_threshold = -0.125
+grass_plant_id = &"grass"
 preferred_temperature = 2
 preferred_moisture = 1

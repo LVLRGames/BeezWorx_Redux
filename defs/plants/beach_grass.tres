@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="GrassDef" format=3 uid="uid://b2m26w3l5cc4y"]
+
+[ext_resource type="Script" uid="uid://kgmwjry15s83" path="res://world/grass_def.gd" id="1_6gk44"]
+[ext_resource type="Script" uid="uid://smuul3l3pn0k" path="res://world/hex_plant_genes.gd" id="1_ryvpk"]
+[ext_resource type="Script" uid="uid://bt7l6upa6vav" path="res://world/hex_plant_data.gd" id="2_5j61x"]
+[ext_resource type="Material" uid="uid://bog1vlglh2qp4" path="res://assets/materials/grass_material.tres" id="2_pd83m"]
+[ext_resource type="ArrayMesh" uid="uid://c50nmigd8m1ui" path="res://assets/meshes/grass/blockbench_export_mesh.res" id="3_jkyrc"]
+
+[sub_resource type="Resource" id="Resource_pd83m"]
+script = ExtResource("1_ryvpk")
+metadata/_custom_type_script = "uid://smuul3l3pn0k"
+
+[sub_resource type="Resource" id="Resource_jkyrc"]
+script = ExtResource("2_5j61x")
+metadata/_custom_type_script = "uid://bt7l6upa6vav"
+
+[resource]
+script = ExtResource("1_6gk44")
+plant_subcategory = 0
+genes = SubResource("Resource_pd83m")
+plant_data = SubResource("Resource_jkyrc")
+drop_item_id = &"plant_fiber"
+id = "beach_grass"
+category = 0
+mesh = ExtResource("3_jkyrc")
+material = ExtResource("2_pd83m")
+metadata/_custom_type_script = "uid://kgmwjry15s83"

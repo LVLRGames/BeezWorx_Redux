@@ -38,6 +38,8 @@ func setup_for_pawn(pawn_id: int, abilities: Array[AbilityDef]) -> void:
 		cell.modulate.a   = 0.0
 		cell.visible      = false   # start hidden
 		_grid.add_child(cell)
+		if cell.has_method("set_ability"):
+			cell.set_ability(ability)
 	
 	# Pad to min slots
 	for i in range(_entries.size(), min_visible_slots):
@@ -47,6 +49,8 @@ func setup_for_pawn(pawn_id: int, abilities: Array[AbilityDef]) -> void:
 			cell.modulate.a = 0.0
 			cell.visible    = false
 			_grid.add_child(cell)
+			if cell.has_method("set_empty"):
+				cell.set_empty()
 
 ## Called every context update — just show/hide, no rebuild
 func update_usable(usable_abilities: Array[AbilityDef]) -> void:
@@ -137,13 +141,6 @@ func _build_cells() -> void:
 
 	for ability: AbilityDef in _abilities:
 		if ability == null:
-			continue
-		# Only show usable abilities
-		var ctx: AbilityContext = AbilityContext.new()
-		ctx.pawn      = pawn
-		ctx.pawn_cell = pawn.state.last_known_cell if pawn.state else Vector2i.ZERO
-		# then:
-		if not ability.can_use(ctx):
 			continue
 		_entries.append(ability)
 		var cell: Control = _make_ability_cell(ability)

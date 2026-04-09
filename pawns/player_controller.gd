@@ -91,6 +91,9 @@ func _switch_pawn(direction: int) -> void:
 		var s: PawnState = PawnRegistry.get_state(pid)
 		if s == null or not s.is_alive or not s.is_awake:
 			continue
+		# Guard against ghost registry entries from previous sessions.
+		if PawnRegistry.get_pawn(pid) == null:
+			continue
 		var possessor: int = PossessionManager.get_possessor(pid)
 		if possessor >= 0 and possessor != player_index:
 			continue

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://b5uwrltppwkgl"]
+[gd_resource type="Resource" script_class="HexBiome" format=3 uid="uid://bhdophyjugbee"]
 
 [ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_nm55d"]
 
@@ -10,4 +10,4 @@ terrain_atlas_col = 14.0
 grass_atlas_rows = Array[int]([3, 4, 8, 10])
 grass_tint = Color(0.99999994, 0.89960486, 0.36153498, 1)
 grass_density_threshold = 0.33
-metadata/_custom_type_script = "uid://bu4ojovm5kknt"
+grass_plant_id = &"beach_grass"

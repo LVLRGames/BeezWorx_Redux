@@ -4,7 +4,7 @@ class_name InventoryPanel
 extends PanelContainer
 
 const FADE_DELAY:   float = 4.0
-const FADE_OPACITY: float = 0.15
+const FADE_OPACITY: float = 0.0
 
 @onready var _hotbar: InventorySlot = $VBoxContainer/InventorySlot
 @onready var _weight: ProgressBar   = $VBoxContainer/WeightBar

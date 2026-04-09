@@ -28,3 +28,16 @@ texture_filter = 1
 texture_filter = 1
 
 [node name="ContextHUD" parent="." unique_id=1384546645 instance=ExtResource("7_8sumc")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -256.0
+offset_top = -112.0
+offset_right = 256.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 6
+size_flags_vertical = 8

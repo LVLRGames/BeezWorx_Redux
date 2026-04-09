@@ -1,41 +1,85 @@
 # hex_world_delta_store.gd
+# Stores player-driven cell overrides as HexCellDelta records.
+#
+# KEY CHANGE (plant system overhaul):
+#   All keys are now Vector3i(q, r, slot) where slot = 0-5.
+#   Single-slot plants  → stored at their specific slot.
+#   Multi-slot objects  → stored at slot 0; slots 1..N-1 registered in occupancy.
+#   Multi-cell objects  → all slots of satellite cells registered in occupancy.
+#
+# OCCUPANCY dict maps satellite Vector3i → anchor Vector3i.
+# If a key is absent, the slot is its own anchor (no redirect needed).
+
 class_name HexWorldDeltaStore
 extends RefCounted
 
-var deltas: Dictionary = {}    # Vector2i -> HexCellDelta
-var occupancy: Dictionary = {} # occupied_cell -> origin_cell
+var deltas:    Dictionary = {}   # Vector3i → HexCellDelta
+var occupancy: Dictionary = {}   # Vector3i → Vector3i  (satellite → anchor)
 
 func clear() -> void:
 	deltas.clear()
 	occupancy.clear()
 
-func get_delta(cell: Vector2i) -> HexCellDelta:
-	return deltas.get(cell, null)
+# ── Delta access ──────────────────────────────────────────────────────
 
-func set_delta(cell: Vector2i, delta: HexCellDelta) -> void:
-	deltas[cell] = delta
+func get_delta(slot_key: Vector3i) -> HexCellDelta:
+	return deltas.get(slot_key, null)
 
-func erase_delta(cell: Vector2i) -> void:
-	deltas.erase(cell)
+func set_delta(slot_key: Vector3i, delta: HexCellDelta) -> void:
+	deltas[slot_key] = delta
 
-func has_delta(cell: Vector2i) -> bool:
-	return deltas.has(cell)
+func erase_delta(slot_key: Vector3i) -> void:
+	deltas.erase(slot_key)
 
-func get_origin_for_cell(cell: Vector2i) -> Vector2i:
-	return occupancy.get(cell, cell)
+func has_delta(slot_key: Vector3i) -> bool:
+	return deltas.has(slot_key)
 
-func set_occupancy(origin: Vector2i, footprint: Array[Vector2i]) -> void:
+# ── Anchor resolution ─────────────────────────────────────────────────
+
+## Returns the anchor slot key for the given slot.
+## If the slot is not registered in occupancy, it IS its own anchor.
+func get_anchor_for_slot(slot_key: Vector3i) -> Vector3i:
+	return occupancy.get(slot_key, slot_key)
+
+# ── Occupancy registration ─────────────────────────────────────────────
+## Call after placing any object with slots_occupied > 1 or footprint.size() > 1.
+##
+## anchor_slot  : the Vector3i key where the delta is stored (always slot 0)
+## footprint    : Array[Vector2i] of axial offsets from origin cell (includes (0,0))
+## slots_occupied : how many contiguous slots (0..N-1) the object occupies in each cell
+
+func set_occupancy(
+	anchor_slot: Vector3i,
+	footprint: Array[Vector2i],
+	slots_occupied: int
+) -> void:
+	var origin_cell := Vector2i(anchor_slot.x, anchor_slot.y)
+
+	# Same-cell satellite slots (multi-slot objects like trees).
+	for s: int in range(1, slots_occupied):
+		occupancy[Vector3i(origin_cell.x, origin_cell.y, s)] = anchor_slot
+
+	# Multi-cell footprint satellite cells — all 6 slots of each satellite cell.
 	for offset: Vector2i in footprint:
-		occupancy[origin + offset] = origin
+		if offset == Vector2i.ZERO:
+			continue
+		var sat_cell: Vector2i = origin_cell + offset
+		for s: int in range(6):
+			occupancy[Vector3i(sat_cell.x, sat_cell.y, s)] = anchor_slot
+
 
 func clear_occupancy_in_chunk(chunk_coord: Vector2i, chunk_size: int) -> void:
-	for dq in chunk_size:
-		for dr in chunk_size:
-			var cell := Vector2i(
-				chunk_coord.x * chunk_size + dq,
-				chunk_coord.y * chunk_size + dr
-			)
-			occupancy.erase(cell)
+	var to_erase: Array[Vector3i] = []
+	for slot_key: Vector3i in occupancy:
+		var cell := Vector2i(slot_key.x, slot_key.y)
+		var local: Vector2i = cell - chunk_coord * chunk_size
+		if local.x >= 0 and local.x < chunk_size \
+				and local.y >= 0 and local.y < chunk_size:
+			to_erase.append(slot_key)
+	for key: Vector3i in to_erase:
+		occupancy.erase(key)
+
+# ── Serialization ─────────────────────────────────────────────────────
 
 func save(path: String) -> bool:
 	var file := FileAccess.open(path, FileAccess.WRITE)
@@ -43,11 +87,13 @@ func save(path: String) -> bool:
 		return false
 
 	var data: Dictionary = {}
-	for cell: Vector2i in deltas:
-		data["%d,%d" % [cell.x, cell.y]] = (deltas[cell] as HexCellDelta).to_dict()
+	for slot_key: Vector3i in deltas:
+		var k: String = "%d,%d,%d" % [slot_key.x, slot_key.y, slot_key.z]
+		data[k] = (deltas[slot_key] as HexCellDelta).to_dict()
 
 	file.store_var(data)
 	return true
+
 
 func load(path: String) -> bool:
 	if not FileAccess.file_exists(path):
@@ -57,14 +103,19 @@ func load(path: String) -> bool:
 	if not file:
 		return false
 
-	var data: Variant = file.get_var()
-	if typeof(data) != TYPE_DICTIONARY:
+	var raw: Variant = file.get_var()
+	if typeof(raw) != TYPE_DICTIONARY:
 		return false
 
 	var loaded: Dictionary = {}
-	for k: String in data:
+	for k: String in raw:
 		var p: PackedStringArray = k.split(",")
-		loaded[Vector2i(int(p[0]), int(p[1]))] = HexCellDelta.from_dict(data[k])
+		if p.size() == 3:
+			# New Vector3i format.
+			loaded[Vector3i(int(p[0]), int(p[1]), int(p[2]))] = HexCellDelta.from_dict(raw[k])
+		elif p.size() == 2:
+			# Legacy Vector2i save — migrate to slot 0.
+			loaded[Vector3i(int(p[0]), int(p[1]), 0)] = HexCellDelta.from_dict(raw[k])
 
 	deltas = loaded
 	return true

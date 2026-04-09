@@ -22,7 +22,10 @@ func _setup_for_pawn(pawn_id: int) -> void:
 	var pawn: PawnBase = PawnRegistry.get_pawn(pawn_id)
 	if pawn == null:
 		return
-	_action_panel.setup_for_pawn(pawn_id, pawn.action_abilities, pawn.alt_abilities)
+	var executor: PawnAbilityExecutor = pawn.get_node_or_null("PawnAbilityExecutor")
+	var action_list: Array[AbilityDef] = executor.action_list() if executor else []
+	var alt_list:    Array[AbilityDef] = executor.alt_list()    if executor else []
+	_action_panel.setup_for_pawn(pawn_id, action_list, alt_list)
 	_inventory_panel.set_pawn(pawn_id, PawnRegistry.get_state(pawn_id))
 
 func _refresh() -> void:
@@ -55,9 +58,9 @@ func _refresh() -> void:
 		_inventory_panel.fade_out()
 		return
 
-	var ctx: AbilityContext            = executor.make_context()
-	var usable_action: Array[AbilityDef] = _get_usable(pawn.action_abilities, ctx)
-	var usable_alt:    Array[AbilityDef] = _get_usable(pawn.alt_abilities, ctx)
+	var ctx: AbilityContext              = executor.make_context()
+	var usable_action: Array[AbilityDef] = _get_usable(executor.action_list(), ctx)
+	var usable_alt:    Array[AbilityDef] = _get_usable(executor.alt_list(),    ctx)
 	var has_any: bool = not usable_action.is_empty() or not usable_alt.is_empty()
 
 	_action_panel.update_context(usable_action, usable_alt)

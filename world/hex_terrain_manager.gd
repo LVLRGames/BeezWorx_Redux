@@ -71,8 +71,8 @@ func _ready() -> void:
 		HexChunk._lut = HexMeshLUT.new()
 		
 	EventBus.game_loaded.connect(_on_game_loaded)
+	EventBus.pawn_possessed.connect(_on_pawn_possessed)
 	EventBus.player_pawn_ready.connect(_on_player_pawn_ready)
-
 
 func _deferred_start() -> void:
 	print("_deferred_start fired, player: ", player, " config: ", config)
@@ -276,3 +276,13 @@ func _on_player_pawn_ready(pawn: Node3D, _slot: int) -> void:
 
 func _on_game_loaded(_slot_name: String) -> void:
 	_update_chunks()   # or whatever your refresh method is called
+
+
+func _on_pawn_possessed(player_slot: int, pawn_id: int) -> void:
+	# Only track player slot 1 (or whichever is your primary viewer)
+	if player_slot != 1:
+		return
+	var node: PawnBase = PawnRegistry.get_pawn(pawn_id)
+	if node:
+		player = node
+		_update_chunks()

@@ -41,6 +41,9 @@ hives=""
 pawns=""
 selector=""
 hive_overlay=""
+item_gem_manager=""
+trails=""
+grasshoppers=""
 
 [importer_defaults]
 

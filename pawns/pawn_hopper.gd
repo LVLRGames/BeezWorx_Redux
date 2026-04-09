@@ -132,6 +132,23 @@ var _hover_stamina:  float    = 1.0   # 0..1
 var _air_pitch:      float    = 0.0
 var _yaw:            float    = 0.0
 
+var wants_short_hop:bool = false
+
+
+# ════════════════════════════════════════════════════════════════════════════ #
+#  Lifecycle
+# ════════════════════════════════════════════════════════════════════════════ #
+
+func _ready() -> void:
+	super()
+	# On save-load respawn, _respawn_colony_pawns() sets pawn_id before add_child(),
+	# so PawnBase._ready() wires state before we get here. If state is set, terrain
+	# was already confirmed before save — skip the GroundRay spawn gate immediately.
+	if pawn_id >= 0 and state != null:
+		_terrain_ready     = true
+		if ground_ray:
+			ground_ray.enabled = false
+
 # ════════════════════════════════════════════════════════════════════════════ #
 #  Private helpers
 # ════════════════════════════════════════════════════════════════════════════ #
@@ -218,7 +235,12 @@ func _tick_grounded(input_dir: Vector3, delta: float) -> void:
 	if is_on_floor():
 		_coyote_timer = coyote_time
 		var t: float = 1.0 - pow(0.0001, delta * align_rate)
-		_surface_normal = _surface_normal.slerp(get_floor_normal(), t).normalized()
+		# Normalize get_floor_normal() input — ramp terrain can return slightly
+		# off-unit vectors that cause Basis.set_axis_angle() to assert.
+		var floor_n: Vector3 = get_floor_normal()
+		if floor_n.length_squared() > 0.0001:
+			floor_n = floor_n.normalized()
+		_surface_normal = _surface_normal.slerp(floor_n, t).normalized()
 	else:
 		_coyote_timer -= delta
 		if _coyote_timer <= 0.0:
@@ -230,7 +252,9 @@ func _tick_grounded(input_dir: Vector3, delta: float) -> void:
 			move_and_slide()
 			return
 
-	up_direction = _surface_normal
+	# Always assign a precisely unit-length vector — Godot's CharacterBody3D
+	# asserts normalization internally when building the surface basis.
+	up_direction = _surface_normal.normalized()
 
 	# Stick to surface.  Strong friction kills any residual momentum.
 	velocity     *= maxf(0.0, 1.0 - 22.0 * delta)
@@ -251,7 +275,8 @@ func _tick_grounded(input_dir: Vector3, delta: float) -> void:
 	# Requires an active horizontal direction — move_down alone does nothing.
 	# move_down + direction = shortened hop.  move_up + direction = hover (above).
 	var h: Vector3 = Vector3(input_dir.x, 0.0, input_dir.z)
-	if input_dir.y <= -short_hop_input_threshold and h.length() >= hop_input_threshold:
+	wants_short_hop = input_dir.y <= -short_hop_input_threshold
+	if wants_short_hop and h.length() >= hop_input_threshold:
 		var sh_dir: Vector3 = _project_onto_surface(h.normalized(), _surface_normal)
 		if sh_dir.length_squared() < 0.001:
 			sh_dir = _project_onto_surface(Vector3.FORWARD, _surface_normal)
@@ -316,14 +341,14 @@ func _tick_hovering(input_dir: Vector3, delta: float) -> void:
 
 	# ── Directional hop from hover ────────────────────────────────────────────
 	# Only when still in HOVERING (guards against the release cases above).
-	if _hop_state == HopState.HOVERING:
-		var h: Vector3 = Vector3(input_dir.x, 0.0, input_dir.z)
-		if h.length() >= hover_hop_threshold:
-			# Pop out of hover into a directional hop.
-			# Use world-UP as launch surface (no coil, so vertical is reduced).
-			_surface_normal = Vector3.UP
-			_fire_hop(h.normalized(), hover_hop_h_force, hover_hop_v_force)
-			# State is now AIRBORNE.  Fall through to shared physics below.
+	#if _hop_state == HopState.HOVERING:
+		#var h: Vector3 = Vector3(input_dir.x, 0.0, input_dir.z)
+		#if h.length() >= hover_hop_threshold:
+			## Pop out of hover into a directional hop.
+			## Use world-UP as launch surface (no coil, so vertical is reduced).
+			#_surface_normal = Vector3.UP
+			#_fire_hop(h.normalized(), hover_hop_h_force, hover_hop_v_force)
+			## State is now AIRBORNE.  Fall through to shared physics below.
 
 	# ── Hover physics (only if still hovering after all checks above) ─────────
 	if _hop_state == HopState.HOVERING:

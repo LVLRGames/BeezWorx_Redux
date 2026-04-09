@@ -69,6 +69,8 @@ func _evaluate_target() -> void:
 	if best.is_empty():
 		best = _nearest_sphere_target()
 	if best.is_empty():
+		best = _nearest_gem_target()
+	if best.is_empty():
 		best = _current_cell_target()   # check plant at pawn's own cell
 
 	if _targets_equal(best, _current_target):
@@ -82,20 +84,48 @@ func _current_cell_target() -> Dictionary:
 		_pawn.global_position.x,
 		_pawn.global_position.z
 	)
-	var cell_state: HexCellState = HexWorldState.get_cell(cell)
-	if cell_state == null or not cell_state.occupied:
-		return {}
-	if cell_state.category != HexGridObjectDef.Category.RESOURCE_PLANT:
-		return {}
-	return {
-		"type":         &"plant",
-		"cell":         cell,
-		"display_name": cell_state.object_id,
-		"stage":        cell_state.stage,
-		"nectar":       cell_state.nectar_amount,
-		"pollen":       cell_state.pollen_amount,
-	}
+	# Check all 6 slots — grass occupies slots 1-5, resource plants slot 0.
+	for slot: int in 6:
+		var cell_state: HexCellState = HexWorldState.get_slot(cell, slot)
+		if cell_state == null or not cell_state.occupied:
+			continue
+		if cell_state.category != HexGridObjectDef.Category.PLANT:
+			continue
+		return {
+			"type":         &"plant",
+			"cell":         cell,
+			"slot":         slot,
+			"display_name": cell_state.object_id,
+			"stage":        cell_state.stage,
+			"nectar":       cell_state.nectar_amount,
+			"pollen":       cell_state.pollen_amount,
+		}
+	return {}
 
+
+func _nearest_gem_target() -> Dictionary:
+	var gems: Array[Node] = get_tree().get_nodes_in_group("item_gems")
+	var best: ItemGem    = null
+	var best_dist: float = SPHERE_RADIUS * SPHERE_RADIUS
+	var pawn_pos: Vector3 = _pawn.global_position
+	for node: Node in gems:
+		var gem: ItemGem = node as ItemGem
+		if gem == null or not is_instance_valid(gem):
+			continue
+		var dist: float = pawn_pos.distance_squared_to(gem.global_position)
+		if dist < best_dist:
+			best_dist = dist
+			best      = gem
+	if best == null:
+		return {}
+	var display: String = String(best.item_id)
+	if ItemRegistry != null:
+		display = ItemRegistry.get_display_name(best.item_id)
+	return {
+		"type":         &"gem",
+		"item_id":      best.item_id,
+		"display_name": display,
+	}
 
 func _raycast_target() -> Dictionary:
 	if _raycast == null or not _raycast.is_colliding():
@@ -177,6 +207,7 @@ func _targets_equal(a: Dictionary, b: Dictionary) -> bool:
 		&"hive":  return a.get("hive_id") == b.get("hive_id")
 		&"pawn":  return a.get("pawn_id") == b.get("pawn_id")
 		&"plant": return a.get("cell")    == b.get("cell")
+		&"gem":   return a.get("item_id") == b.get("item_id")
 	return true
 
 # ── Public ────────────────────────────────────────────────────────────────────

@@ -62,6 +62,6 @@ offset_top = -40.0
 grow_horizontal = 0
 grow_vertical = 0
 bbcode_enabled = true
-text = "999"
+text = ""
 horizontal_alignment = 2
 vertical_alignment = 2

@@ -27,14 +27,16 @@
 class_name PawnBase
 extends CharacterBody3D
 
+const PLAYER_CONTROLLER_SCRIPT = preload("uid://c44kq8w4vxpp0")
+
+
 # ── Spec exports ──────────────────────────────────────────────────────────────
 @export var species_def:      SpeciesDef
 @export var role_def:         RoleDef
-## Prioritized list — first can_use() winner fires on action button press.
-## Order in Inspector = priority order. Drag .tres files to reorder.
+## Pawn-level ability fallback. Role abilities take priority when role_def
+## has non-empty action_abilities/alt_abilities. Preserves existing scene data.
 @export var action_abilities: Array[AbilityDef] = []
-## Prioritized list — first can_use() winner fires on alt button press.
-@export var alt_abilities: Array[AbilityDef] = []
+@export var alt_abilities:    Array[AbilityDef] = []
 
 # ── Movement tuning ───────────────────────────────────────────────────────────
 @export var move_speed:  float = 16.0
@@ -253,7 +255,7 @@ func on_possessed(by_player_slot: int) -> void:
 	if name_tag:
 		name_tag.info = "[P%d] %s" % [by_player_slot, \
 			_get_display_name() if state else name]
-		name_tag.hide()
+		#name_tag.hide()
 
 
 func on_unpossessed() -> void:

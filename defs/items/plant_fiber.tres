@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c4f7mx0m7pw84"]
+
+[ext_resource type="Script" uid="uid://4lode384gbct" path="res://defs/items/item_def.gd" id="1_11gxg"]
+[ext_resource type="Texture2D" uid="uid://d1l8r8fq6tleb" path="res://assets/textures/ui/plant_fiber.png" id="1_13vl2"]
+
+[resource]
+script = ExtResource("1_11gxg")
+item_id = &"plant_fiber"
+display_name = "Plant Fiber"
+description = "Leftover fibers from a destroyed plant"
+icon_tint = Color(0, 0.34580213, 0, 1)
+icon = ExtResource("1_13vl2")
+metadata/_custom_type_script = "uid://4lode384gbct"

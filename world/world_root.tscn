@@ -9,10 +9,11 @@
 [ext_resource type="Texture2D" uid="uid://bvwvouh50rejv" path="res://world/sun.png" id="7_8lsw5"]
 [ext_resource type="Texture2D" uid="uid://dp35xfwf865ex" path="res://assets/textures/terrain/water.png" id="7_olpku"]
 [ext_resource type="Script" uid="uid://bb0nxpgjxi6qa" path="res://world/day_night_cycle.gd" id="7_y5d58"]
+[ext_resource type="Script" uid="uid://cyo733pgl18ue" path="res://items/item_gem_manager.gd" id="11_8lsw5"]
 [ext_resource type="PackedScene" uid="uid://ca0xw03h464ox" path="res://ui/ui_root.tscn" id="12_x8cgq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1nyb"]
-render_priority = -1
+render_priority = 1
 transparency = 1
 shading_mode = 0
 disable_fog = true
@@ -119,3 +120,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 mesh = SubResource("PlaneMesh_ogoty")
 
 [node name="UIRoot" parent="." unique_id=201789707 instance=ExtResource("12_x8cgq")]
+
+[node name="ItemGemManager" type="Node3D" parent="." unique_id=1274617536]
+script = ExtResource("11_8lsw5")

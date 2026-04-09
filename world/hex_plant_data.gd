@@ -1,74 +1,98 @@
 # hex_plant_data.gd
-# Lifecycle and farming parameters for a resource plant.
-# Attached to HexPlantDef.  Shared across all individuals of that def.
+# Lifecycle and farming parameters for any HexPlantDef.
+# Shared across all individuals of that def.
 #
 # STAGE ORDER (indices match HexWorldState.Stage enum):
-#   0 SPROUT  → 1 GROWTH  → 2 FLOWERING  → 3 FRUITING  → 4 IDLE
+#   0 SEED → 1 SPROUT → 2 GROWTH → 3 FLOWERING → 4 FRUITING → 5 IDLE
 #   The FLOWERING→FRUITING→IDLE cycle repeats max_fruit_cycles times,
-#   then: 5 WILT → 6 DEAD
+#   then: 6 WILT → 7 DEAD
 #
-# WATERING:
-#   If wilt_without_water is true, the plant tracks time since last watering.
-#   Effective water window = water_duration * genes.drought_resist.
-#   When the window expires the stage is forced to WILT regardless of
-#   the time-based progression.  Watering resets last_watered in the delta.
+# WILT SOURCES (two independent paths, both checked by HexWorldSimulation):
+#   1. Water timer: wilt_without_water = true → tracks time since last_watered.
+#   2. Soil conditions: soil_wilt_enabled = true → checks resolved soil_wetness
+#      and soil_toxicity against thresholds. Used by grass and soil-sensitive plants.
 #
-# POLLINATION:
-#   Manual pollination (bee carries pollen from another flowering plant) sets
-#   pollen_source_id in the delta and can skip straight to FRUITING.
-#   Natural (wind/proximity) pollination uses pollen_radius + sprout_chance.
-#@tool
+# GRASS DEFAULTS (see GrassDef and plant_system_overhaul_spec.md §6):
+#   wilt_without_water = false
+#   soil_wilt_enabled  = true
+#   max_fruit_cycles   = 99
+#   nectar_per_fruit   = 0.1
+#   sprout_chance      = 0.45
+#
+# TREE DEFAULTS:
+#   max_fruit_cycles = 999  (effectively infinite cycling, never reaches WILT)
+#   wilt_without_water = false
+#   soil_wilt_enabled  = false
+#   (is_permanent on HexGridObjectDef suppresses WILT/DEAD stage entirely)
 
 class_name HexPlantData
 extends Resource
 
-# ── Stage durations (seconds of world time) ───────────────────────────
-## One entry per stage in the order above.
-## Index 0=SEED, 1=SPROUT, 2=GROWTH, 3=FLOWERING, 4=FRUITING, 5=IDLE, 6=WILT, 7=DEAD
-## These are BASE durations; multiplied by genes.cycle_speed at runtime.
+# ── Stage durations (world-seconds) ───────────────────────────────────
+## One entry per stage in the Stage enum order.
+## Index: 0=SEED, 1=SPROUT, 2=GROWTH, 3=FLOWERING, 4=FRUITING, 5=IDLE, 6=WILT, 7=DEAD
+## Base durations — multiplied by genes.cycle_speed at runtime.
 @export var stage_durations: Array[float] = [
-	0.0,    # SEED
+	0.0,    # SEED     (not used in baseline generation; sprouts start at SPROUT)
 	60.0,   # SPROUT
 	120.0,  # GROWTH
 	180.0,  # FLOWERING
 	120.0,  # FRUITING
 	60.0,   # IDLE
 	90.0,   # WILT
-	30.0,   # DEAD  (how long the dead plant stays visible before clearing)
+	30.0,   # DEAD
 ]
 
 @export var max_fruit_cycles: int = 3
 
 # ── Watering ──────────────────────────────────────────────────────────
-@export var wilt_without_water: bool  = false
-## Seconds before an unwatered plant begins wilting (base; scaled by drought_resist)
+## If true, plant tracks time since last_watered and wilts when window expires.
+## Set false for grass, trees, and soil-only-sensitive plants.
+@export var wilt_without_water: bool  = true
+## Seconds before an unwatered plant begins wilting (scaled by genes.drought_resist).
 @export var water_duration:     float = 300.0
 
-# ── Pollination / reproduction ────────────────────────────────────────
+# ── Soil wilt conditions ───────────────────────────────────────────────
+## If true, plant checks resolved soil_wetness and soil_toxicity for wilt.
+## Independent of wilt_without_water — both paths can coexist.
+@export var soil_wilt_enabled:  bool  = false
+## Wilt is forced when soil_wetness falls below this threshold.
+## Default 0.05 = only bone-dry conditions trigger wilt.
+@export var wilt_wetness_min:   float = 0.05
+## Wilt is forced when soil_toxicity exceeds this threshold.
+## Default 0.85 = only extreme toxicity triggers wilt.
+@export var wilt_toxicity_max:  float = 0.85
+
+# ── Pollination / reproduction ─────────────────────────────────────────
 @export var can_produce_pollen: bool  = true
 @export var can_receive_pollen: bool  = true
-## How many hex steps pollen can drift naturally (overridden by genes.pollen_radius)
+## How many hex steps pollen can drift naturally (overridden by genes.pollen_radius).
 @export var base_pollen_radius: int   = 2
-## Chance per pollination event that a nearby empty cell receives a sprout
+## Chance per pollination event that a nearby empty cell receives a sprout.
 @export var sprout_chance:      float = 0.25
-## Max hex distance for natural sprout placement
+## Max hex distance for natural sprout placement.
 @export var sprout_radius:      int   = 3
-# In HexPlantData
-@export var pollen_per_flower: float = 4.0   # total pollen when flowering
-@export var base_pollen_yield: float = 1.0
 
-# ── Nectar ────────────────────────────────────────────────────────────
-## Base nectar yield per harvest (scaled by genes.yield_mult at runtime)
-@export var nectar_per_fruit: float = 5.0    # total nectar when fruiting
-@export var base_nectar_yield: float = 1.0
+# ── Pollen yield ───────────────────────────────────────────────────────
+@export var pollen_per_flower:  float = 4.0
+@export var base_pollen_yield:  float = 1.0
+
+# ── Nectar ─────────────────────────────────────────────────────────────
+@export var nectar_per_fruit:   float = 5.0
+@export var base_nectar_yield:  float = 1.0
+
+# ── Respawn on death (active defense plants) ───────────────────────────
+## When this plant dies and fruit_cycles_done > 0 (it produced seeds at least once),
+## roll this chance to place a SPROUT in the same slot instead of clearing the cell.
+## 0.0 = no chance. ~0.25 for active defense plants.
+## No item gem drops on a successful seed-respawn roll.
+@export var seed_respawn_chance: float = 0.0
 
 # ════════════════════════════════════════════════════════════════════ #
-#  Runtime helpers  (called by HexWorldState — no Node needed)
+#  Runtime helpers
 # ════════════════════════════════════════════════════════════════════ #
 
-## Compute which stage a plant is in given birth_time, world_time, and genes.
-## Returns a Stage int (see HexWorldState.Stage).
-## Does NOT apply the wilt-without-water override — caller does that.
+## Compute stage from elapsed time. Does NOT apply wilt overrides — caller does that.
 func compute_stage(birth_time: float, world_time: float,
 				   cycle_speed: float, fruit_cycles_done: int = 0) -> int:
 	var age     := world_time - birth_time
@@ -81,14 +105,12 @@ func compute_stage(birth_time: float, world_time: float,
 		elapsed += stage_durations[s] / speed
 		if age < elapsed: return s
 
-	# Add elapsed time for already-completed cycles
 	for _c in fruit_cycles_done:
 		for s in [HexWorldState.Stage.FLOWERING,
 				  HexWorldState.Stage.FRUITING,
 				  HexWorldState.Stage.IDLE]:
 			elapsed += stage_durations[s] / speed
 
-	# Now check remaining cycles
 	var cycles_remaining := max_fruit_cycles - fruit_cycles_done
 	for _c in cycles_remaining:
 		for s in [HexWorldState.Stage.FLOWERING,
@@ -103,11 +125,12 @@ func compute_stage(birth_time: float, world_time: float,
 
 	return HexWorldState.Stage.DEAD
 
+
 ## Effective water window in seconds for a given drought_resist gene value.
 func effective_water_duration(drought_resist: float) -> float:
 	return water_duration * lerpf(0.3, 2.0, drought_resist)
 
-## Nectar amount at this stage, scaled by yield_mult.
+
 func nectar_at_stage(stage: int, yield_mult: float) -> float:
 	match stage:
 		HexWorldState.Stage.FLOWERING: return base_nectar_yield * yield_mult * 0.5

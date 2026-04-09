@@ -79,7 +79,7 @@ func _get_cell_info(q: int, r: int) -> String:
 	var cell := Vector2i(q, r)
 	var state: HexCellState = HexWorldState.get_cell(cell)
 
-	if state.occupied and state.category == HexGridObjectDef.Category.RESOURCE_PLANT:
+	if state.occupied and state.category == HexGridObjectDef.Category.PLANT:
 		var stage_names: PackedStringArray = [
 			"SEED", "SPROUT", "GROWTH", "FLOWERING",
 			"FRUITING", "IDLE", "WILT", "DEAD"

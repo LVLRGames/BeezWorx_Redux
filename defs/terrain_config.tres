@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://08kwpxabi7tr" path="res://world/hex_biome.gd" id="1_2wnvb"]
 [ext_resource type="Resource" uid="uid://cwp84uf15jyq7" path="res://defs/biomes/def_alpine.tres" id="2_dmcot"]
 [ext_resource type="Script" uid="uid://cjfuymmy5nge1" path="res://world/hex_grid_object_def.gd" id="2_o86ue"]
-[ext_resource type="Resource" path="res://defs/biomes/def_beach.tres" id="3_5akl7"]
+[ext_resource type="Resource" uid="uid://bhdophyjugbee" path="res://defs/biomes/def_beach.tres" id="3_5akl7"]
 [ext_resource type="Script" uid="uid://doslp4o41ptps" path="res://world/hex_terrain_config.gd" id="3_mm1lq"]
 [ext_resource type="Resource" path="res://defs/biomes/def_boreal.tres" id="4_r4f3r"]
 [ext_resource type="Resource" uid="uid://bqoydnkjvngp1" path="res://defs/biomes/def_deciduous.tres" id="5_t3awx"]
@@ -40,6 +40,8 @@
 [ext_resource type="Material" uid="uid://bog1vlglh2qp4" path="res://assets/materials/grass_material.tres" id="29_pi5nq"]
 [ext_resource type="Script" uid="uid://cmjn065j6vlwg" path="res://world/hex_tree_def.gd" id="30_qwy0p"]
 [ext_resource type="ArrayMesh" uid="uid://c50nmigd8m1ui" path="res://assets/meshes/grass/blockbench_export_mesh.res" id="31_t5p8a"]
+[ext_resource type="Resource" uid="uid://dovtqkt1drua2" path="res://defs/plants/grass.tres" id="33_dfs8a"]
+[ext_resource type="Resource" uid="uid://b2m26w3l5cc4y" path="res://defs/plants/beach_grass.tres" id="34_pgird"]
 [ext_resource type="Shape3D" uid="uid://dcvdp3p2bja2u" path="res://assets/meshes/trees/oak/oak_tree_collider.tres" id="39_npnsr"]
 [ext_resource type="ArrayMesh" uid="uid://jxi3yl7bvh7p" path="res://assets/meshes/trees/oak/blockbench_export_mesh3.res" id="40_d5wwh"]
 [ext_resource type="Script" uid="uid://b1foynqkr746t" path="res://world/hex_tree_variant.gd" id="41_fiq18"]
@@ -147,6 +149,7 @@ water_duration = 3600.0
 script = ExtResource("25_3kwrj")
 genes = SubResource("Resource_pr0k7")
 plant_data = SubResource("Resource_7lk3r")
+drop_item_id = &"plant_fiber"
 id = "daisy"
 category = 0
 valid_biomes = Array[String](["grassland", "savanna", "deciduous"])
@@ -219,6 +222,7 @@ water_duration = 3600.0
 script = ExtResource("25_3kwrj")
 genes = SubResource("Resource_gqc3d")
 plant_data = SubResource("Resource_ju3ti")
+drop_item_id = &"plant_fiber"
 id = "allium_a"
 category = 0
 valid_biomes = Array[String](["grassland", "savanna", "deciduous"])
@@ -277,6 +281,7 @@ water_duration = 3600.0
 script = ExtResource("25_3kwrj")
 genes = SubResource("Resource_qwy0p")
 plant_data = SubResource("Resource_wxbti")
+drop_item_id = &"plant_fiber"
 id = "tulip"
 category = 0
 valid_biomes = Array[String](["grassland", "savanna", "deciduous"])
@@ -296,8 +301,9 @@ climate_moisture_min = 0.35
 climate_moisture_max = 0.75
 forest_cluster_affinity = 0.3
 collision_mesh = ExtResource("39_npnsr")
+plant_subcategory = 4
 id = "oak_tree"
-category = 1
+category = 0
 valid_biomes = Array[String](["deciduous"])
 placement_threshold = 0.087
 exclusion_radius = 2
@@ -315,8 +321,9 @@ climate_moisture_max = 0.7
 forest_cluster_affinity = 0.2
 variants = null
 collision_mesh = ExtResource("43_npnsr")
+plant_subcategory = 4
 id = "birch_tree"
-category = 1
+category = 0
 valid_biomes = Array[String](["deciduous", "taiga", "boreal"])
 placement_threshold = 0.63
 exclusion_group = "birch_tree"
@@ -332,8 +339,9 @@ climate_moisture_min = 0.1
 climate_moisture_max = 0.55
 forest_cluster_affinity = 0.17
 collision_mesh = ExtResource("45_tnymm")
+plant_subcategory = 4
 id = "pine_tree"
-category = 1
+category = 0
 valid_biomes = Array[String](["taiga", "boreal", "deciduous"])
 exclusion_radius = 2
 exclusion_group = "pine_tree"
@@ -353,8 +361,9 @@ forest_cluster_affinity = 0.9
 is_giant = true
 giant_priority_bonus = 0.05
 collision_mesh = ExtResource("47_d5wwh")
+plant_subcategory = 4
 id = "giant_oak_tree"
-category = 1
+category = 0
 valid_biomes = Array[String](["deciduous"])
 footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)])
 exclusion_radius = 8
@@ -421,4 +430,4 @@ grass_stage_noise = SubResource("FastNoiseLite_ytl5p")
 grass_mesh = ExtResource("31_t5p8a")
 grass_density_threshold = -0.94
 biome_definitions = Array[ExtResource("1_2wnvb")]([ExtResource("2_dmcot"), ExtResource("3_5akl7"), ExtResource("4_r4f3r"), ExtResource("5_t3awx"), ExtResource("6_7lk3r"), ExtResource("7_3fkrj"), ExtResource("9_l5q7j"), ExtResource("9_a40ol"), ExtResource("10_nmesg"), ExtResource("11_3kwrj"), ExtResource("12_pr0k7"), ExtResource("13_qwy0p"), ExtResource("14_joi6u"), ExtResource("15_l5q7j"), ExtResource("16_5akl7"), ExtResource("17_pi5nq")])
-object_definitions = Array[ExtResource("2_o86ue")]([SubResource("Resource_joi6u"), SubResource("Resource_ytl5p"), SubResource("Resource_pi5nq"), SubResource("Resource_l5q7j"), SubResource("Resource_63m4j"), SubResource("Resource_abtn5"), SubResource("Resource_sq0yj")])
+object_definitions = Array[ExtResource("2_o86ue")]([ExtResource("33_dfs8a"), ExtResource("34_pgird"), SubResource("Resource_joi6u"), SubResource("Resource_ytl5p"), SubResource("Resource_pi5nq"), SubResource("Resource_l5q7j"), SubResource("Resource_63m4j"), SubResource("Resource_abtn5"), SubResource("Resource_sq0yj")])
